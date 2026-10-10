@@ -14,10 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.reddiscovery.app"
+      "bundleIdentifier": "com.red.redapp"
     },
     "android": {
-      "package": "com.reddiscovery.app",
+      "package": "com.red.redapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#0f1015"
