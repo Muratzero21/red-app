@@ -1,25 +1,49 @@
 {
   "expo": {
-    "name": "red-app",
+    "name": "RED",
     "slug": "red-app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0f1015",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f1015"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.reddiscovery.app"
     },
     "android": {
+      "package": "com.reddiscovery.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0f1015"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": true,
+      "versionCode": 3
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-status-bar",
+      "expo-image",
+      "expo-splash-screen"
+    ],
+    "scheme": [
+      "redapp",
+      "com.googleusercontent.apps.40019675990-rieko75eud5m5frrja0vhr31anepalrn"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3820470e-766d-4f25-9b9a-96fabb130b46"
+      }
     }
   }
 }

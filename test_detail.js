@@ -1,0 +1,1 @@
+const https = require('https'); https.get('https://api.themoviedb.org/3/movie/977942?api_key=8b9e104198b097fa1562fa48ba29f859', res => { let d=''; res.on('data', c => d+=c); res.on('end', () => console.log(JSON.parse(d).poster_path)); });  

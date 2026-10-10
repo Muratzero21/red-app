@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "40019675990",
+    "project_id": "sole-30c3b",
+    "storage_bucket": "sole-30c3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40019675990:android:4fe2307dbe2b7d83dee4f7",
+        "android_client_info": {
+          "package_name": "com.red.redapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "40019675990-bfir70vf4msrmvdeuh8eg543b97k24qj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.red.redapp",
+            "certificate_hash": "8ce8e56bbfc89ffc24d0712bab9f3b1c40c4f3b8"
+          }
+        },
+        {
+          "client_id": "40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkE-HPkSGL_OSll79e3BPo2Phq-bF3wGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
