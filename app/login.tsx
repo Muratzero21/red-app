@@ -1,45 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Pressable, Dimensions, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Pressable, Dimensions, Alert } from 'react-native';
 import { THEME } from '../src/constants/theme';
 import { REDText } from '../src/components/ui/REDText';
-import { REDButton } from '../src/components/ui/REDButton';
-import { ChevronLeft, Mail, Lock } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { auth } from '../src/services/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { Alert } from 'react-native';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-GoogleSignin.configure({ webClientId: '40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com' });
 
+GoogleSignin.configure({
+  webClientId: '40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com',
+});
 
-
-
-
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-    const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async () => {
     try {
       setLoading(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const idToken = userInfo.data?.idToken || userInfo.idToken;
+      
       if (!idToken) throw new Error('Token error');
+      
       const cred = GoogleAuthProvider.credential(idToken);
       await signInWithCredential(auth, cred);
       router.back();
     } catch(e: any) {
-      if (e.code !== 'SIGN_IN_CANCELLED') Alert.alert('Error', e.message);
+      if (e.code !== 'SIGN_IN_CANCELLED') {
+        Alert.alert('Giriş Hatası', e.message);
+      }
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <View style={styles.container}>
@@ -49,14 +48,31 @@ export default function LoginScreen() {
       />
       
       {/* Back Button */}
-      <Pressable onPress={handleGoogleLogin}
-            disabled={loading}
-          >
-            <REDText weight="bold" color="#000">{loading ? 'Connecting...' : 'Continue with Google'}</REDText>
-          </Pressable>
+      <Pressable onPress={() => router.back()} style={styles.backButton}>
+        <ChevronLeft color="#fff" size={32} />
+      </Pressable>
+
+      <View style={styles.content}>
+        {/* Logo / Header */}
+        <View style={styles.header}>
+          <REDText weight="heavy" size={48} color={THEME.colors.red} style={{ letterSpacing: -2 }}>RED</REDText>
+          <REDText size={16} color="rgba(255,255,255,0.6)" style={{ marginTop: 8 }}>
+            Join the ultimate movie network.
+          </REDText>
         </View>
 
-
+        {/* Form */}
+        <View style={styles.form}>
+          <Pressable 
+            style={styles.googleBtn}
+            onPress={handleGoogleLogin}
+            disabled={loading}
+          >
+            <REDText weight="bold" color="#000">
+              {loading ? 'Connecting...' : 'Continue with Google'}
+            </REDText>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -68,8 +84,13 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: 32, justifyContent: 'center' },
   header: { marginBottom: 48, alignItems: 'center' },
   form: { gap: 16 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', borderRadius: 16, height: 60, paddingHorizontal: 16 },
-  inputIcon: { marginRight: 12 },
-  input: { flex: 1, color: '#fff', fontSize: 16, fontFamily: 'Inter-Medium' },
-  toggleBtn: { marginTop: 32, alignItems: 'center', padding: 16 }
+  googleBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    backgroundColor: '#fff', 
+    height: 56, 
+    borderRadius: 16, 
+    marginTop: 8 
+  }
 });
