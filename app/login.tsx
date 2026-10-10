@@ -9,10 +9,12 @@ import { auth } from '../src/services/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+GoogleSignin.configure({ webClientId: '40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com' });
 
-WebBrowser.maybeCompleteAuthSession();
+
+
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,23 +22,22 @@ export default function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com',
-    redirectUri: 'https://auth.expo.io/@murat/red-app',
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
+    const handleGoogleLogin = async () => {
+    try {
       setLoading(true);
-      signInWithCredential(auth, credential).then(() => {
-        router.back();
-      }).catch(err => {
-        Alert.alert('Google Error', err.message);
-      }).finally(() => setLoading(false));
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo.data?.idToken || userInfo.idToken;
+      if (!idToken) throw new Error('Token error');
+      const cred = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, cred);
+      router.back();
+    } catch(e: any) {
+      if (e.code !== 'SIGN_IN_CANCELLED') Alert.alert('Error', e.message);
+    } finally {
+      setLoading(false);
     }
-  }, [response]);
+  };
 
 
 
@@ -48,25 +49,8 @@ export default function LoginScreen() {
       />
       
       {/* Back Button */}
-      <Pressable onPress={() => router.back()} style={styles.backButton}>
-        <ChevronLeft color="#fff" size={32} />
-      </Pressable>
-
-      <View style={styles.content}>
-        {/* Logo / Header */}
-        <View style={styles.header}>
-          <REDText weight="heavy" size={48} color={THEME.colors.red} style={{ letterSpacing: -2 }}>RED</REDText>
-          <REDText size={16} color="rgba(255,255,255,0.6)" style={{ marginTop: 8 }}>
-            Join the ultimate movie network.
-          </REDText>
-        </View>
-
-        {/* Form */}
-        <View style={styles.form}>
-          <Pressable 
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', height: 56, borderRadius: 16, marginTop: 8 }}
-            onPress={() => promptAsync()}
-            disabled={!request || loading}
+      <Pressable onPress={handleGoogleLogin}
+            disabled={loading}
           >
             <REDText weight="bold" color="#000">{loading ? 'Connecting...' : 'Continue with Google'}</REDText>
           </Pressable>

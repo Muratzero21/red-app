@@ -23,7 +23,8 @@
         "backgroundColor": "#0f1015"
       },
       "predictiveBackGestureEnabled": true,
-      "versionCode": 3
+      "versionCode": 3,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +34,8 @@
       "expo-font",
       "expo-status-bar",
       "expo-image",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "@react-native-google-signin/google-signin"
     ],
     "scheme": [
       "redapp",
