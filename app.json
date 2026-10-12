@@ -9,16 +9,16 @@
     "backgroundColor": "#0f1015",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.red.redapp"
+      "bundleIdentifier": "com.reddiscovery.app"
     },
     "android": {
-      "package": "com.red.redapp",
+      "package": "com.reddiscovery.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#0f1015"
       },
       "predictiveBackGestureEnabled": true,
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"
