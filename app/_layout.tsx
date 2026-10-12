@@ -25,19 +25,28 @@ export default function RootLayout() {
     'TitilliumWeb-Bold': TitilliumWeb_700Bold,
   });
 
+  const [appReady, setAppReady] = useState(false);
+
   useEffect(() => {
     initLanguage();
     initWatchlist();
+
+    const timer = setTimeout(() => {
+      setAppReady(true);
+      SplashScreen.hideAsync().catch(() => {});
+    }, 1200);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const segments = useSegments();
   useEffect(() => {
     if ((loaded || error) && isLanguageLoaded && isWatchlistLoaded) {
-      SplashScreen.hideAsync();
+      setAppReady(true);
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [loaded, error, isLanguageLoaded, isWatchlistLoaded]);
 
-  if ((!loaded && !error) || !isLanguageLoaded || !isWatchlistLoaded) {
+  if (!appReady && (!loaded && !error)) {
     return null;
   }
 
