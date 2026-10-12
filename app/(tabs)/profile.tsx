@@ -9,10 +9,6 @@ import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../../src/store/useAuthStore';
-import { REDButton } from '../../src/components/ui/REDButton';
-import { auth } from '../../src/services/firebase';
-import { signOut } from 'firebase/auth';
-
 const { width } = Dimensions.get('window');
 
 export default function ProfileScreen() {

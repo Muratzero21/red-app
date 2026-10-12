@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts, TitilliumWeb_400Regular, TitilliumWeb_600SemiBold, TitilliumWeb_700Bold } from '@expo-google-fonts/titillium-web';
