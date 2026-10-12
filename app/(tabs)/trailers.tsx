@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator, Image, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Share } from 'react-native';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -32,8 +32,21 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
   const trailer = videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube' && v.iso_639_1 === 'en') || videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || videos[0];
   const logos = details?.images?.logos || [];
   const logo = logos.length > 0 ? logos[0].file_path : null;
+  const handleShare = async () => {
+    try {
+      const shareUrl = trailer?.key 
+        ? `https://www.youtube.com/watch?v=${trailer.key}` 
+        : `https://www.themoviedb.org/movie/${item.id}`;
+      await Share.share({
+        title: item.title || item.name,
+        message: `Watch the trailer for "${item.title || item.name}" on RED! 🎬\n${shareUrl}`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    return (
+  return (
     <View style={styles.cardContainer}>
       <View style={styles.videoContainer}>
         {trailer ? (
@@ -76,7 +89,7 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
             {isSaved ? <Bookmark fill={THEME.colors.red} color={THEME.colors.red} size={24} /> : <Plus color="#fff" size={24} />}
             <REDText style={styles.actionText}>{isSaved ? 'Saved' : 'My RED'}</REDText>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
             <Share2 color="#fff" size={22} />
             <REDText style={styles.actionText}>Share</REDText>
           </TouchableOpacity>

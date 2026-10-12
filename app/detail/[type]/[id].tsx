@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert, Share } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
-import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star } from 'lucide-react-native';
+import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2 } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
 import { THEME } from '../../../src/constants/theme';
 import { REDText } from '../../../src/components/ui/REDText';
@@ -112,6 +112,20 @@ export default function DetailScreen() {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const shareUrl = trailerId 
+        ? `https://www.youtube.com/watch?v=${trailerId}` 
+        : `https://www.themoviedb.org/${type}/${stringId}`;
+      await Share.share({
+        title,
+        message: `Check out "${title}" on RED! 🎬\n${shareUrl}`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Dynamic Background Base */}
@@ -124,6 +138,16 @@ export default function DetailScreen() {
       >
         <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
           <ChevronLeft color="#fff" size={28} />
+        </View>
+      </Pressable>
+
+      {/* Share Button */}
+      <Pressable 
+        onPress={handleShare} 
+        style={({ pressed }) => [styles.shareButton, pressed && { opacity: 0.7 }]}
+      >
+        <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+          <Share2 color="#fff" size={20} />
         </View>
       </Pressable>
 
@@ -376,6 +400,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: THEME.colors.background },
   loadingContainer: { flex: 1, backgroundColor: THEME.colors.background, justifyContent: 'center', alignItems: 'center' },
   backButton: { position: 'absolute', top: 50, left: 20, zIndex: 10 },
+  shareButton: { position: 'absolute', top: 50, right: 20, zIndex: 10 },
   header: { height: HEADER_HEIGHT, width },
   content: { paddingHorizontal: 24, marginTop: -140 },
   badge: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.05)' },
