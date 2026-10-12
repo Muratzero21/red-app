@@ -261,7 +261,7 @@ export default function DetailScreen() {
               <REDText weight="bold" size={18} color="#fff">RED Community</REDText>
               <Pressable style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
                 <MessageSquare color="#fff" size={14} style={{ marginRight: 6 }} />
-                <REDText size={13} weight="medium">Write Review</REDText>
+                <REDText size={13} weight="semibold">Write Review</REDText>
               </Pressable>
             </View>
 

@@ -7,11 +7,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0f1015",
-    "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0f1015"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.red.redapp"
@@ -23,8 +18,7 @@
         "backgroundColor": "#0f1015"
       },
       "predictiveBackGestureEnabled": true,
-      "versionCode": 3,
-      "googleServicesFile": "./google-services.json"
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,13 +28,16 @@
       "expo-font",
       "expo-status-bar",
       "expo-image",
-      "expo-splash-screen",
-      "@react-native-google-signin/google-signin"
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0f1015"
+        }
+      ]
     ],
-    "scheme": [
-      "redapp",
-      "com.googleusercontent.apps.40019675990-rieko75eud5m5frrja0vhr31anepalrn"
-    ],
+    "scheme": "redapp",
     "extra": {
       "router": {},
       "eas": {

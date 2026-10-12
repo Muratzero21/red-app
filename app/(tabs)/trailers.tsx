@@ -41,7 +41,7 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
             height={width * (9 / 16)}
             width={width}
             play={isPlaying}
-            onChangeState={(state) => { if(state === 'playing') setIsPlaying(true); else setIsPlaying(false); }}
+            onChangeState={(state: string) => { if(state === 'playing') setIsPlaying(true); else setIsPlaying(false); }}
             videoId={trailer.key}
             initialPlayerParams={{
               modestbranding: true,

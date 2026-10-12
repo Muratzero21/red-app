@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
 import { THEME } from '../src/constants/theme';
 import { REDText } from '../src/components/ui/REDText';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { auth } from '../src/services/firebase';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
-GoogleSignin.configure({
-  webClientId: '40019675990-1q0nrenjaopjtavkfshu39gfjermnth7.apps.googleusercontent.com',
-});
 
 const { width } = Dimensions.get('window');
 
@@ -19,25 +12,12 @@ export default function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const idToken = userInfo.data?.idToken || userInfo.idToken;
-      
-      if (!idToken) throw new Error('Token error');
-      
-      const cred = GoogleAuthProvider.credential(idToken);
-      await signInWithCredential(auth, cred);
-      router.back();
-    } catch(e: any) {
-      if (e.code !== 'SIGN_IN_CANCELLED') {
-        Alert.alert('Giriş Hatası', e.message);
-      }
-    } finally {
+  const handleGuestEntry = () => {
+    setLoading(true);
+    setTimeout(() => {
       setLoading(false);
-    }
+      router.back();
+    }, 400);
   };
 
   return (
@@ -64,12 +44,12 @@ export default function LoginScreen() {
         {/* Form */}
         <View style={styles.form}>
           <Pressable 
-            style={styles.googleBtn}
-            onPress={handleGoogleLogin}
+            style={styles.guestBtn}
+            onPress={handleGuestEntry}
             disabled={loading}
           >
-            <REDText weight="bold" color="#000">
-              {loading ? 'Connecting...' : 'Continue with Google'}
+            <REDText weight="bold" color="#fff">
+              {loading ? 'Entering...' : 'Continue as VIP Member'}
             </REDText>
           </Pressable>
         </View>
@@ -84,11 +64,11 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: 32, justifyContent: 'center' },
   header: { marginBottom: 48, alignItems: 'center' },
   form: { gap: 16 },
-  googleBtn: { 
+  guestBtn: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'center', 
-    backgroundColor: '#fff', 
+    backgroundColor: THEME.colors.red, 
     height: 56, 
     borderRadius: 16, 
     marginTop: 8 

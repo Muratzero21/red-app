@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import Animated, { useSharedValue, useAnimatedScrollHandler, interpolate, Extrapolation, useAnimatedStyle, withSpring, useDerivedValue } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedScrollHandler, interpolate, Extrapolation, useAnimatedStyle, withSpring, useDerivedValue, SharedValue } from 'react-native-reanimated';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { THEME } from '../../constants/theme';
@@ -14,16 +14,21 @@ import { DeviceMotion } from 'expo-sensors';
 const { width, height } = Dimensions.get('window');
 const HERO_HEIGHT = height * 0.75;
 
-const HeroItem = ({ item, index, scrollX, tiltX, tiltY }: { item: any, index: number, scrollX: Animated.SharedValue<number>, tiltX: Animated.SharedValue<number>, tiltY: Animated.SharedValue<number> }) => {
+const HeroItem = ({ item, index, scrollX, tiltX, tiltY }: { item: any, index: number, scrollX: SharedValue<number>, tiltX: SharedValue<number>, tiltY: SharedValue<number> }) => {
   const router = useRouter();
   const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
   
   const logo = item.images?.logos?.[0]?.file_path || item.logo_path;
-  const isSaved = watchlist.some(w => w.id === item.id);
+  const isSaved = watchlist.some(w => w.id === String(item.id));
 
   const toggleWatchlist = () => {
-    if (isSaved) removeFromWatchlist(item.id);
-    else addToWatchlist({ id: item.id, title: item.title || item.name, poster_path: item.poster_path, media_type: item.mediaType });
+    if (isSaved) removeFromWatchlist(String(item.id));
+    else addToWatchlist({ 
+      id: String(item.id), 
+      title: item.title || item.name, 
+      posterUrl: getImageUrl(item.poster_path), 
+      mediaType: item.mediaType || 'movie' 
+    });
   };
 
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
@@ -148,10 +153,10 @@ export function HeroCarousel({ items }: { items: any[] }) {
     onMomentumEnd: (event) => {
        currentIndex.current = Math.round(event.contentOffset.x / width);
     },
-    onScrollBeginDrag: () => {
+    onBeginDrag: () => {
        if (timerRef.current) clearInterval(timerRef.current);
     },
-    onScrollEndDrag: () => {
+    onEndDrag: () => {
        resetTimer();
     }
   });

@@ -220,7 +220,7 @@ export default function SettingsScreen() {
               style={[styles.languageOption, language === 'en' && styles.languageOptionSelected]}
               onPress={() => selectLanguage('en')}
             >
-              <REDText size={16} weight={language === 'en' ? 'bold' : 'medium'}>English</REDText>
+              <REDText size={16} weight={language === 'en' ? 'bold' : 'regular'}>English</REDText>
               {language === 'en' && <View style={styles.radioSelected}><View style={styles.radioInner} /></View>}
               {language !== 'en' && <View style={styles.radioUnselected} />}
             </Pressable>
@@ -229,7 +229,7 @@ export default function SettingsScreen() {
               style={[styles.languageOption, language === 'tr' && styles.languageOptionSelected]}
               onPress={() => selectLanguage('tr')}
             >
-              <REDText size={16} weight={language === 'tr' ? 'bold' : 'medium'}>Türkçe</REDText>
+              <REDText size={16} weight={language === 'tr' ? 'bold' : 'regular'}>Türkçe</REDText>
               {language === 'tr' && <View style={styles.radioSelected}><View style={styles.radioInner} /></View>}
               {language !== 'tr' && <View style={styles.radioUnselected} />}
             </Pressable>

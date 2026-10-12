@@ -18,24 +18,7 @@ const { width } = Dimensions.get('window');
 export default function ProfileScreen() {
   const { watchlist } = useWatchlistStore();
   const router = useRouter();
-  const { user, isInitialized } = useAuthStore();
-
-  if (!isInitialized) return null; // Loading Firebase Auth
-
-  if (!user) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', padding: 32 }]}>
-        <View style={styles.avatarContainer}>
-          <Users color="rgba(255,255,255,0.2)" size={64} style={{ marginBottom: 24 }} />
-        </View>
-        <REDText weight="bold" size={24} style={{ marginBottom: 12, textAlign: 'center' }}>Join the Community</REDText>
-        <REDText size={14} color="rgba(255,255,255,0.5)" style={{ textAlign: 'center', marginBottom: 32 }}>
-          Create an account to save your RED List across devices and connect with friends.
-        </REDText>
-        <REDButton title="Sign In / Sign Up" onPress={() => router.push('/login')} style={{ width: '100%', height: 56, borderRadius: 16 }} />
-      </View>
-    );
-  }
+  const userName = 'RED Member';
 
   // Hesaplanan Istatistikler (Gercek watchlist uzerinden yari-dinamik)
   const watchedCount = watchlist.length > 0 ? 142 + watchlist.length : 142;
@@ -64,11 +47,11 @@ export default function ProfileScreen() {
               <REDText color="#fff" weight="heavy" size={10}>PRO</REDText>
             </View>
           </View>
-          <REDText weight="bold" size={26} style={{ marginTop: 16 }}>{user.email?.split('@')[0] || 'User'}</REDText>
+          <REDText weight="bold" size={26} style={{ marginTop: 16 }}>{userName}</REDText>
           <REDText color="rgba(255,255,255,0.5)" size={14} style={{ marginTop: 4 }}>🎬 Cinephile</REDText>
           
-          <Pressable onPress={() => signOut(auth)} style={styles.editButton}>
-            <REDText weight="bold" size={14} color="#fff">Sign Out</REDText>
+          <Pressable onPress={() => router.push('/(tabs)/settings')} style={styles.editButton}>
+            <REDText weight="bold" size={14} color="#fff">VIP Member</REDText>
           </Pressable>
           
           <View style={styles.headerStatsRow}>

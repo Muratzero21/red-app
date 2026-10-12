@@ -3,7 +3,7 @@ import { Text, TextProps, StyleSheet } from 'react-native';
 import { THEME } from '../../constants/theme';
 
 interface REDTextProps extends TextProps {
-  weight?: 'regular' | 'semibold' | 'bold';
+  weight?: 'regular' | 'medium' | 'semibold' | 'bold' | 'heavy';
   color?: string;
   size?: number;
 }
@@ -12,8 +12,10 @@ export const REDText = ({ style, weight = 'regular', color = THEME.colors.textPr
   const getFontFamily = () => {
     switch (weight) {
       case 'bold':
+      case 'heavy':
         return 'TitilliumWeb-Bold';
       case 'semibold':
+      case 'medium':
         return 'TitilliumWeb-SemiBold';
       default:
         return 'TitilliumWeb-Regular';

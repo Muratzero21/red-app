@@ -97,7 +97,6 @@ export default function GenreScreen() {
         <FlashList
           data={mixedData}
           renderItem={renderItem}
-          estimatedItemSize={ITEM_HEIGHT}
           numColumns={COLUMN_COUNT}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}

@@ -46,7 +46,6 @@ export const ContentRow = ({ title, data, onItemPress, renderType = 'movie' }: C
               )}
             </View>
           )}
-          estimatedItemSize={renderType === 'person' ? 120 : 160}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.listContent}

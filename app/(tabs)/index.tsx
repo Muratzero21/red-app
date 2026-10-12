@@ -74,7 +74,7 @@ export default function Home() {
   const [heroIndex, setHeroIndex] = React.useState(0);
 
   const heroItems = React.useMemo(() => {
-    const valid = heroList.filter(item => item.backdropUrl);
+    const valid = heroList.filter((item: any) => item.backdropUrl);
     if (valid.length === 0) return [];
 
     // Daily deterministic rotation so lead spotlight changes every 24 hours
