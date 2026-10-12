@@ -38,18 +38,25 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   },
   addToWatchlist: async (item) => {
     const currentList = get().watchlist;
-    if (!currentList.find(i => i.id.toString() === item.id.toString())) {
-      const newList = [item, ...currentList];
+    const stringId = String(item.id);
+    if (!currentList.find(i => String(i.id) === stringId)) {
+      const formattedItem: WatchlistItem = {
+        ...item,
+        id: stringId,
+        posterUrl: item.posterUrl || 'https://via.placeholder.com/500x750?text=No+Poster',
+      };
+      const newList = [formattedItem, ...currentList];
       set({ watchlist: newList });
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
     }
   },
   removeFromWatchlist: async (id) => {
-    const newList = get().watchlist.filter(i => i.id.toString() !== id.toString());
+    const stringId = String(id);
+    const newList = get().watchlist.filter(i => String(i.id) !== stringId);
     set({ watchlist: newList });
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
   },
   isInWatchlist: (id) => {
-    return get().watchlist.some(i => i.id.toString() === id.toString());
+    return get().watchlist.some(i => String(i.id) === String(id));
   }
 }));

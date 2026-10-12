@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { THEME } from '../../constants/theme';
 import { REDText } from '../ui/REDText';
-import { Play, Plus } from 'lucide-react-native';
+import { Play, Plus, Check } from 'lucide-react-native';
 import { getImageUrl } from '../../services/tmdb';
 import { useRouter } from 'expo-router';
 import { useWatchlistStore } from '../../store/useWatchlistStore';
@@ -19,16 +19,20 @@ const HeroItem = ({ item, index, scrollX, tiltX, tiltY }: { item: any, index: nu
   const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
   
   const logo = item.images?.logos?.[0]?.file_path || item.logo_path;
-  const isSaved = watchlist.some(w => w.id === String(item.id));
+  const stringId = String(item.id);
+  const isSaved = watchlist.some(w => String(w.id) === stringId);
 
   const toggleWatchlist = () => {
-    if (isSaved) removeFromWatchlist(String(item.id));
-    else addToWatchlist({ 
-      id: String(item.id), 
-      title: item.title || item.name, 
-      posterUrl: getImageUrl(item.poster_path), 
-      mediaType: item.mediaType || 'movie' 
-    });
+    if (isSaved) {
+      removeFromWatchlist(stringId);
+    } else {
+      addToWatchlist({ 
+        id: stringId, 
+        title: item.title || item.name, 
+        posterUrl: item.posterUrl || getImageUrl(item.poster_path, 'w500'), 
+        mediaType: item.mediaType || 'movie' 
+      });
+    }
   };
 
   const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
@@ -96,9 +100,14 @@ const HeroItem = ({ item, index, scrollX, tiltX, tiltY }: { item: any, index: nu
             <REDText style={styles.playText} weight="bold">Play</REDText>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.plusButton} onPress={toggleWatchlist}>
-            {isSaved ? <Plus color={THEME.colors.red} size={24} style={{transform:[{rotate:'45deg'}]}} /> : <Plus color="#fff" size={24} />}
-            <REDText style={styles.plusText}>My RED</REDText>
+          <TouchableOpacity 
+            style={[styles.plusButton, isSaved && { backgroundColor: 'rgba(229, 9, 20, 0.2)', borderColor: THEME.colors.red }]} 
+            onPress={toggleWatchlist}
+          >
+            {isSaved ? <Check color={THEME.colors.red} size={22} /> : <Plus color="#fff" size={22} />}
+            <REDText style={[styles.plusText, isSaved && { color: THEME.colors.red, fontWeight: 'bold' }]}>
+              {isSaved ? 'In My RED' : 'My RED'}
+            </REDText>
           </TouchableOpacity>
         </View>
       </Animated.View>

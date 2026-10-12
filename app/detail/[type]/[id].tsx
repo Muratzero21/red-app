@@ -225,10 +225,16 @@ export default function DetailScreen() {
             />
             <Pressable 
               onPress={handleToggleList}
-              style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [
+                styles.watchlistButton, 
+                inMyList && { backgroundColor: 'rgba(229, 9, 20, 0.2)', borderColor: THEME.colors.red },
+                pressed && { opacity: 0.7 }
+              ]}
             >
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: inMyList ? THEME.colors.red : 'rgba(255,255,255,0.1)', borderRadius: 12 }]} />
-              {inMyList ? <Check color="#fff" size={24} /> : <Plus color="#fff" size={24} />}
+              {inMyList ? <Check color={THEME.colors.red} size={20} /> : <Plus color="#fff" size={20} />}
+              <REDText size={14} weight="bold" color={inMyList ? THEME.colors.red : '#fff'} style={{ marginLeft: 6 }}>
+                {inMyList ? 'In My RED' : 'My RED'}
+              </REDText>
             </Pressable>
           </View>
 
@@ -377,6 +383,17 @@ const styles = StyleSheet.create({
   playButton: { flex: 1, backgroundColor: THEME.colors.red, height: 52 },
   playIconWrapper: { backgroundColor: '#fff', borderRadius: 12, width: 24, height: 24, justifyContent: 'center', alignItems: 'center' },
   iconButton: { width: 52, height: 52, justifyContent: 'center', alignItems: 'center' },
+  watchlistButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 52,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
   section: { marginTop: 32 },
   sectionTitle: { marginBottom: 16 },
   castImage: { width: 70, height: 70, borderRadius: 35, marginBottom: 8 },
