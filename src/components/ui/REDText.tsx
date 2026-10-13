@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TextProps, StyleSheet } from 'react-native';
+import { Text, TextProps, Platform } from 'react-native';
 import { THEME } from '../../constants/theme';
 
 interface REDTextProps extends TextProps {
@@ -9,16 +9,17 @@ interface REDTextProps extends TextProps {
 }
 
 export const REDText = ({ style, weight = 'regular', color = THEME.colors.textPrimary, size = 16, ...props }: REDTextProps) => {
-  const getFontFamily = () => {
+  const getFontWeight = (): any => {
     switch (weight) {
       case 'bold':
       case 'heavy':
-        return 'TitilliumWeb-Bold';
+        return '700';
       case 'semibold':
+        return '600';
       case 'medium':
-        return 'TitilliumWeb-SemiBold';
+        return '500';
       default:
-        return 'TitilliumWeb-Regular';
+        return '400';
     }
   };
 
@@ -26,7 +27,7 @@ export const REDText = ({ style, weight = 'regular', color = THEME.colors.textPr
     <Text
       style={[
         {
-          fontFamily: getFontFamily(),
+          fontWeight: getFontWeight(),
           color,
           fontSize: size,
         },

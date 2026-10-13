@@ -2,7 +2,7 @@
   "expo": {
     "name": "RED",
     "slug": "red-app",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -18,31 +18,23 @@
         "backgroundColor": "#0f1015"
       },
       "predictiveBackGestureEnabled": true,
-      "versionCode": 5
+      "versionCode": 8
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
-      "expo-font",
       "expo-status-bar",
-      "expo-image",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/icon.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#0f1015"
-        }
-      ]
+      "expo-image"
     ],
     "scheme": "redapp",
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3820470e-766d-4f25-9b9a-96fabb130b46"
+        "projectId": "2cdb4c9d-8e3e-46b0-bf12-2e405fd5c2e9"
       }
-    }
+    },
+    "owner": "qmorningstar2"
   }
 }

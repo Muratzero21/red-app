@@ -9,7 +9,6 @@ import { REDButton } from '../ui/REDButton';
 import { ChevronRight, Plus, Check } from 'lucide-react-native';
 import { THEME } from '../../constants/theme';
 import { router } from 'expo-router';
-import YoutubePlayer from "react-native-youtube-iframe";
 import { useWatchlistStore } from '../../store/useWatchlistStore';
 
 const { width, height } = Dimensions.get('window');

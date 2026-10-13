@@ -9,7 +9,7 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useTranslation } from '../../src/i18n/translations';
 import { useLanguageStore } from '../../src/store/useLanguageStore';
-import { queryClient } from '../../app/_layout';
+import { queryClient } from '../../src/services/queryClient';
 import { clearTmdbCache } from '../../src/services/tmdb';
 
 interface SettingRowProps {

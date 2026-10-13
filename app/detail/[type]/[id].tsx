@@ -10,7 +10,6 @@ import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
 import { THEME } from '../../../src/constants/theme';
 import { REDText } from '../../../src/components/ui/REDText';
 import { REDButton } from '../../../src/components/ui/REDButton';
-import YoutubePlayer from "react-native-youtube-iframe";
 
 import { useWatchlistStore } from '../../../src/store/useWatchlistStore';
 
@@ -364,9 +363,23 @@ export default function DetailScreen() {
           {trailerId && (
             <View style={styles.section}>
               <REDText weight="bold" size={18} style={styles.sectionTitle}>Trailer</REDText>
-              <View style={{ borderRadius: 12, overflow: 'hidden', backgroundColor: '#000' }}>
-                <YoutubePlayer height={220} play={false} videoId={trailerId} initialPlayerParams={{ controls: true, modestbranding: true, rel: false }} />
-              </View>
+              <Pressable 
+                onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${trailerId}`)}
+                style={({ pressed }) => [
+                  { height: 160, borderRadius: 12, overflow: 'hidden', backgroundColor: '#161922', justifyContent: 'center', alignItems: 'center' },
+                  pressed && { opacity: 0.8 }
+                ]}
+              >
+                {data.backdrop_path ? (
+                  <RNImage source={{ uri: getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                ) : null}
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }]}>
+                  <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
+                    <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
+                  </View>
+                  <REDText size={14} weight="bold" color="#fff" style={{ marginTop: 8 }}>Watch Official Trailer</REDText>
+                </View>
+              </Pressable>
             </View>
           )}
 

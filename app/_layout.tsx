@@ -1,55 +1,22 @@
 import 'react-native-get-random-values';
-import { Stack, router, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts, TitilliumWeb_400Regular, TitilliumWeb_600SemiBold, TitilliumWeb_700Bold } from '@expo-google-fonts/titillium-web';
-import { useEffect, useState } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useLanguageStore } from '../src/store/useLanguageStore';
 import { useWatchlistStore } from '../src/store/useWatchlistStore';
-
-SplashScreen.preventAutoHideAsync();
-export const queryClient = new QueryClient(); // Exported for language store
+import { queryClient } from '../src/services/queryClient';
 
 export default function RootLayout() {
   const initLanguage = useLanguageStore(state => state.initLanguage);
-  const isLanguageLoaded = useLanguageStore(state => state.isLoaded);
   const initWatchlist = useWatchlistStore(state => state.initWatchlist);
-  const isWatchlistLoaded = useWatchlistStore(state => state.isLoaded);
-
-  const [loaded, error] = useFonts({
-    'TitilliumWeb-Regular': TitilliumWeb_400Regular,
-    'TitilliumWeb-SemiBold': TitilliumWeb_600SemiBold,
-    'TitilliumWeb-Bold': TitilliumWeb_700Bold,
-  });
-
-  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    initLanguage();
-    initWatchlist();
-
-    const timer = setTimeout(() => {
-      setAppReady(true);
-      SplashScreen.hideAsync().catch(() => {});
-    }, 1200);
-
-    return () => clearTimeout(timer);
+    // Non-blocking background initialization
+    initLanguage().catch(() => {});
+    initWatchlist().catch(() => {});
   }, []);
-
-  useEffect(() => {
-    if ((loaded || error) && isLanguageLoaded && isWatchlistLoaded) {
-      setAppReady(true);
-      SplashScreen.hideAsync().catch(() => {});
-    }
-  }, [loaded, error, isLanguageLoaded, isWatchlistLoaded]);
-
-  if (!appReady && (!loaded && !error)) {
-    return null;
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#0f1015' }}>

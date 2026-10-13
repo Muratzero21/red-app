@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Share } from 'react-native';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
-import YoutubePlayer from 'react-native-youtube-iframe';
+import { Linking } from 'react-native';
 import { THEME } from '../../src/constants/theme';
 import { REDText } from '../../src/components/ui/REDText';
 import { Bookmark, Plus, Share2, Play } from 'lucide-react-native';
@@ -12,8 +12,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
 const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  useEffect(() => { setIsPlaying(isActive); }, [isActive]);
   const { data: details } = useQuery({
     queryKey: ['trailer_detail', item.id],
     queryFn: () => tmdbAPI.getDetails(item.id, 'movie'),
@@ -46,23 +44,16 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
     }
   };
 
+  const openTrailer = () => {
+    if (trailer?.key) {
+      Linking.openURL(`https://www.youtube.com/watch?v=${trailer.key}`);
+    }
+  };
+
   return (
     <View style={styles.cardContainer}>
-      <View style={styles.videoContainer}>
-        {trailer ? (
-          <YoutubePlayer
-            height={width * (9 / 16)}
-            width={width}
-            play={isPlaying}
-            onChangeState={(state: string) => { if(state === 'playing') setIsPlaying(true); else setIsPlaying(false); }}
-            videoId={trailer.key}
-            initialPlayerParams={{
-              modestbranding: true,
-              rel: false,
-              controls: true,
-            }}
-          />
-        ) : item.backdrop_path ? (
+      <TouchableOpacity activeOpacity={0.9} onPress={openTrailer} style={styles.videoContainer}>
+        {item.backdrop_path ? (
           <Image 
             source={{ uri: getImageUrl(item.backdrop_path, 'w1280') }}
             style={{ width, height: width * (9 / 16) }}
@@ -70,7 +61,12 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
         ) : (
           <View style={{ width, height: width * (9 / 16), backgroundColor: '#111' }} />
         )}
-      </View>
+        <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }]}>
+          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
+            <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
+          </View>
+        </View>
+      </TouchableOpacity>
 
       <View style={styles.infoContainer}>
         {logo ? (
