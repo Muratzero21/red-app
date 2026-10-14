@@ -1,13 +1,17 @@
 const TMDB_API_KEY = '8b9e104198b097fa1562fa48ba29f859';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const REQUEST_TIMEOUT_MS = 8000;
 
-export const getImageUrl = (path: string | null, size: 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500') => {
+export const getImageUrl = (
+  path: string | null | undefined, 
+  size: 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500'
+) => {
   if (!path) return 'https://via.placeholder.com/500x750?text=No+Image';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `https://image.tmdb.org/t/p/${size}${path.startsWith('/') ? path : '/' + path}`;
 };
 
-const cache = new Map();
+const cache = new Map<string, any>();
 let tmdbLang = 'en-US';
 
 export const clearTmdbCache = () => cache.clear();
@@ -35,23 +39,33 @@ const fetchFromTMDB = async (endpoint: string, params: Record<string, any> = {})
     return cache.get(primaryUrl);
   }
 
-  const options = { method: 'GET' };
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(primaryUrl, options);
+    const response = await fetch(primaryUrl, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
 
     if (!response || !response.ok) {
-      const text = await response.text();
-      console.error(`[TMDB fetch failed] ${primaryUrl} -> ${response.status} ${text}`);
-      throw new Error(`TMDB fetch failed for ${endpoint}`);
+      console.warn(`[TMDB fetch failed] ${primaryUrl} -> ${response?.status}`);
+      return { results: [] };
     }
 
     const data = await response.json();
-    cache.set(primaryUrl, data);
-    return data;
-  } catch (error) {
-    console.error('TMDB API Error:', error);
-    throw error;
+    if (data && typeof data === 'object') {
+      cache.set(primaryUrl, data);
+      return data;
+    }
+    return { results: [] };
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    console.warn(`TMDB API Warning (${endpoint}):`, error?.message || error);
+    // Graceful empty fallback so offline / poor connectivity never crashes the app
+    return { results: [] };
   }
 };
 
@@ -63,21 +77,29 @@ export const tmdbAPI = {
     page,
     sort_by: 'popularity.desc',
     with_networks: '213|49|2552|2739', // Netflix, HBO, Apple TV+, Disney+
-    'air_date.gte': '2023-01-01' // Güncel
+    'air_date.gte': '2023-01-01'
   }),
   getTopRated: (page = 1) => fetchFromTMDB('/movie/top_rated', { page }),
   getTrendingPeople: (page = 1) => fetchFromTMDB('/trending/person/day', { page }),
   getHeroMix: async () => {
-    // Fetch top 20 trending items of the day for the hero banner
-    const res = await fetchFromTMDB('/trending/all/day');
-    if (!res || !res.results) return { results: [] };
-    
-    // Filter items that have high quality backdrops and format them
-    const validResults = res.results.filter((item: any) => item.backdrop_path);
-    return { results: validResults };
+    try {
+      const res = await fetchFromTMDB('/trending/all/day');
+      if (!res || !Array.isArray(res.results)) return { results: [] };
+      const validResults = res.results.filter((item: any) => item && item.backdrop_path);
+      return { results: validResults };
+    } catch {
+      return { results: [] };
+    }
   },
   getMoviesByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/movie', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   getTvShowsByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/tv', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   searchMulti: (query: string, page = 1) => fetchFromTMDB('/search/multi', { query, page }),
-  getDetails: (id: string | number, type: 'movie' | 'tv' = 'movie') => fetchFromTMDB(`/${type}/${id}`, { append_to_response: 'videos,credits,similar,images,watch/providers,reviews' }),
+  getDetails: async (id: string | number, type: 'movie' | 'tv' = 'movie') => {
+    try {
+      const res = await fetchFromTMDB(`/${type}/${id}`, { append_to_response: 'videos,credits,similar,images,watch/providers,reviews' });
+      return res || null;
+    } catch {
+      return null;
+    }
+  },
 };

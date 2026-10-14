@@ -128,14 +128,32 @@ export function HeroCarousel({ items }: { items: any[] }) {
   const currentIndex = useRef(0);
 
   useEffect(() => {
-    DeviceMotion.setUpdateInterval(30);
-    const subscription = DeviceMotion.addListener((motionData) => {
-      if (motionData.rotation) {
-        rawTiltX.value = Math.max(-1, Math.min(1, motionData.rotation.gamma));
-        rawTiltY.value = Math.max(-1, Math.min(1, motionData.rotation.beta));
-      }
-    });
-    return () => subscription.remove();
+    let subscription: any = null;
+    try {
+      DeviceMotion.isAvailableAsync().then((available) => {
+        if (!available) return;
+        try {
+          DeviceMotion.setUpdateInterval(30);
+          subscription = DeviceMotion.addListener((motionData) => {
+            if (motionData?.rotation) {
+              rawTiltX.value = Math.max(-1, Math.min(1, motionData.rotation.gamma ?? 0));
+              rawTiltY.value = Math.max(-1, Math.min(1, motionData.rotation.beta ?? 0));
+            }
+          });
+        } catch (err) {
+          console.warn('DeviceMotion listener error:', err);
+        }
+      }).catch(() => {});
+    } catch (err) {
+      console.warn('DeviceMotion init error:', err);
+    }
+    return () => {
+      try {
+        if (subscription && typeof subscription.remove === 'function') {
+          subscription.remove();
+        }
+      } catch {}
+    };
   }, []);
 
   const resetTimer = () => {

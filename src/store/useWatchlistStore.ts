@@ -27,36 +27,58 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEY);
       if (data) {
-        set({ watchlist: JSON.parse(data), isLoaded: true });
-      } else {
-        set({ isLoaded: true });
+        try {
+          const parsed = JSON.parse(data);
+          if (Array.isArray(parsed)) {
+            set({ watchlist: parsed, isLoaded: true });
+            return;
+          }
+        } catch {
+          // Corrupted data fallback
+        }
       }
+      set({ watchlist: [], isLoaded: true });
     } catch (e) {
-      console.error("Failed to load watchlist", e);
-      set({ isLoaded: true });
+      console.warn("Failed to load watchlist from storage", e);
+      set({ watchlist: [], isLoaded: true });
     }
   },
   addToWatchlist: async (item) => {
-    const currentList = get().watchlist;
-    const stringId = String(item.id);
-    if (!currentList.find(i => String(i.id) === stringId)) {
-      const formattedItem: WatchlistItem = {
-        ...item,
-        id: stringId,
-        posterUrl: item.posterUrl || 'https://via.placeholder.com/500x750?text=No+Poster',
-      };
-      const newList = [formattedItem, ...currentList];
-      set({ watchlist: newList });
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
+    try {
+      const currentList = Array.isArray(get().watchlist) ? get().watchlist : [];
+      const stringId = String(item.id);
+      if (!currentList.find(i => String(i?.id) === stringId)) {
+        const formattedItem: WatchlistItem = {
+          ...item,
+          id: stringId,
+          posterUrl: item.posterUrl || 'https://via.placeholder.com/500x750?text=No+Poster',
+        };
+        const newList = [formattedItem, ...currentList];
+        set({ watchlist: newList });
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
+      }
+    } catch (e) {
+      console.warn("Failed to add to watchlist", e);
     }
   },
   removeFromWatchlist: async (id) => {
-    const stringId = String(id);
-    const newList = get().watchlist.filter(i => String(i.id) !== stringId);
-    set({ watchlist: newList });
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
+    try {
+      const currentList = Array.isArray(get().watchlist) ? get().watchlist : [];
+      const stringId = String(id);
+      const newList = currentList.filter(i => String(i?.id) !== stringId);
+      set({ watchlist: newList });
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
+    } catch (e) {
+      console.warn("Failed to remove from watchlist", e);
+    }
   },
   isInWatchlist: (id) => {
-    return get().watchlist.some(i => String(i.id) === String(id));
+    try {
+      const list = get().watchlist;
+      if (!Array.isArray(list)) return false;
+      return list.some(i => String(i?.id) === String(id));
+    } catch {
+      return false;
+    }
   }
 }));
