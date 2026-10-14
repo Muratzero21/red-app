@@ -20,13 +20,20 @@
       "predictiveBackGestureEnabled": true,
       "versionCode": 9
     },
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f1015"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "expo-font",
       "expo-status-bar",
-      "expo-image"
+      "expo-image",
+      "expo-splash-screen"
     ],
     "scheme": "redapp",
     "extra": {
