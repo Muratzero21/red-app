@@ -70,7 +70,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
             title: 'Candy Carrier Chaos!',
             duration: '26m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/lpfrgfomX8uNFxv4VaEzvJGs9TK.jpg',
-            youtubeId: 'WkPshgM_q20',
+            youtubeId: '4ofJpOEXrZs',
             overview: 'The circus gang is dispatched on a wild western candy adventure involving a syrup heist and rogue bandit NPCs.'
           },
           {
@@ -79,7 +79,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
             title: 'The Mystery of Mildenhall Manor',
             duration: '24m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/vPVdWiLUNQyaGMazyZGVAyRcYBG.jpg',
-            youtubeId: 'yqX7B7354K4',
+            youtubeId: 'bKjfw77cxeQ',
             overview: 'Kinger and Pomni explore a haunted mansion adventure with dark secrets and unexpected psychological trials.'
           }
         ]
@@ -108,19 +108,19 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'tj-e1',
             episodeNumber: 1,
-            title: 'The Cat Concerto & Classic Chases',
+            title: 'Classic Cartoon Compilation',
             duration: '22m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/utqCOvMmjjMTlXNZz6PHOzRM5QP.jpg',
-            youtubeId: '1q_n0a653tM',
-            overview: 'Tom takes the grand piano stage in formal attire while Jerry makes every key an obstacle course.'
+            youtubeId: 'Si7DovGBDuQ',
+            overview: 'Tom and Jerry in their greatest classic antics, full of hilarious chases, musical orchestrations, and legendary tricks.'
           },
           {
             id: 'tj-e2',
             episodeNumber: 2,
-            title: 'Haunted Mouse & Midnight Snack',
+            title: 'Terrifying Tales & Night Mischief',
             duration: '20m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/41EWXLXTZO4MLb2BL28mWZuydyq.jpg',
-            youtubeId: 'e-gC9F5c7F4',
+            youtubeId: 'ugZMQUnfqss',
             overview: 'Kitchen raids after dark turn into an explosive culinary battleground between the cunning mouse and the stubborn cat.'
           },
           {
@@ -176,11 +176,11 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'sts-e1',
             episodeNumber: 1,
-            title: 'Farmyard Olympics & Pizza Capers',
+            title: 'Off The Baa! - Farmyard Premiere',
             duration: '18m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/onwny8s0VTTN7te9TJnItgvyWHy.jpg',
-            youtubeId: 'Gj2KkW_eLzY',
-            overview: 'Shaun rallies the flock to order take-away pizza dressed as humans without the farmer noticing.'
+            youtubeId: 'P4m6C5OsFz0',
+            overview: 'Shaun rallies the flock into hilarious farmyard adventures and mischief without the farmer noticing.'
           },
           {
             id: 'sts-e2',
@@ -247,7 +247,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
             title: 'Tourist Trapped - Pilot Premiere',
             duration: '22m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/lhg7eA6CTOCL10QNVdKiyxkgPsL.jpg',
-            youtubeId: 't5gW2n4eW3k',
+            youtubeId: 'o2E2wLm_LlY',
             overview: 'Dipper finds a mysterious journal in the forest that reveals supernatural anomalies hidden throughout the town.'
           }
         ]
@@ -279,7 +279,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
             title: 'The Boy in the Iceberg',
             duration: '24m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aVvRQJ2Ckhlym4uh0YGc166CUoP.jpg',
-            youtubeId: 'd1EnW4kn1kg',
+            youtubeId: '5KlfcKswXvs',
             overview: 'Katara and Sokka discover an extraordinary boy frozen inside an iceberg near their southern polar tribe.'
           }
         ]
@@ -385,7 +385,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             title: '1. Bölüm - Ölümden Beter Bir Şey Varsa O da İhanettir',
             duration: '85m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
-            youtubeId: 'eo76L8gueeU',
+            youtubeId: 'FSo8aRocl9w',
             overview: 'Ezel appears before Eyşan, Cengiz, and Ali at the Cyprus casino as an enigmatic high-roller.'
           },
           {

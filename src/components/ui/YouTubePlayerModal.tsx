@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, ScrollView, Image as RNImage } from 'react-native';
 import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
-import { X, Volume2, ShieldCheck, Film, Play, FastForward } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { X, Play, FastForward } from 'lucide-react-native';
 import { REDText } from './REDText';
 import { THEME } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,11 +16,13 @@ export interface NextEpisodeInfo {
   thumbnail?: string;
 }
 
-interface YouTubePlayerModalProps {
+export interface YouTubePlayerModalProps {
   visible: boolean;
   videoId: string | null;
   title?: string;
   subtitle?: string;
+  year?: string | number;
+  genre?: string;
   onClose: () => void;
   nextEpisode?: NextEpisodeInfo | null;
   onPlayNextEpisode?: (ep: NextEpisodeInfo) => void;
@@ -36,6 +37,8 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   videoId,
   title,
   subtitle,
+  year,
+  genre,
   onClose,
   nextEpisode,
   onPlayNextEpisode,
@@ -138,32 +141,21 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
       <View style={styles.container}>
         <StatusBar hidden={false} barStyle="light-content" />
 
-        {/* Ambient Top Glow */}
-        <LinearGradient
-          colors={['rgba(229, 9, 20, 0.25)', 'transparent']}
-          style={styles.ambientGlow}
-        />
-
-        {/* Top Navigation Bar */}
+        {/* Minimalist Top Navigation Header (Pure Netflix Style) */}
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 24) + 6 }]}>
           <View style={{ flex: 1, marginRight: 16 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <View style={styles.liveIndicator} />
-              <REDText size={11} weight="bold" color={THEME.colors.red} style={{ letterSpacing: 1.5 }}>
-                RED CINEMA THEATER
-              </REDText>
-            </View>
             {title ? (
-              <REDText size={17} weight="bold" color="#fff" numberOfLines={1}>
+              <REDText size={16} weight="semibold" color="#fff" numberOfLines={1}>
                 {title}
               </REDText>
             ) : null}
           </View>
 
-          {/* Premium Glass Close Button */}
+          {/* Minimalist Close Button */}
           <Pressable
             onPress={onClose}
-            style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7, transform: [{ scale: 0.92 }] }]}
+            hitSlop={10}
+            style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7, transform: [{ scale: 0.94 }] }]}
           >
             <X color="#fff" size={20} />
           </Pressable>
@@ -173,7 +165,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          {/* Cinema Floating Display Screen */}
+          {/* Netflix Clean Player Frame - No Artificial Red Glow / Borders */}
           <View style={styles.screenOuter}>
             <View style={styles.screenInner}>
               <YoutubePlayer
@@ -183,10 +175,12 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                 play={playing}
                 videoId={videoId}
                 onChangeState={onStateChange}
+                baseUrlOverride="https://www.youtube.com"
                 webViewProps={{
                   androidLayerType: 'hardware',
                   allowsFullscreenVideo: true,
                   mediaPlaybackRequiresUserAction: false,
+                  originWhitelist: ['*'],
                 }}
                 initialPlayerParams={{
                   preventFullScreen: false,
@@ -194,52 +188,49 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                   modestbranding: true,
                   rel: false,
                   iv_load_policy: 3,
-                }}
+                  origin: 'https://www.youtube.com',
+                } as any}
               />
             </View>
           </View>
 
-          {/* Luxury Information Glass Card */}
+          {/* Clean Netflix Detail Info Section */}
           <View style={styles.infoCard}>
-            <View style={styles.infoCardHeader}>
-              <View style={styles.statusPill}>
-                <Film size={12} color={THEME.colors.red} style={{ marginRight: 6 }} />
-                <REDText size={11} weight="bold" color="#fff">OFFICIAL FULL STREAM</REDText>
-              </View>
-
-              <View style={{ flexDirection: 'row', gap: 6 }}>
-                <View style={styles.tagBadge}>
-                  <REDText size={10} weight="bold" color="rgba(255,255,255,0.9)">4K ULTRA HD</REDText>
-                </View>
-                <View style={[styles.tagBadge, { borderColor: 'rgba(229,9,20,0.5)', backgroundColor: 'rgba(229,9,20,0.12)' }]}>
-                  <REDText size={10} weight="bold" color={THEME.colors.red}>RED EXCLUSIVE</REDText>
-                </View>
-              </View>
-            </View>
-
             {title ? (
-              <REDText size={18} weight="bold" color="#fff" style={{ marginBottom: 8, marginTop: 4 }}>
+              <REDText size={20} weight="bold" color="#fff" style={{ marginBottom: 6 }}>
                 {title}
               </REDText>
             ) : null}
 
+            {/* Netflix Metadata Row: Year • Genre • HD */}
+            <View style={styles.metaRow}>
+              {year ? (
+                <REDText size={13} weight="semibold" color="rgba(255, 255, 255, 0.65)">
+                  {year}
+                </REDText>
+              ) : null}
+
+              {year && genre ? (
+                <REDText size={13} color="rgba(255, 255, 255, 0.3)">•</REDText>
+              ) : null}
+
+              {genre ? (
+                <REDText size={13} weight="semibold" color="rgba(255, 255, 255, 0.65)">
+                  {genre}
+                </REDText>
+              ) : null}
+
+              <View style={styles.netflixBadge}>
+                <REDText size={10} weight="bold" color="rgba(255, 255, 255, 0.8)">HD</REDText>
+              </View>
+            </View>
+
+            {/* Synopsis / Description */}
             {subtitle ? (
-              <REDText size={14} color="rgba(255,255,255,0.7)" style={{ lineHeight: 22 }}>
+              <REDText size={14} color="rgba(255,255,255,0.7)" style={{ lineHeight: 22, marginTop: 14 }}>
                 {subtitle}
               </REDText>
             ) : null}
-
-            {/* Bottom Spec Footer */}
-            <View style={styles.specFooter}>
-              <View style={styles.specItem}>
-                <ShieldCheck size={14} color={THEME.colors.red} />
-                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.6)">Licensed Stream</REDText>
-              </View>
-              <View style={styles.specItem}>
-                <Volume2 size={14} color="rgba(255,255,255,0.7)" />
-                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.6)">Stereo Surround</REDText>
-              </View>
-            </View>
           </View>
         </ScrollView>
 
@@ -306,50 +297,30 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#08090C',
-  },
-  ambientGlow: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 180,
+    backgroundColor: '#0a0a0c',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  liveIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: THEME.colors.red,
+    paddingBottom: 14,
   },
   closeBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   screenOuter: {
     marginHorizontal: 16,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: 'rgba(229, 9, 20, 0.35)',
+    borderRadius: 14,
     backgroundColor: '#000',
     overflow: 'hidden',
-    shadowColor: THEME.colors.red,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   screenInner: {
     width: PLAYER_WIDTH,
@@ -359,52 +330,27 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     marginHorizontal: 16,
-    marginTop: 18,
-    padding: 18,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.06)',
   },
-  infoCardHeader: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    flexWrap: 'wrap',
     gap: 8,
+    marginTop: 2,
+    flexWrap: 'wrap',
   },
-  statusPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(229, 9, 20, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
+  netflixBadge: {
     borderWidth: 1,
-    borderColor: 'rgba(229, 9, 20, 0.25)',
-  },
-  tagBadge: {
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  specFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-    marginTop: 18,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  specItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
   },
   nextPromptCard: {
     position: 'absolute',
@@ -412,12 +358,12 @@ const styles = StyleSheet.create({
     left: 16,
     maxWidth: 400,
     alignSelf: 'center',
-    backgroundColor: 'rgba(12, 14, 20, 0.96)',
-    borderRadius: 18,
+    backgroundColor: '#12141a',
+    borderRadius: 16,
     padding: 16,
-    borderWidth: 1.5,
-    borderColor: 'rgba(229, 9, 20, 0.55)',
-    shadowColor: THEME.colors.red,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5,
     shadowRadius: 16,
@@ -435,12 +381,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: THEME.colors.red,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   nextPromptCancelBtn: {
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',

@@ -132,7 +132,10 @@ export default function DetailScreen() {
   }
 
   const title = data.title || data.name;
-  const releaseYear = (data.release_date || data.first_air_date || '').split('-')[0];
+  const releaseYear = (data.release_date || data.first_air_date || streamData?.releaseDate || '').split('-')[0].trim();
+  const primaryGenre = (data?.genres && data.genres.length > 0)
+    ? data.genres.map((g: any) => g.name).slice(0, 2).join(', ')
+    : (isStreamShow ? (streamData?.categoryTitle || 'Series') : '');
   const runtime = data.runtime ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m` : (isStreamShow ? 'Full Series' : '');
   const metadata = [releaseYear, runtime].filter(Boolean).join(' • ');
 
@@ -556,6 +559,8 @@ export default function DetailScreen() {
         videoId={playerModal.videoId}
         title={playerModal.title}
         subtitle={playerModal.subtitle}
+        year={releaseYear}
+        genre={primaryGenre}
         onClose={() => setPlayerModal({ visible: false, videoId: null })}
         nextEpisode={nextEpisode}
         onPlayNextEpisode={(next) => playEpisode(next)}
