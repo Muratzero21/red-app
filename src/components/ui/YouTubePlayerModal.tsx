@@ -241,7 +241,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
                 <FastForward size={14} color={THEME.colors.red} />
                 <REDText size={13} weight="bold" color="#fff">
-                  Sonraki Bölüm ({countdown} sn içinde başlıyor)
+                  Next Episode (Starts in {countdown}s)
                 </REDText>
               </View>
               <Pressable 
@@ -277,14 +277,14 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                 style={({ pressed }) => [styles.nextPromptPlayBtn, pressed && { opacity: 0.8 }]}
               >
                 <Play fill="#fff" color="#fff" size={13} style={{ marginRight: 6 }} />
-                <REDText size={12} weight="bold" color="#fff">Şimdi Oynat</REDText>
+                <REDText size={12} weight="bold" color="#fff">Play Now</REDText>
               </Pressable>
 
               <Pressable 
                 onPress={() => { setShowPrompt(false); setDismissedPrompt(true); }}
                 style={({ pressed }) => [styles.nextPromptCancelBtn, pressed && { opacity: 0.8 }]}
               >
-                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.7)">İptal</REDText>
+                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.7)">Cancel</REDText>
               </Pressable>
             </View>
           </View>

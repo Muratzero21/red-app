@@ -313,7 +313,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kv-e1',
             episodeNumber: 1,
-            title: '1. Bölüm - Operasyon Başlıyor',
+            title: 'Episode 1 - Operation Begins',
             duration: '68m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'DkAHxvoA2Q8',
@@ -322,7 +322,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kv-e2',
             episodeNumber: 2,
-            title: '2. Bölüm - Yeni Hayat',
+            title: 'Episode 2 - A New Life',
             duration: '72m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
             youtubeId: 'lPigtgxb4Cg',
@@ -331,7 +331,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kv-e3',
             episodeNumber: 3,
-            title: '3. Bölüm - Kumarhane Masası',
+            title: 'Episode 3 - The Casino Table',
             duration: '75m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'sEBuF0hVRbc',
@@ -340,7 +340,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kv-e4',
             episodeNumber: 4,
-            title: '4. Bölüm - Sevko ve Konsey',
+            title: 'Episode 4 - Sevko and the Council',
             duration: '74m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
             youtubeId: 'YdlTLOQGagU',
@@ -349,7 +349,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kv-e5',
             episodeNumber: 5,
-            title: '5. Bölüm - Kurt Kanunu',
+            title: 'Episode 5 - Law of the Wolves',
             duration: '76m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'WyXjWs3qXHk',
@@ -382,7 +382,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'ezel-e1',
             episodeNumber: 1,
-            title: '1. Bölüm - Ölümden Beter Bir Şey Varsa O da İhanettir',
+            title: 'Episode 1 - Worse Than Death: Betrayal',
             duration: '85m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
             youtubeId: 'FSo8aRocl9w',
@@ -391,7 +391,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'ezel-e2',
             episodeNumber: 2,
-            title: '2. Bölüm - İhanetle Gelen Kardeşlik',
+            title: 'Episode 2 - Brotherhood Forged in Betrayal',
             duration: '88m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
             youtubeId: '4tulyH8Y91Q',
@@ -400,7 +400,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'ezel-e3',
             episodeNumber: 3,
-            title: '3. Bölüm - Geçmişin Gölgesi',
+            title: 'Episode 3 - Shadows of the Past',
             duration: '82m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
             youtubeId: 'Jqm1MDxUNlo',
@@ -409,7 +409,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'ezel-e4',
             episodeNumber: 4,
-            title: '4. Bölüm - Kumar Masası',
+            title: 'Episode 4 - High Stakes',
             duration: '86m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
             youtubeId: 'yl-iudreN-g',
@@ -418,7 +418,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'ezel-e5',
             episodeNumber: 5,
-            title: '5. Bölüm - Ramiz Dayı\'nın Öğüdü',
+            title: 'Episode 5 - Counsel of Uncle Ramiz',
             duration: '84m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
             youtubeId: 'qH8kwrHFE5A',
@@ -451,7 +451,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kg-e1',
             episodeNumber: 1,
-            title: '1. Bölüm - Kardeş Payı',
+            title: 'Episode 1 - Brothers Divided',
             duration: '90m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/tQprHjpB1Utq3QmPDdQRKwPDDRh.jpg',
             youtubeId: 'YjEfvVX-V9c',
@@ -460,7 +460,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'kg-e2',
             episodeNumber: 2,
-            title: '2. Bölüm - Yeni Bir Başlangıç',
+            title: 'Episode 2 - A Fresh Start',
             duration: '85m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/eG35U9iYp6cWigQxIpzwlPEPY0l.jpg',
             youtubeId: 'uPJ_O1j94Jw',
@@ -493,7 +493,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'behzat-e1',
             episodeNumber: 1,
-            title: '1. Bölüm - Cinayet Masası',
+            title: 'Episode 1 - Homicide Division',
             duration: '78m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/pF1OQe4zaXX9vOwxbxjZzws0CAe.jpg',
             youtubeId: 'FjyoVZNJriM',
@@ -502,7 +502,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
           {
             id: 'behzat-e2',
             episodeNumber: 2,
-            title: '2. Bölüm - Adalet',
+            title: 'Episode 2 - Justice',
             duration: '80m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aRqNQ5v2tvZ9ZRAXpYik0JamHkm.jpg',
             youtubeId: '2foQ8FOZVsE',

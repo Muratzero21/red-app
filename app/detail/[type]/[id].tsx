@@ -303,7 +303,7 @@ export default function DetailScreen() {
           {/* Action Buttons */}
           <View style={styles.actionsRow}>
             <REDButton 
-              title={isStreamShow ? "Bölüm 1'i İzle" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
+              title={isStreamShow ? "Watch Episode 1" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
               variant="primary" 
               icon={
                 providerLogo ? (

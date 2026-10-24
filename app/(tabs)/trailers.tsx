@@ -156,7 +156,7 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
                 <View style={styles.loadingPill}>
                   <ActivityIndicator size="small" color="#fff" />
                   <REDText size={12} weight="bold" color="#fff" style={{ marginLeft: 8 }}>
-                    Yükleniyor...
+                    Loading...
                   </REDText>
                 </View>
               ) : (
