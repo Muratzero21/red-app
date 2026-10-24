@@ -6,6 +6,7 @@ export interface StreamEpisode {
   thumbnail: string;
   youtubeId: string;
   overview: string;
+  source_type?: 'youtube' | 'local';
 }
 
 export interface StreamSeason {
@@ -21,6 +22,7 @@ export interface StreamShow {
   tmdbId?: number;
   title: string;
   name: string;
+  type?: 'series' | 'movie';
   category: StreamCategory;
   categoryTitle: string;
   posterUrl: string;
@@ -31,6 +33,7 @@ export interface StreamShow {
   voteAverage: number;
   badge?: string;
   isFullSeries?: boolean;
+  is_pro?: boolean;
   seasons: StreamSeason[];
 }
 
@@ -281,6 +284,526 @@ export const KIDS_CARTOONS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/aVvRQJ2Ckhlym4uh0YGc166CUoP.jpg',
             youtubeId: '5KlfcKswXvs',
             overview: 'Katara and Sokka discover an extraordinary boy frozen inside an iceberg near their southern polar tribe.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'tayo-the-little-bus',
+    tmdbId: 45039,
+    title: 'Tayo the Little Bus',
+    name: 'Tayo the Little Bus',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/ieUwI8Y8FhhFNWVOwau0gDoHPnj.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/fLn6AM7jUpXNrUOoAAJuHXaI9En.jpg',
+    overview: 'Tayo is a playful and curious little blue bus who learns his route in the bustling city with Rogi, Lani, and Gani, guided by Hana the mechanic.',
+    releaseDate: '2010',
+    voteAverage: 8.6,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1 Adventures',
+        episodes: [
+          {
+            id: 'tayo-e1',
+            episodeNumber: 1,
+            title: 'A Day in the Life of Tayo',
+            duration: '11m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/fLn6AM7jUpXNrUOoAAJuHXaI9En.jpg',
+            youtubeId: 'z_qxfE7t7RM',
+            source_type: 'youtube',
+            overview: 'Tayo passes his bus license exam and heads out into the bustling city for his very first day of operations.'
+          },
+          {
+            id: 'tayo-e2',
+            episodeNumber: 2,
+            title: 'Season 1 Full Marathon (All 26 Episodes)',
+            duration: '300m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ieUwI8Y8FhhFNWVOwau0gDoHPnj.jpg',
+            youtubeId: 'HMj8vnVfNW0',
+            source_type: 'youtube',
+            overview: 'Enjoy the complete first season marathon following Tayo, Rogi, Lani, and Gani across Train Village and the city.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'titipo-titipo',
+    tmdbId: 87858,
+    title: 'Titipo Titipo',
+    name: 'Titipo Titipo',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/fGD4cghXGvMIgvLG4Eq4cD0Gs0o.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/wEmMWWFLpov40rcPpicuLhhkd3m.jpg',
+    overview: 'Titipo is an energetic young passenger train who wants to become the best train in the world, learning teamwork and safety at Train Village.',
+    releaseDate: '2018',
+    voteAverage: 8.4,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'titipo-e1',
+            episodeNumber: 1,
+            title: 'Getting Lost - Series Premiere',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/wEmMWWFLpov40rcPpicuLhhkd3m.jpg',
+            youtubeId: 'r00wZo51MfQ',
+            source_type: 'youtube',
+            overview: 'Titipo sets off on his very first delivery trial to the big city but quickly discovers how tricky rail junctions can be.'
+          },
+          {
+            id: 'titipo-e2',
+            episodeNumber: 2,
+            title: 'Season 1 Full Compilation (Episodes 1-26)',
+            duration: '300m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/fGD4cghXGvMIgvLG4Eq4cD0Gs0o.jpg',
+            youtubeId: '1A6Iec-rBio',
+            source_type: 'youtube',
+            overview: 'Full season marathon of Titipo and his loyal train friends Diesel, Genie, and Xingxing navigating the tracks.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'pororo-the-little-penguin',
+    tmdbId: 19845,
+    title: 'Pororo the Little Penguin',
+    name: 'Pororo the Little Penguin',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/oD2r5c3IG4C6RDx847tG8OtLutK.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/aOkFlPc8qvXU0k5zUw7pg723ip1.jpg',
+    overview: 'In an icy wonderland surrounded by snow and forest, the curious penguin Pororo and his forest friends embark on warmhearted, imaginative adventures.',
+    releaseDate: '2003',
+    voteAverage: 8.5,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'pororo-e1',
+            episodeNumber: 1,
+            title: "We're Friends - Series Premiere",
+            duration: '6m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/aOkFlPc8qvXU0k5zUw7pg723ip1.jpg',
+            youtubeId: '8kIe7reaK3o',
+            source_type: 'youtube',
+            overview: 'Pororo discovers a large mysterious egg in the forest that hatches into Crong the baby dinosaur.'
+          },
+          {
+            id: 'pororo-e2',
+            episodeNumber: 2,
+            title: 'Season 1 Full Episodes Marathon (E01-E52)',
+            duration: '260m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/oD2r5c3IG4C6RDx847tG8OtLutK.jpg',
+            youtubeId: 'FTFRKsoXAAU',
+            source_type: 'youtube',
+            overview: 'Complete marathon of classic Pororo adventures with Eddy the clever fox, Poby the polar bear, and Loopy the beaver.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'the-amazing-world-of-gumball',
+    tmdbId: 37606,
+    title: 'The Amazing World of Gumball',
+    name: 'The Amazing World of Gumball',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/VYnnyA2hyxi3VUPgCA71mMtt69.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+    overview: 'The misadventures of Gumball Watterson, a blue cat, and his goldfish adoptive brother Darwin, as they cause hilarious chaos in the surreal town of Elmore.',
+    releaseDate: '2011',
+    voteAverage: 8.8,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1 Elmore Chronicles',
+        episodes: [
+          {
+            id: 'gumball-e1',
+            episodeNumber: 1,
+            title: 'Season 1 Complete Full Episodes Marathon',
+            duration: '210m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: 'TpaoJCQxF1M',
+            source_type: 'youtube',
+            overview: 'From returning an overdue DVD to surviving Elmore Junior High, Gumball and Darwin face unforgettable comic mayhem.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'adventure-time',
+    tmdbId: 15260,
+    title: 'Adventure Time',
+    name: 'Adventure Time',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+    overview: 'Finn the Human and his magical shapeshifting dog Jake travel the colorful Land of Ooo, battling villainous monsters and rescuing Princess Bubblegum.',
+    releaseDate: '2010',
+    voteAverage: 8.9,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'at-e1',
+            episodeNumber: 1,
+            title: 'Season 1 Complete 4K Marathon',
+            duration: '220m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+            youtubeId: 'A8DCX5bIdt8',
+            source_type: 'youtube',
+            overview: 'Finn and Jake fight candy zombies, battle the Ice King, and explore dungeons in this complete first season block.'
+          },
+          {
+            id: 'at-e2',
+            episodeNumber: 2,
+            title: 'Land of Ooo Epic Chronicles',
+            duration: '180m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
+            youtubeId: 'LKrX0jdLSLM',
+            source_type: 'youtube',
+            overview: 'Journey deeper into Marceline the Vampire Queen, the Nightosphere, and the mysteries of Ooo.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'regular-show',
+    tmdbId: 31132,
+    title: 'Regular Show',
+    name: 'Regular Show',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+    overview: 'Mordecai, a blue jay, and Rigby, a raccoon, are park groundskeepers who will do anything to slack off, unleashing surreal interdimensional chaos.',
+    releaseDate: '2010',
+    voteAverage: 8.8,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Park Shenanigans',
+        episodes: [
+          {
+            id: 'rs-e1',
+            episodeNumber: 1,
+            title: 'Season 3 Complete Park Adventures',
+            duration: '190m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+            youtubeId: 'k38mFjHFu-U',
+            source_type: 'youtube',
+            overview: 'Mordecai and Rigby try to set up chairs, play video games, and evade Benson while accidentally summoning cosmic demons.'
+          },
+          {
+            id: 'rs-e2',
+            episodeNumber: 2,
+            title: 'Season 4 Intergalactic Madness',
+            duration: '185m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
+            youtubeId: '_argkqUFUAs',
+            source_type: 'youtube',
+            overview: 'High-stakes park escapades with Pops, Skips, and Muscle Man turning everyday chores into heroic battles.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'we-bare-bears',
+    tmdbId: 63401,
+    title: 'We Bare Bears',
+    name: 'We Bare Bears',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/cl5FVcBEgddaC7dUL8HDMH6m2tp.jpg',
+    overview: 'Three bear brothers—Grizzly, Panda, and Ice Bear—awkwardly navigate modern human society in the Bay Area, trying to make friends and go viral.',
+    releaseDate: '2015',
+    voteAverage: 8.7,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'wbb-e1',
+            episodeNumber: 1,
+            title: 'Season 1 Full Episodes Compilation',
+            duration: '210m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/cl5FVcBEgddaC7dUL8HDMH6m2tp.jpg',
+            youtubeId: 'boOzKLyomJo',
+            source_type: 'youtube',
+            overview: 'The bears master the bear stack, try food truck cuisine, and attempt to become viral internet sensations.'
+          },
+          {
+            id: 'wbb-e2',
+            episodeNumber: 2,
+            title: 'Season 2 Bear Stack Escapades',
+            duration: '195m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
+            youtubeId: 'gRgyG6Je8j0',
+            source_type: 'youtube',
+            overview: 'More heartwarming misadventures with Chloe, Nom Nom the koala, and Charlie the Bigfoot.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ben-10',
+    tmdbId: 4363,
+    title: 'Ben 10',
+    name: 'Ben 10',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+    overview: 'Ten-year-old Ben Tennyson discovers a mysterious alien watch called the Omnitrix that gives him the power to transform into 10 different alien heroes.',
+    releaseDate: '2005',
+    voteAverage: 8.6,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Classic Omnitrix Saga',
+        episodes: [
+          {
+            id: 'b10-e1',
+            episodeNumber: 1,
+            title: 'Classic Season 1 Full Marathon',
+            duration: '200m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+            youtubeId: 'YE-pFTEgsjI',
+            source_type: 'youtube',
+            overview: 'From discovering the Omnitrix in the forest to defeating Vilgax, Ben fights extraterrestrial evil with Grandpa Max and Gwen.'
+          },
+          {
+            id: 'b10-e2',
+            episodeNumber: 2,
+            title: 'The Omnitrix Saga Marathon',
+            duration: '180m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
+            youtubeId: 'P2-0xnjeJw4',
+            source_type: 'youtube',
+            overview: 'Relive Ben unlocking Heatblast, Diamondhead, XLR8, and Four Arms in epic battles.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'craig-of-the-creek',
+    tmdbId: 79061,
+    title: 'Craig of the Creek',
+    name: 'Craig of the Creek',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/u4LaONJSBi0khRe2L8nqBk81dlc.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/c1CBVe8UzltKScrjnM3aBFd8SA1.jpg',
+    overview: 'Craig and his best friends Kelsey and JP journey through the kid-ruled wilderness of the Creek, a utopian suburban playground of endless adventure.',
+    releaseDate: '2018',
+    voteAverage: 8.5,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Creek Adventures',
+        episodes: [
+          {
+            id: 'cotc-e1',
+            episodeNumber: 1,
+            title: 'Season 4 Complete 4K Marathon',
+            duration: '190m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/c1CBVe8UzltKScrjnM3aBFd8SA1.jpg',
+            youtubeId: 'xV29xoHsLjQ',
+            source_type: 'youtube',
+            overview: 'Craig, Kelsey, and JP trade snacks at the Trading Tree, chart untamed creek boundaries, and defend their fort.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'teen-titans-go',
+    tmdbId: 45140,
+    title: 'Teen Titans Go!',
+    name: 'Teen Titans Go!',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/bIHCUqaapZdRjd2kzSDiwzYyrpC.jpg',
+    overview: 'Robin, Starfire, Raven, Beast Boy, and Cyborg return with comedic superhero antics, living together in Titans Tower without adult supervision.',
+    releaseDate: '2013',
+    voteAverage: 8.3,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Titans Tower Chronicles',
+        episodes: [
+          {
+            id: 'ttg-e1',
+            episodeNumber: 1,
+            title: 'Ultimate Full Episodes Marathon',
+            duration: '150m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bIHCUqaapZdRjd2kzSDiwzYyrpC.jpg',
+            youtubeId: '4M6OihNrAbM',
+            source_type: 'youtube',
+            overview: 'Waffles, burrito battles, and Halloween monster mayhem in the ultimate Teen Titans Go! marathon.'
+          },
+          {
+            id: 'ttg-e2',
+            episodeNumber: 2,
+            title: 'Raven & Titans Mega Compilation',
+            duration: '120m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
+            youtubeId: 'riazU2Vbvh8',
+            source_type: 'youtube',
+            overview: 'The funniest highlights and musical showdowns from Robin, Beast Boy, Cyborg, and Raven.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'flowering-heart',
+    tmdbId: 70607,
+    title: 'Flowering Heart',
+    name: 'Flowering Heart',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/ecxZWtNRJ7NpHgfypIZ0tLayYWX.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/ix7gLTjE8JpaGRtTWzauPdZyQcD.jpg',
+    overview: 'Ari and her friends form an after-school problem-solving club and unlock magical transformations into diverse professions to collect Hope Energy.',
+    releaseDate: '2016',
+    voteAverage: 8.4,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'fh-e1',
+            episodeNumber: 1,
+            title: 'Crush at First Sight - Premiere',
+            duration: '13m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ix7gLTjE8JpaGRtTWzauPdZyQcD.jpg',
+            youtubeId: 'V0u5uyQm49Y',
+            source_type: 'youtube',
+            overview: 'Ari encounters a mysterious magical prince transformed into a hamster and discovers her ability to change into adult professionals.'
+          },
+          {
+            id: 'fh-e2',
+            episodeNumber: 2,
+            title: 'Mysterious Hamster & Hope Energy',
+            duration: '13m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ecxZWtNRJ7NpHgfypIZ0tLayYWX.jpg',
+            youtubeId: 'OqU9BMRH9ks',
+            source_type: 'youtube',
+            overview: 'The problem-solving club takes on their next challenge to save people from despair and collect Hope Energy.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dino-buddy',
+    tmdbId: 309224,
+    title: 'Dino Buddy',
+    name: 'Dino Buddy (Dino Buddies)',
+    type: 'series',
+    category: 'kids',
+    categoryTitle: 'Kids & Animation',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/3Djt4lv9GlEus8uR8JfwTbYlqC8.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/2X99EWeVHtaC3GqWBjaaUfmFLTO.jpg',
+    overview: 'Join young dinosaur best friends Rex, Sara, Sid, and Tor as they learn about friendship, kindness, sharing, and prehistoric fun.',
+    releaseDate: '2018',
+    voteAverage: 8.2,
+    badge: 'FREE STREAM',
+    is_pro: false,
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'db-e1',
+            episodeNumber: 1,
+            title: 'The Park - First Adventures',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2X99EWeVHtaC3GqWBjaaUfmFLTO.jpg',
+            youtubeId: 'qJO9U1AmWC0',
+            source_type: 'youtube',
+            overview: 'Rex, Sara, Sid, and Tor explore the playground and learn to take turns and make new friends.'
+          },
+          {
+            id: 'db-e2',
+            episodeNumber: 2,
+            title: 'Meeting New Friends & Dino Tales',
+            duration: '16m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3Djt4lv9GlEus8uR8JfwTbYlqC8.jpg',
+            youtubeId: 'JvCsHTeeelw',
+            source_type: 'youtube',
+            overview: 'More charming prehistoric stories filled with songs, gentle moral lessons, and early childhood adventures.'
           }
         ]
       }
