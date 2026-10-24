@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, Linking } from 'react-native';
+import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, ScrollView } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { X } from 'lucide-react-native';
+import { X, Sparkles, Volume2, ShieldCheck, Film } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { REDText } from './REDText';
 import { THEME } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +16,8 @@ interface YouTubePlayerModalProps {
 }
 
 const { width } = Dimensions.get('window');
-const VIDEO_HEIGHT = Math.min(width * (9 / 16), 320);
+const PLAYER_WIDTH = width - 32;
+const VIDEO_HEIGHT = Math.round(PLAYER_WIDTH * (9 / 16));
 
 export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   visible,
@@ -39,117 +41,220 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
     <Modal
       visible={visible}
       animationType="fade"
-      transparent={true}
+      transparent={false}
       onRequestClose={onClose}
       statusBarTranslucent={true}
     >
-      <View style={styles.backdrop}>
+      <View style={styles.container}>
         <StatusBar hidden={false} barStyle="light-content" />
 
-        {/* Top Header Bar */}
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 8 }]}>
-          <View style={{ flex: 1, marginRight: 12 }}>
-            <REDText size={11} weight="bold" color={THEME.colors.red} style={{ letterSpacing: 1 }}>
-              RED PLAYER
-            </REDText>
+        {/* Ambient Top Glow */}
+        <LinearGradient
+          colors={['rgba(229, 9, 20, 0.25)', 'transparent']}
+          style={styles.ambientGlow}
+        />
+
+        {/* Top Navigation Bar */}
+        <View style={[styles.header, { paddingTop: Math.max(insets.top, 24) + 6 }]}>
+          <View style={{ flex: 1, marginRight: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <View style={styles.liveIndicator} />
+              <REDText size={11} weight="bold" color={THEME.colors.red} style={{ letterSpacing: 1.5 }}>
+                RED CINEMA THEATER
+              </REDText>
+            </View>
             {title ? (
-              <REDText size={15} weight="bold" color="#fff" numberOfLines={1} style={{ marginTop: 2 }}>
+              <REDText size={17} weight="bold" color="#fff" numberOfLines={1}>
                 {title}
               </REDText>
             ) : null}
           </View>
 
-          {/* Close Button */}
+          {/* Premium Glass Close Button */}
           <Pressable
             onPress={onClose}
-            style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }]}
+            style={({ pressed }) => [styles.closeBtn, pressed && { opacity: 0.7, transform: [{ scale: 0.92 }] }]}
           >
             <X color="#fff" size={20} />
           </Pressable>
         </View>
 
-        {/* Video Player Box using Official React Native YouTube Iframe */}
-        <View style={styles.playerContainer}>
-          <YoutubePlayer
-            height={VIDEO_HEIGHT}
-            play={playing}
-            videoId={videoId}
-            onChangeState={onStateChange}
-            webViewProps={{
-              androidLayerType: 'hardware',
-              allowsFullscreenVideo: true,
-            }}
-            initialPlayerParams={{
-              preventFullScreen: false,
-              controls: true,
-              modestbranding: true,
-              rel: false,
-            }}
-          />
-        </View>
-
-        {/* Bottom Details Bar */}
-        <View style={styles.detailsContainer}>
-          {subtitle ? (
-            <REDText size={13} color="rgba(255,255,255,0.7)" style={{ lineHeight: 18 }} numberOfLines={3}>
-              {subtitle}
-            </REDText>
-          ) : null}
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 }}>
-            <View style={styles.badge}>
-              <REDText size={10} weight="bold" color="#fff">FULL HD</REDText>
-            </View>
-            <View style={[styles.badge, { borderColor: THEME.colors.red, backgroundColor: 'rgba(229,9,20,0.15)' }]}>
-              <REDText size={10} weight="bold" color={THEME.colors.red}>RED EXCLUSIVE</REDText>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          {/* Cinema Floating Display Screen */}
+          <View style={styles.screenOuter}>
+            <View style={styles.screenInner}>
+              <YoutubePlayer
+                width={PLAYER_WIDTH}
+                height={VIDEO_HEIGHT}
+                play={playing}
+                videoId={videoId}
+                onChangeState={onStateChange}
+                webViewProps={{
+                  androidLayerType: 'hardware',
+                  allowsFullscreenVideo: true,
+                }}
+                initialPlayerParams={{
+                  preventFullScreen: false,
+                  controls: true,
+                  modestbranding: true,
+                  rel: false,
+                }}
+              />
             </View>
           </View>
-        </View>
+
+          {/* Luxury Information Glass Card */}
+          <View style={styles.infoCard}>
+            <View style={styles.infoCardHeader}>
+              <View style={styles.statusPill}>
+                <Film size={12} color={THEME.colors.red} style={{ marginRight: 6 }} />
+                <REDText size={11} weight="bold" color="#fff">OFFICIAL FULL STREAM</REDText>
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                <View style={styles.tagBadge}>
+                  <REDText size={10} weight="bold" color="rgba(255,255,255,0.9)">4K ULTRA HD</REDText>
+                </View>
+                <View style={[styles.tagBadge, { borderColor: 'rgba(229,9,20,0.5)', backgroundColor: 'rgba(229,9,20,0.12)' }]}>
+                  <REDText size={10} weight="bold" color={THEME.colors.red}>RED EXCLUSIVE</REDText>
+                </View>
+              </View>
+            </View>
+
+            {title ? (
+              <REDText size={18} weight="bold" color="#fff" style={{ marginBottom: 8, marginTop: 4 }}>
+                {title}
+              </REDText>
+            ) : null}
+
+            {subtitle ? (
+              <REDText size={14} color="rgba(255,255,255,0.7)" style={{ lineHeight: 22 }}>
+                {subtitle}
+              </REDText>
+            ) : null}
+
+            {/* Bottom Spec Footer */}
+            <View style={styles.specFooter}>
+              <View style={styles.specItem}>
+                <ShieldCheck size={14} color={THEME.colors.red} />
+                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.6)">Licensed Player</REDText>
+              </View>
+              <View style={styles.specItem}>
+                <Volume2 size={14} color="rgba(255,255,255,0.7)" />
+                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.6)">Stereo Surround</REDText>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
-    justifyContent: 'center',
+    backgroundColor: '#08090C', // 100% Solid Dark OLED Background (Zero leak from behind)
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 180,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingBottom: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  liveIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: THEME.colors.red,
   },
   closeBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
-  playerContainer: {
-    width: '100%',
+  screenOuter: {
+    marginHorizontal: 16,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(229, 9, 20, 0.35)',
+    backgroundColor: '#000',
+    overflow: 'hidden',
+    shadowColor: THEME.colors.red,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  screenInner: {
+    width: PLAYER_WIDTH,
     height: VIDEO_HEIGHT,
     backgroundColor: '#000',
-    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  detailsContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
-  },
-  badge: {
+  infoCard: {
+    marginHorizontal: 16,
+    marginTop: 18,
+    padding: 18,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.25)',
-    borderRadius: 4,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  infoCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(229, 9, 20, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.25)',
+  },
+  tagBadge: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    borderRadius: 6,
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  specFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  specItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 });
