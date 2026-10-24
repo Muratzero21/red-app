@@ -59,27 +59,107 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1 Elmore Chronicles',
+        title: 'Season 1 Elmore Beginnings',
         episodes: [
           {
             id: 'gumball-s1e1',
             episodeNumber: 1,
-            title: 'Season 1 Complete Full Episodes Marathon',
-            duration: '210m',
+            title: 'The DVD - Series Premiere',
+            duration: '12m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: '6eSYvoG1S0I',
+            source_type: 'youtube',
+            overview: 'Gumball accidentally destroys an overdue DVD and tries desperate tricks to avoid paying the rental fine.'
+          },
+          {
+            id: 'gumball-s1e2',
+            episodeNumber: 2,
+            title: 'The Responsible',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: '7G03TVOQ8G8',
+            source_type: 'youtube',
+            overview: 'Gumball and Darwin babysit Anais while their parents are out, leading to hilarious household chaos.'
+          },
+          {
+            id: 'gumball-s1e3',
+            episodeNumber: 3,
+            title: 'The Third',
+            duration: '11m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: '9E47_gpKoNc',
+            source_type: 'youtube',
+            overview: 'Gumball and Darwin search for a third best friend to complete their squad at Elmore Junior High.'
+          },
+          {
+            id: 'gumball-s1e4',
+            episodeNumber: 4,
+            title: 'The Belly',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: 'qPFK1EMEp0A',
+            source_type: 'youtube',
+            overview: 'Richard gets into fitness and the boys try to help their dad embrace his true goofy self.'
+          },
+          {
+            id: 'gumball-s1e5',
+            episodeNumber: 5,
+            title: 'The Brain',
+            duration: '11m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: 'SLKOpL6yfM0',
+            source_type: 'youtube',
+            overview: 'Anais discovers the family is slowly losing brainpower from foolish stunts and tries to intervene.'
+          },
+          {
+            id: 'gumball-s1e6',
+            episodeNumber: 6,
+            title: 'Season 1 Full Episodes Marathon',
+            duration: '210m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
             youtubeId: 'TpaoJCQxF1M',
             source_type: 'youtube',
-            overview: 'From returning an overdue DVD to surviving Elmore Junior High, Gumball and Darwin face unforgettable comic mayhem.'
+            overview: 'The complete Season 1 compilation featuring every classic Elmore misadventure back-to-back.'
           }
         ]
       },
       {
         seasonNumber: 2,
-        title: 'Season 2 Special Compilation',
+        title: 'Season 2 School Chaos',
         episodes: [
           {
             id: 'gumball-s2e1',
             episodeNumber: 1,
+            title: 'The Remote',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: 'WVnMk9i19gc',
+            source_type: 'youtube',
+            overview: 'The Wattersons engage in an all-out tactical battle royale for control of the living room TV remote.'
+          },
+          {
+            id: 'gumball-s2e2',
+            episodeNumber: 2,
+            title: 'The Wrinkle',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: '_zODvUGpI5c',
+            source_type: 'youtube',
+            overview: 'Gumball and Darwin try to save Principal Brown from an existential school board crisis.'
+          },
+          {
+            id: 'gumball-s2e3',
+            episodeNumber: 3,
+            title: "Nobody's a Nobody",
+            duration: '14m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: 'vQ1cl4O_-gY',
+            source_type: 'youtube',
+            overview: 'An uplifting and wacky musical episode celebrating every unique and bizarre citizen of Elmore.'
+          },
+          {
+            id: 'gumball-s2e4',
+            episodeNumber: 4,
             title: '5 Full Episodes Mega Compilation',
             duration: '60m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
@@ -91,27 +171,41 @@ export const KIDS_CARTOONS: StreamShow[] = [
       },
       {
         seasonNumber: 3,
-        title: 'Season 3 Mega Marathon',
+        title: 'Season 3 The Mega Block',
         episodes: [
           {
             id: 'gumball-s3e1',
             episodeNumber: 1,
+            title: 'The Lie',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: 'DA0HHtIgJIA',
+            source_type: 'youtube',
+            overview: 'The kids invent a fake holiday called Sluzzle Tag to cheer up Elmore, but the myth takes on a life of its own.'
+          },
+          {
+            id: 'gumball-s3e2',
+            episodeNumber: 2,
+            title: "Pluto's Not a Planet Special",
+            duration: '25m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: 'HtUhwydKCyY',
+            source_type: 'youtube',
+            overview: 'A cosmic-themed compilation full of surreal humor, interdimensional travel, and space physics.'
+          },
+          {
+            id: 'gumball-s3e3',
+            episodeNumber: 3,
             title: 'Five Full Episodes Mega Block',
             duration: '75m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
             youtubeId: '1fqGkoHlGv8',
             source_type: 'youtube',
             overview: 'Nonstop high-energy episodes: The Slide, The Password, The Box, and The Potato in full HD.'
-          }
-        ]
-      },
-      {
-        seasonNumber: 4,
-        title: 'Season 4 Epic Finale Block',
-        episodes: [
+          },
           {
-            id: 'gumball-s4e1',
-            episodeNumber: 1,
+            id: 'gumball-s3e4',
+            episodeNumber: 4,
             title: 'Season Finale Mega Compilation',
             duration: '90m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
@@ -143,14 +237,44 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1 Complete 4K Marathon',
+        title: 'Season 1 Land of Ooo Origins',
         episodes: [
           {
             id: 'at-s1e1',
             episodeNumber: 1,
+            title: 'Slumber Party Panic & Trouble in Lumpy Space',
+            duration: '15m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+            youtubeId: 'iyoQJcd8_fc',
+            source_type: 'youtube',
+            overview: 'Finn and Jake must keep Princess Bubblegum\'s candy zombies secret, then journey to Lumpy Space.'
+          },
+          {
+            id: 'at-s1e2',
+            episodeNumber: 2,
+            title: 'The Duke & The Dungeon',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
+            youtubeId: 'bL6kB5q9G5U',
+            source_type: 'youtube',
+            overview: 'Finn takes the blame for turning Princess Bubblegum green, then battles through a mysterious dungeon.'
+          },
+          {
+            id: 'at-s1e3',
+            episodeNumber: 3,
+            title: 'Business Time',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+            youtubeId: 'xml06fzHLVw',
+            source_type: 'youtube',
+            overview: 'Finn and Jake hire frozen businessmen to assist with adventuring, but things quickly go awry.'
+          },
+          {
+            id: 'at-s1e4',
+            episodeNumber: 4,
             title: 'Season 1 Complete 4K Marathon',
             duration: '220m',
-            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
             youtubeId: 'A8DCX5bIdt8',
             source_type: 'youtube',
             overview: 'Finn and Jake fight candy zombies, battle the Ice King, and explore dungeons in this complete first season block.'
@@ -159,14 +283,34 @@ export const KIDS_CARTOONS: StreamShow[] = [
       },
       {
         seasonNumber: 2,
-        title: 'Season 2 Land of Ooo Chronicles',
+        title: 'Season 2 Mystic Quests',
         episodes: [
           {
             id: 'at-s2e1',
             episodeNumber: 1,
+            title: 'Memory of a Memory',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
+            youtubeId: 'w3c0YlNs1VQ',
+            source_type: 'youtube',
+            overview: 'Finn and Jake venture deep into Marceline\'s bizarre memories to awaken her from a sleep spell.'
+          },
+          {
+            id: 'at-s2e2',
+            episodeNumber: 2,
+            title: 'Abstract',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
+            youtubeId: 'V6jB-L52fdk',
+            source_type: 'youtube',
+            overview: 'Jake copes with his shapeshifting blue-alien form while exploring art and meaning in Ooo.'
+          },
+          {
+            id: 'at-s2e3',
+            episodeNumber: 3,
             title: 'Land of Ooo Epic Chronicles',
             duration: '180m',
-            thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/d8rse1RgMzXwmZvBpDvcG1VUO2Y.jpg',
             youtubeId: 'LKrX0jdLSLM',
             source_type: 'youtube',
             overview: 'Journey deeper into Marceline the Vampire Queen, the Nightosphere, and the mysteries of Ooo.'
@@ -200,12 +344,32 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'rs-s1e1',
             episodeNumber: 1,
-            title: 'Season 3 Complete Park Adventures',
-            duration: '190m',
+            title: 'The Power - Series Premiere',
+            duration: '12m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+            youtubeId: 'YiHs1fQc1kk',
+            source_type: 'youtube',
+            overview: 'Mordecai and Rigby discover a magical keyboard that can grant wishes, sending them straight to the moon.'
+          },
+          {
+            id: 'rs-s1e2',
+            episodeNumber: 2,
+            title: 'Just Set Up The Chairs',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
             youtubeId: 'k38mFjHFu-U',
             source_type: 'youtube',
-            overview: 'Mordecai and Rigby try to set up chairs, play video games, and evade Benson while accidentally summoning cosmic demons.'
+            overview: 'Tasked with setting up chairs for a birthday party, the duo accidentally summons an 8-bit game demon.'
+          },
+          {
+            id: 'rs-s1e3',
+            episodeNumber: 3,
+            title: 'Season 1 Full Episodes Marathon',
+            duration: '150m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+            youtubeId: 'YiHs1fQc1kk',
+            source_type: 'youtube',
+            overview: 'From punching punches to meatball subs, relive Mordecai and Rigby\'s most iconic slack-off stunts.'
           }
         ]
       },
@@ -216,12 +380,58 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'rs-s2e1',
             episodeNumber: 1,
+            title: "Ello Gov'nor",
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
+            youtubeId: 'L-pdgOfgJOw',
+            source_type: 'youtube',
+            overview: 'Rigby is terrified by a British horror movie taxi and must conquer his fear when a real-life cab stalks him.'
+          },
+          {
+            id: 'rs-s2e2',
+            episodeNumber: 2,
+            title: 'Season 2 Complete Marathon',
+            duration: '180m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+            youtubeId: 'L-pdgOfgJOw',
+            source_type: 'youtube',
+            overview: 'High-stakes park escapades with Pops, Skips, and Muscle Man turning everyday chores into heroic battles.'
+          }
+        ]
+      },
+      {
+        seasonNumber: 3,
+        title: 'Season 3 Cosmic Chaos',
+        episodes: [
+          {
+            id: 'rs-s3e1',
+            episodeNumber: 1,
+            title: 'Season 3 Park Adventures',
+            duration: '190m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
+            youtubeId: 'zz7q2---UZA',
+            source_type: 'youtube',
+            overview: 'The park crew battles giant coffee beans, basketball gods, and dimension rifts.'
+          },
+          {
+            id: 'rs-s3e2',
+            episodeNumber: 2,
+            title: 'Terror Tales of the Park Special',
+            duration: '60m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bhF63Jd90gRYyTHd4y5GCGA2vX6.jpg',
+            youtubeId: 'c2rBZAknOKc',
+            source_type: 'youtube',
+            overview: 'The legendary Halloween anthology collection with spooky tales told around the park house fireplace.'
+          },
+          {
+            id: 'rs-s3e3',
+            episodeNumber: 3,
             title: 'Season 4 Intergalactic Madness',
             duration: '185m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
             youtubeId: '_argkqUFUAs',
             source_type: 'youtube',
-            overview: 'High-stakes park escapades with Pops, Skips, and Muscle Man turning everyday chores into heroic battles.'
+            overview: 'Cosmic park crises and high-stakes showdowns beyond the boundaries of Earth.'
           }
         ]
       }
@@ -252,12 +462,32 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'wbb-s1e1',
             episodeNumber: 1,
+            title: 'Our Stuff - Series Premiere',
+            duration: '11m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/cl5FVcBEgddaC7dUL8HDMH6m2tp.jpg',
+            youtubeId: 'boOzKLyomJo',
+            source_type: 'youtube',
+            overview: 'The bears play basketball and get their beloved backpack stolen, launching a hilarious citywide detective hunt.'
+          },
+          {
+            id: 'wbb-s1e2',
+            episodeNumber: 2,
+            title: 'Food Truck Frenzy',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
+            youtubeId: 'zoJBnh5pjR8',
+            source_type: 'youtube',
+            overview: 'Disappointed by local food trucks, the bears open their own calzone stand with unexpected wild forest patrons.'
+          },
+          {
+            id: 'wbb-s1e3',
+            episodeNumber: 3,
             title: 'Season 1 Full Episodes Compilation',
             duration: '210m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/cl5FVcBEgddaC7dUL8HDMH6m2tp.jpg',
             youtubeId: 'boOzKLyomJo',
             source_type: 'youtube',
-            overview: 'The bears master the bear stack, try food truck cuisine, and attempt to become viral internet sensations.'
+            overview: 'The bears master the bear stack, try cinema etiquette, and attempt to become viral internet sensations.'
           }
         ]
       },
@@ -268,6 +498,26 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'wbb-s2e1',
             episodeNumber: 1,
+            title: 'Viral Video Stars',
+            duration: '14m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
+            youtubeId: 'gRgyG6Je8j0',
+            source_type: 'youtube',
+            overview: 'Grizzly dreams of stardom and tries to teach Panda and Ice Bear the secret to viral video fame.'
+          },
+          {
+            id: 'wbb-s2e2',
+            episodeNumber: 2,
+            title: 'Chloe & Nom Nom Capers',
+            duration: '15m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/cl5FVcBEgddaC7dUL8HDMH6m2tp.jpg',
+            youtubeId: 'zoJBnh5pjR8',
+            source_type: 'youtube',
+            overview: 'Genius student Chloe studies the bears for her university biology presentation with heartwarming results.'
+          },
+          {
+            id: 'wbb-s2e3',
+            episodeNumber: 3,
             title: 'Season 2 Bear Stack Escapades',
             duration: '195m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
@@ -304,9 +554,39 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'b10-s1e1',
             episodeNumber: 1,
+            title: 'And Then There Were 10 - Premiere',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+            youtubeId: 'YE-pFTEgsjI',
+            source_type: 'youtube',
+            overview: 'Ben discovers the Omnitrix alien device in the woods and learns to transform into Heatblast.'
+          },
+          {
+            id: 'b10-s1e2',
+            episodeNumber: 2,
+            title: 'Washington B.C. & Dr. Animo',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
+            youtubeId: 'YE-pFTEgsjI',
+            source_type: 'youtube',
+            overview: 'Ben faces the mad scientist Dr. Animo who mutates animals in the nation\'s capital.'
+          },
+          {
+            id: 'b10-s1e3',
+            episodeNumber: 3,
+            title: 'The Krakken Deep Water',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+            youtubeId: 'YE-pFTEgsjI',
+            source_type: 'youtube',
+            overview: 'At Lake Verdan, Ben must unlock Ripjaws to defend an ancient lake monster from poachers.'
+          },
+          {
+            id: 'b10-s1e4',
+            episodeNumber: 4,
             title: 'Classic Season 1 Full Marathon',
             duration: '200m',
-            thumbnail: 'https://image.tmdb.org/t/p/w500/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
             youtubeId: 'YE-pFTEgsjI',
             source_type: 'youtube',
             overview: 'From discovering the Omnitrix in the forest to defeating Vilgax, Ben fights extraterrestrial evil with Grandpa Max and Gwen.'
@@ -320,6 +600,26 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'b10-s2e1',
             episodeNumber: 1,
+            title: 'Midnight Madness',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
+            youtubeId: 'P2-0xnjeJw4',
+            source_type: 'youtube',
+            overview: 'Sublimino hypnotizes shoppers at the mega-mall, turning Ben\'s alien powers into sleepwalking stunts.'
+          },
+          {
+            id: 'b10-s2e2',
+            episodeNumber: 2,
+            title: 'Vilgax Returns',
+            duration: '24m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/eareuhgO6bQj2N0roSJ7ZxnUtAU.jpg',
+            youtubeId: 'P2-0xnjeJw4',
+            source_type: 'youtube',
+            overview: 'The ruthless intergalactic warlord Vilgax returns fully repaired to claim the Omnitrix.'
+          },
+          {
+            id: 'b10-s2e3',
+            episodeNumber: 3,
             title: 'The Omnitrix Saga Marathon',
             duration: '180m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
@@ -354,8 +654,28 @@ export const KIDS_CARTOONS: StreamShow[] = [
         title: 'Season 1 Creek Adventures',
         episodes: [
           {
-            id: 'cotc-e1',
+            id: 'cotc-s1e1',
             episodeNumber: 1,
+            title: 'Itch to Explore - Series Premiere',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/c1CBVe8UzltKScrjnM3aBFd8SA1.jpg',
+            youtubeId: 'xV29xoHsLjQ',
+            source_type: 'youtube',
+            overview: 'Craig, Kelsey, and JP dare to explore the mysterious, overgrown Poison Ivy Grove beyond the Creek.'
+          },
+          {
+            id: 'cotc-s1e2',
+            episodeNumber: 2,
+            title: 'The Trading Tree',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/u4LaONJSBi0khRe2L8nqBk81dlc.jpg',
+            youtubeId: 'xV29xoHsLjQ',
+            source_type: 'youtube',
+            overview: 'Craig needs a special snack and navigates the high-stakes economy of Kit\'s Trading Tree.'
+          },
+          {
+            id: 'cotc-s1e3',
+            episodeNumber: 3,
             title: 'Season 4 Complete 4K Marathon',
             duration: '190m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/c1CBVe8UzltKScrjnM3aBFd8SA1.jpg',
@@ -392,6 +712,26 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'ttg-s1e1',
             episodeNumber: 1,
+            title: 'Legendary Sandwich & Pie Bros',
+            duration: '15m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bIHCUqaapZdRjd2kzSDiwzYyrpC.jpg',
+            youtubeId: '4M6OihNrAbM',
+            source_type: 'youtube',
+            overview: 'Robin sends the Titans on a dangerous mystic quest to find the ingredients for the most legendary sandwich.'
+          },
+          {
+            id: 'ttg-s1e2',
+            episodeNumber: 2,
+            title: "Driver's Ed & Dog Hand",
+            duration: '15m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
+            youtubeId: '4M6OihNrAbM',
+            source_type: 'youtube',
+            overview: 'Robin fails his driver\'s license exam and mistakenly hires a bank robber as his private driving instructor.'
+          },
+          {
+            id: 'ttg-s1e3',
+            episodeNumber: 3,
             title: 'Ultimate Full Episodes Marathon',
             duration: '150m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/bIHCUqaapZdRjd2kzSDiwzYyrpC.jpg',
@@ -408,9 +748,19 @@ export const KIDS_CARTOONS: StreamShow[] = [
           {
             id: 'ttg-s2e1',
             episodeNumber: 1,
+            title: 'Waffles Song & Starfire Secrets',
+            duration: '14m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
+            youtubeId: 'riazU2Vbvh8',
+            source_type: 'youtube',
+            overview: 'Cyborg and Beast Boy sing the unstoppable Waffles song until the entire Titans Tower goes mad.'
+          },
+          {
+            id: 'ttg-s2e2',
+            episodeNumber: 2,
             title: 'Raven & Titans Mega Compilation',
             duration: '120m',
-            thumbnail: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/bIHCUqaapZdRjd2kzSDiwzYyrpC.jpg',
             youtubeId: 'riazU2Vbvh8',
             source_type: 'youtube',
             overview: 'The funniest highlights and musical showdowns from Robin, Beast Boy, Cyborg, and Raven.'
@@ -505,22 +855,52 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'z_qxfE7t7RM',
             source_type: 'youtube',
             overview: 'Tayo passes his bus license exam and heads out into the bustling city for his very first day of operations.'
+          },
+          {
+            id: 'tayo-s1e2',
+            episodeNumber: 2,
+            title: 'Rogi and the Lost Balloon',
+            duration: '12m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ieUwI8Y8FhhFNWVOwau0gDoHPnj.jpg',
+            youtubeId: 'z_qxfE7t7RM',
+            source_type: 'youtube',
+            overview: 'Rogi helps a crying child retrieve a runaway red balloon through tricky downtown traffic.'
+          },
+          {
+            id: 'tayo-s1e3',
+            episodeNumber: 3,
+            title: 'Season 1 Full 26 Episodes Marathon',
+            duration: '300m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/fLn6AM7jUpXNrUOoAAJuHXaI9En.jpg',
+            youtubeId: 'HMj8vnVfNW0',
+            source_type: 'youtube',
+            overview: 'Enjoy the complete first season marathon following Tayo, Rogi, Lani, and Gani across Train Village and the city.'
           }
         ]
       },
       {
         seasonNumber: 2,
-        title: 'Season 2 Complete Marathon',
+        title: 'Season 2 Friends & Teamwork',
         episodes: [
           {
             id: 'tayo-s2e1',
             episodeNumber: 1,
-            title: 'Season 1 Full Marathon (All 26 Episodes)',
-            duration: '300m',
+            title: 'Gani the Polite Little Bus',
+            duration: '12m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/ieUwI8Y8FhhFNWVOwau0gDoHPnj.jpg',
             youtubeId: 'HMj8vnVfNW0',
             source_type: 'youtube',
-            overview: 'Enjoy the complete first season marathon following Tayo, Rogi, Lani, and Gani across Train Village and the city.'
+            overview: 'Gani joins the garage and learns about road safety, courtesy, and helping elderly passengers.'
+          },
+          {
+            id: 'tayo-s2e2',
+            episodeNumber: 2,
+            title: "Hana's Special Repair Day",
+            duration: '13m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/fLn6AM7jUpXNrUOoAAJuHXaI9En.jpg',
+            youtubeId: 'HMj8vnVfNW0',
+            source_type: 'youtube',
+            overview: 'The buses work together to surprise mechanic Hana with a clean garage and polished tools.'
           }
         ]
       }
@@ -557,22 +937,52 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'r00wZo51MfQ',
             source_type: 'youtube',
             overview: 'Titipo sets off on his very first delivery trial to the big city but quickly discovers how tricky rail junctions can be.'
+          },
+          {
+            id: 'titipo-s1e2',
+            episodeNumber: 2,
+            title: "Diesel's Big Challenge",
+            duration: '13m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/mMGUOuV4wmW8QJ5f41jhtZ1ACXU.jpg',
+            youtubeId: 'r00wZo51MfQ',
+            source_type: 'youtube',
+            overview: 'Diesel tries to prove he can pull the heaviest freight train without asking for help from the other engines.'
+          },
+          {
+            id: 'titipo-s1e3',
+            episodeNumber: 3,
+            title: 'Season 1 Full Compilation (Episodes 1-26)',
+            duration: '300m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qhndXs3a39H4HzN3btjbeoL9Qsm.jpg',
+            youtubeId: '1A6Iec-rBio',
+            source_type: 'youtube',
+            overview: 'Full season marathon of Titipo and his loyal train friends Diesel, Genie, and Xingxing navigating the tracks.'
           }
         ]
       },
       {
         seasonNumber: 2,
-        title: 'Season 2 Complete Marathon',
+        title: 'Season 2 High Speed Adventures',
         episodes: [
           {
             id: 'titipo-s2e1',
             episodeNumber: 1,
-            title: 'Season 1 Full Compilation (Episodes 1-26)',
-            duration: '300m',
+            title: 'Xingxing the Fast Train',
+            duration: '12m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/mMGUOuV4wmW8QJ5f41jhtZ1ACXU.jpg',
             youtubeId: '1A6Iec-rBio',
             source_type: 'youtube',
-            overview: 'Full season marathon of Titipo and his loyal train friends Diesel, Genie, and Xingxing navigating the tracks.'
+            overview: 'High-speed passenger train Xingxing shares tips on graceful braking and maintaining schedule timing.'
+          },
+          {
+            id: 'titipo-s2e2',
+            episodeNumber: 2,
+            title: 'Train Village Teamwork',
+            duration: '14m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/qhndXs3a39H4HzN3btjbeoL9Qsm.jpg',
+            youtubeId: '1A6Iec-rBio',
+            source_type: 'youtube',
+            overview: 'When a signal box fails during rush hour, Titipo coordinates with the station master to keep trains moving safely.'
           }
         ]
       }
@@ -609,22 +1019,52 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: '8kIe7reaK3o',
             source_type: 'youtube',
             overview: 'Pororo discovers a large mysterious egg in the forest that hatches into Crong the baby dinosaur.'
+          },
+          {
+            id: 'pororo-s1e2',
+            episodeNumber: 2,
+            title: "It's All Right!",
+            duration: '7m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/oD2r5c3IG4C6RDx847tG8OtLutK.jpg',
+            youtubeId: '8kIe7reaK3o',
+            source_type: 'youtube',
+            overview: 'Pororo and Crong accidentally break a toy and learn the value of being honest and forgiving.'
+          },
+          {
+            id: 'pororo-s1e3',
+            episodeNumber: 3,
+            title: 'Season 1 Full Episodes Marathon (E01-E52)',
+            duration: '260m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/aOkFlPc8qvXU0k5zUw7pg723ip1.jpg',
+            youtubeId: 'FTFRKsoXAAU',
+            source_type: 'youtube',
+            overview: 'Complete marathon of classic Pororo adventures with Eddy the clever fox, Poby the polar bear, and Loopy the beaver.'
           }
         ]
       },
       {
         seasonNumber: 2,
-        title: 'Season 2 52-Episode Marathon',
+        title: 'Season 2 Ice Land Inventions',
         episodes: [
           {
             id: 'pororo-s2e1',
             episodeNumber: 1,
-            title: 'Season 1 Full Episodes Marathon (E01-E52)',
-            duration: '260m',
+            title: "Eddy the Clever Fox's Rocket",
+            duration: '8m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/oD2r5c3IG4C6RDx847tG8OtLutK.jpg',
             youtubeId: 'FTFRKsoXAAU',
             source_type: 'youtube',
-            overview: 'Complete marathon of classic Pororo adventures with Eddy the clever fox, Poby the polar bear, and Loopy the beaver.'
+            overview: 'Eddy builds a cardboard rocket ship and attempts to fly his forest friends to the moon.'
+          },
+          {
+            id: 'pororo-s2e2',
+            episodeNumber: 2,
+            title: "Poby's Gentle Snow Castle",
+            duration: '8m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/aOkFlPc8qvXU0k5zUw7pg723ip1.jpg',
+            youtubeId: 'FTFRKsoXAAU',
+            source_type: 'youtube',
+            overview: 'Poby builds a magnificent ice sculpture garden that becomes the playground for all village friends.'
           }
         ]
       }
