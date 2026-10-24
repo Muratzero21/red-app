@@ -5,7 +5,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
-import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2 } from 'lucide-react-native';
+import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
 import { getCartoonById } from '../../../src/constants/cartoons';
 import { THEME } from '../../../src/constants/theme';
@@ -218,6 +218,10 @@ export default function DetailScreen() {
 
   const hasSeasons = isCartoon || (isTv && seasonsList.length > 0);
 
+  const currentSeasonTitle = isCartoon 
+    ? (cartoonData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`)
+    : (tmdbSeasons[selectedSeasonIndex]?.name || `Season ${selectedSeasonIndex + 1}`);
+
   return (
     <View style={styles.container}>
       {/* Dynamic Background Base */}
@@ -369,42 +373,34 @@ export default function DetailScreen() {
             </REDText>
           </View>
 
-          {/* SEASONS & EPISODES SECTION */}
+          {/* SEASONS & EPISODES SECTION (100% NETFLIX MOBILE STYLE) */}
           {hasSeasons && (
             <View style={styles.section}>
+              {/* Header with Season Selector Dropdown */}
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <REDText weight="bold" size={20} color="#fff">Episodes</REDText>
-                <REDText size={13} color={THEME.colors.textSecondary}>
-                  {currentEpisodes.length} Episodes
-                </REDText>
+
+                {/* Netflix Season Button (Always Visible) */}
+                <Pressable
+                  onPress={() => {
+                    if (seasonsList.length > 1) {
+                      setSelectedSeasonIndex((prev) => (prev + 1) % seasonsList.length);
+                    }
+                  }}
+                  style={({ pressed }) => [
+                    styles.netflixSeasonBtn,
+                    pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.18)' }
+                  ]}
+                >
+                  <REDText size={13} weight="bold" color="#fff">
+                    {currentSeasonTitle}
+                  </REDText>
+                  <ChevronDown size={15} color="#fff" style={{ marginLeft: 6 }} />
+                </Pressable>
               </View>
 
-              {/* Season Selector Pills */}
-              {seasonsList.length > 1 && (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, marginBottom: 16 }}>
-                  {seasonsList.map((s: any, idx: number) => {
-                    const isSelected = selectedSeasonIndex === idx;
-                    const seasonTitle = s.title || s.name || `Season ${s.seasonNumber || s.season_number || idx + 1}`;
-                    return (
-                      <Pressable
-                        key={idx}
-                        onPress={() => setSelectedSeasonIndex(idx)}
-                        style={[
-                          styles.seasonPill,
-                          isSelected && styles.seasonPillActive
-                        ]}
-                      >
-                        <REDText size={13} weight="bold" color={isSelected ? '#fff' : 'rgba(255,255,255,0.6)'}>
-                          {seasonTitle}
-                        </REDText>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              )}
-
               {/* Episodes List */}
-              <View style={{ gap: 12 }}>
+              <View style={{ gap: 2 }}>
                 {currentEpisodes.map((ep: any, epIdx: number) => {
                   const epNumber = ep.episodeNumber || ep.episode_number || epIdx + 1;
                   const epTitle = ep.title || ep.name || `Episode ${epNumber}`;
@@ -415,49 +411,59 @@ export default function DetailScreen() {
                       key={ep.id || epIdx}
                       onPress={() => playEpisode(ep)}
                       style={({ pressed }) => [
-                        styles.episodeCard,
-                        pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.08)' }
+                        styles.netflixEpisodeRow,
+                        pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.04)' }
                       ]}
                     >
-                      {/* Thumbnail with Play Icon */}
-                      <View style={styles.episodeThumbContainer}>
-                        {thumbUri ? (
-                          <RNImage
-                            source={{ uri: thumbUri }}
-                            style={styles.episodeThumb}
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <View style={[styles.episodeThumb, { backgroundColor: '#1e222d', justifyContent: 'center', alignItems: 'center' }]}>
-                            <Play color="rgba(255,255,255,0.4)" size={20} />
+                      {/* Top Part: Thumbnail + Title + Play Button */}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                        {/* 16:9 Thumbnail with Play Overlay */}
+                        <View style={styles.netflixThumbBox}>
+                          {thumbUri ? (
+                            <RNImage
+                              source={{ uri: thumbUri }}
+                              style={styles.netflixThumbImg}
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View style={[styles.netflixThumbImg, { backgroundColor: '#1c1f28', justifyContent: 'center', alignItems: 'center' }]}>
+                              <Play color="rgba(255,255,255,0.4)" size={20} />
+                            </View>
+                          )}
+                          <View style={styles.netflixThumbPlayOverlay}>
+                            <View style={styles.netflixThumbPlayIcon}>
+                              <Play fill="#fff" color="#fff" size={13} style={{ marginLeft: 2 }} />
+                            </View>
                           </View>
-                        )}
-                        <View style={styles.episodePlayOverlay}>
-                          <View style={styles.episodePlayCircle}>
-                            <Play fill="#fff" color="#fff" size={14} style={{ marginLeft: 2 }} />
-                          </View>
+                          {ep.duration && (
+                            <View style={styles.netflixDurationBadge}>
+                              <REDText size={9} weight="bold" color="#fff">{ep.duration}</REDText>
+                            </View>
+                          )}
                         </View>
-                        {ep.duration && (
-                          <View style={styles.durationBadge}>
-                            <REDText size={10} weight="bold" color="#fff">{ep.duration}</REDText>
-                          </View>
-                        )}
+
+                        {/* Title & Duration */}
+                        <View style={{ flex: 1 }}>
+                          <REDText size={15} weight="bold" color="#fff" numberOfLines={1}>
+                            {epNumber}. {epTitle}
+                          </REDText>
+                          <REDText size={12} color="rgba(255,255,255,0.5)" style={{ marginTop: 4 }}>
+                            {ep.duration ? `${ep.duration} • ` : ''}Episode {epNumber}
+                          </REDText>
+                        </View>
+
+                        {/* Netflix Play Circle Action Button */}
+                        <View style={styles.netflixPlayCircleBtn}>
+                          <Play fill={THEME.colors.red} color={THEME.colors.red} size={14} style={{ marginLeft: 2 }} />
+                        </View>
                       </View>
 
-                      {/* Episode Info */}
-                      <View style={{ flex: 1, justifyContent: 'center' }}>
-                        <REDText size={11} weight="bold" color={THEME.colors.red}>
-                          EPISODE {epNumber}
+                      {/* Bottom Part: Synopsis */}
+                      {ep.overview ? (
+                        <REDText size={13} color="rgba(255,255,255,0.65)" style={{ marginTop: 10, lineHeight: 18 }}>
+                          {ep.overview}
                         </REDText>
-                        <REDText size={14} weight="bold" color="#fff" numberOfLines={1} style={{ marginTop: 2 }}>
-                          {epTitle}
-                        </REDText>
-                        {ep.overview ? (
-                          <REDText size={12} color="rgba(255,255,255,0.6)" numberOfLines={2} style={{ marginTop: 4, lineHeight: 16 }}>
-                            {ep.overview}
-                          </REDText>
-                        ) : null}
-                      </View>
+                      ) : null}
                     </Pressable>
                   );
                 })}
@@ -579,50 +585,44 @@ const styles = StyleSheet.create({
   },
   section: { marginTop: 32 },
   sectionTitle: { marginBottom: 16 },
-  seasonPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-  },
-  seasonPillActive: {
-    backgroundColor: THEME.colors.red,
-    borderColor: THEME.colors.red,
-  },
-  episodeCard: {
+  netflixSeasonBtn: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderRadius: 12,
-    padding: 10,
-    gap: 12,
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
-  episodeThumbContainer: {
-    width: 110,
-    height: 70,
+  netflixEpisodeRow: {
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  netflixThumbBox: {
+    width: 120,
+    height: 72,
     borderRadius: 8,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: '#000',
   },
-  episodeThumb: {
+  netflixThumbImg: {
     width: '100%',
     height: '100%',
   },
-  episodePlayOverlay: {
+  netflixThumbPlayOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  episodePlayCircle: {
+  netflixThumbPlayIcon: {
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -632,14 +632,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  durationBadge: {
+  netflixDurationBadge: {
     position: 'absolute',
     bottom: 4,
     right: 4,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: 'rgba(0,0,0,0.85)',
     paddingHorizontal: 4,
     paddingVertical: 1,
-    borderRadius: 4,
+    borderRadius: 3,
+  },
+  netflixPlayCircleBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   castImage: { width: 70, height: 70, borderRadius: 35, marginBottom: 8 },
   similarImage: { width: 120, height: 180, borderRadius: 8, marginBottom: 8 }
