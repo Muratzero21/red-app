@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert, Share } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -7,16 +7,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
 import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2 } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
+import { getCartoonById } from '../../../src/constants/cartoons';
 import { THEME } from '../../../src/constants/theme';
 import { REDText } from '../../../src/components/ui/REDText';
 import { REDButton } from '../../../src/components/ui/REDButton';
-
 import { useWatchlistStore } from '../../../src/store/useWatchlistStore';
 
 const { width, height } = Dimensions.get('window');
 const HEADER_HEIGHT = height * 0.55;
 
-// Pseudo-random tint color based on TMDB ID
+// Pseudo-random tint color based on ID
 const getDominantColor = (idStr: string) => {
   let hash = 0;
   for (let i = 0; i < idStr.length; i++) hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
@@ -31,12 +31,67 @@ export default function DetailScreen() {
   
   const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
   const stringId = Array.isArray(id) ? id[0] : String(id);
+  const isCartoon = type === 'cartoon';
+  const isTv = type === 'tv';
+  
   const inMyList = watchlist.some(w => String(w.id) === stringId);
   const dominantColor = getDominantColor(stringId);
 
-  const { data, isLoading } = useQuery({
+  // Selected Season index
+  const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
+
+  // 1. If it's a cartoon, load from local catalog
+  const cartoonData = useMemo(() => {
+    if (isCartoon) {
+      return getCartoonById(stringId);
+    }
+    return null;
+  }, [isCartoon, stringId]);
+
+  // 2. If it's TMDB content, fetch details
+  const { data: tmdbData, isLoading: tmdbLoading } = useQuery({
     queryKey: ['detail', type, id],
-    queryFn: () => tmdbAPI.getDetails(id as string, type as 'movie' | 'tv')
+    queryFn: () => tmdbAPI.getDetails(id as string, type as 'movie' | 'tv'),
+    enabled: !isCartoon
+  });
+
+  const data = isCartoon ? {
+    title: cartoonData?.title,
+    name: cartoonData?.name,
+    backdrop_path: cartoonData?.backdropUrl,
+    poster_path: cartoonData?.posterUrl,
+    overview: cartoonData?.overview,
+    release_date: cartoonData?.releaseDate,
+    vote_average: cartoonData?.voteAverage,
+    runtime: null,
+    videos: {
+      results: cartoonData?.seasons?.[0]?.episodes?.[0]?.youtubeId ? [
+        {
+          site: 'YouTube',
+          type: 'Trailer',
+          key: cartoonData.seasons[0].episodes[0].youtubeId
+        }
+      ] : []
+    },
+    credits: { cast: [] },
+    similar: { results: [] }
+  } : tmdbData;
+
+  const isLoading = isCartoon ? !cartoonData : tmdbLoading;
+
+  // TMDB TV Seasons
+  const tmdbSeasons = useMemo(() => {
+    if (!isTv || !tmdbData?.seasons) return [];
+    return tmdbData.seasons.filter((s: any) => s.season_number > 0);
+  }, [isTv, tmdbData?.seasons]);
+
+  const selectedTmdbSeasonNumber = tmdbSeasons[selectedSeasonIndex]?.season_number || 1;
+
+  // Fetch TMDB Episodes for selected season
+  const { data: tmdbSeasonData } = useQuery({
+    queryKey: ['tvSeason', stringId, selectedTmdbSeasonNumber],
+    queryFn: () => tmdbAPI.getSeasonDetails(stringId, selectedTmdbSeasonNumber),
+    enabled: isTv && tmdbSeasons.length > 0
   });
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -77,7 +132,7 @@ export default function DetailScreen() {
 
   const title = data.title || data.name;
   const releaseYear = (data.release_date || data.first_air_date || '').split('-')[0];
-  const runtime = data.runtime ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m` : '';
+  const runtime = data.runtime ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m` : (isCartoon ? 'Animation' : '');
   const metadata = [releaseYear, runtime].filter(Boolean).join(' • ');
 
   let trailerId = null;
@@ -89,15 +144,15 @@ export default function DetailScreen() {
     }
   }
 
-  const logos = data?.images?.logos;
+  const logos = (data as any)?.images?.logos;
   const logoObj = logos?.find((l: any) => l.iso_639_1 === 'en') || logos?.[0];
   const logoUrl = logoObj ? getImageUrl(logoObj.file_path, 'w500') : null;
 
-  const watchProviders = data?.['watch/providers']?.results?.TR || data?.['watch/providers']?.results?.US;
+  const watchProviders = (data as any)?.['watch/providers']?.results?.TR || (data as any)?.['watch/providers']?.results?.US;
   const providerName = watchProviders?.flatrate?.[0]?.provider_name;
   const providerLogo = watchProviders?.flatrate?.[0]?.logo_path ? getImageUrl(watchProviders.flatrate[0].logo_path, 'w92') : null;
   const watchLink = watchProviders?.link;
-  
+
   const handleToggleList = () => {
     if (inMyList) {
       removeFromWatchlist(stringId);
@@ -106,7 +161,7 @@ export default function DetailScreen() {
         id: stringId,
         title: data.title || data.name,
         mediaType: type as any,
-        posterUrl: getImageUrl(data.poster_path, 'w500')
+        posterUrl: isCartoon ? (cartoonData?.posterUrl || '') : getImageUrl((data as any).poster_path, 'w500')
       });
     }
   };
@@ -124,6 +179,30 @@ export default function DetailScreen() {
       console.error(e);
     }
   };
+
+  const playEpisode = (ep: any) => {
+    if (ep.youtubeId) {
+      const url = `https://www.youtube.com/watch?v=${ep.youtubeId}`;
+      Linking.openURL(`vnd.youtube://${ep.youtubeId}`).catch(() => {
+        Linking.openURL(url);
+      });
+    } else {
+      // Search for TMDB episode on YouTube
+      const query = encodeURIComponent(`${title} Season ${selectedTmdbSeasonNumber} Episode ${ep.episode_number || 1}`);
+      Linking.openURL(`https://www.youtube.com/results?search_query=${query}`);
+    }
+  };
+
+  // Determine seasons list
+  const seasonsList = isCartoon 
+    ? (cartoonData?.seasons || []) 
+    : tmdbSeasons;
+
+  const currentEpisodes = isCartoon 
+    ? (cartoonData?.seasons?.[selectedSeasonIndex]?.episodes || [])
+    : (tmdbSeasonData?.episodes || []);
+
+  const hasSeasons = isCartoon || (isTv && seasonsList.length > 0);
 
   return (
     <View style={styles.container}>
@@ -160,7 +239,7 @@ export default function DetailScreen() {
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
           {(data.backdrop_path || data.poster_path) ? (
             <RNImage
-              source={{ uri: getImageUrl(data.backdrop_path || data.poster_path, 'original') }}
+              source={{ uri: isCartoon ? (data.backdrop_path || data.poster_path) : getImageUrl(data.backdrop_path || data.poster_path, 'original') }}
               style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
               resizeMode="cover"
             />
@@ -184,13 +263,13 @@ export default function DetailScreen() {
                 resizeMode="contain" 
               />
             ) : (
-              <REDText weight="bold" size={36} style={{ marginBottom: 12 }}>{title}</REDText>
+              <REDText weight="bold" size={32} style={{ marginBottom: 12 }}>{title}</REDText>
             )}
             
             <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               <REDText color={THEME.colors.textSecondary} size={15} weight="semibold">{metadata}</REDText>
               <View style={{ flexDirection: 'row', gap: 6 }}>
-                {(Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1']).map((badge) => (
+                {(isCartoon ? ['FREE', 'HD', 'FAMILY'] : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])).map((badge) => (
                   <View key={badge} style={styles.badge}>
                     <REDText size={10} weight="bold" color="rgba(255,255,255,0.8)">{badge}</REDText>
                   </View>
@@ -202,7 +281,7 @@ export default function DetailScreen() {
           {/* Action Buttons */}
           <View style={styles.actionsRow}>
             <REDButton 
-              title={providerName ? `Play on ${providerName}` : "Play Trailer"} 
+              title={isCartoon ? "Watch Episode 1" : (providerName ? `Play on ${providerName}` : "Play Trailer")} 
               variant="primary" 
               icon={
                 providerLogo ? (
@@ -219,7 +298,9 @@ export default function DetailScreen() {
               } 
               style={styles.playButton}
               onPress={() => {
-                if (providerName) {
+                if (isCartoon && cartoonData?.seasons?.[0]?.episodes?.[0]?.youtubeId) {
+                  playEpisode(cartoonData.seasons[0].episodes[0]);
+                } else if (providerName) {
                   const pName = providerName.toLowerCase();
                   const encodedTitle = encodeURIComponent(data?.title || data?.name || '');
                   let deepLink = '';
@@ -247,98 +328,132 @@ export default function DetailScreen() {
               }}
             />
             <Pressable 
-              onPress={handleToggleList}
-              style={({ pressed }) => [
-                styles.watchlistButton, 
-                inMyList && { backgroundColor: 'rgba(229, 9, 20, 0.2)', borderColor: THEME.colors.red },
-                pressed && { opacity: 0.7 }
-              ]}
+              onPress={handleToggleList} 
+              style={({ pressed }) => [styles.watchlistButton, pressed && { opacity: 0.7 }]}
             >
-              {inMyList ? <Check color={THEME.colors.red} size={20} /> : <Plus color="#fff" size={20} />}
-              <REDText size={14} weight="bold" color={inMyList ? THEME.colors.red : '#fff'} style={{ marginLeft: 6 }}>
-                {inMyList ? 'In My RED' : 'My RED'}
-              </REDText>
+              {inMyList ? (
+                <>
+                  <Check color="#fff" size={20} style={{ marginRight: 6 }} />
+                  <REDText weight="semibold" size={14} color="#fff">Added</REDText>
+                </>
+              ) : (
+                <>
+                  <Plus color="#fff" size={20} style={{ marginRight: 6 }} />
+                  <REDText weight="semibold" size={14} color="#fff">Watchlist</REDText>
+                </>
+              )}
             </Pressable>
           </View>
 
-          <REDText color="rgba(255,255,255,0.7)" size={15} style={{ lineHeight: 24, marginBottom: 32 }}>
-            {data.overview}
-          </REDText>
+          {/* Synopsis */}
+          <View style={{ marginBottom: 28 }}>
+            <REDText size={15} color="rgba(255,255,255,0.8)" style={{ lineHeight: 24 }}>
+              {data.overview || "No overview available."}
+            </REDText>
+          </View>
 
-          {/* Official Poster */}
-        {data.poster_path && (
-          <View style={styles.section}>
-            <REDText weight="bold" size={18} style={styles.sectionTitle}>Official Poster</REDText>
-            <Pressable 
-              onPress={() => Linking.openURL(getImageUrl(data.poster_path, 'original'))}
-              style={({ pressed }) => [{ width: 140, height: 210, borderRadius: 12, overflow: 'hidden' }, pressed && { opacity: 0.8 }]}
-            >
-              <RNImage source={{ uri: getImageUrl(data.poster_path, 'w500') }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' }]}>
-                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' }}>
-                  <Download color="#fff" size={20} />
-                </View>
+          {/* SEASONS & EPISODES SECTION */}
+          {hasSeasons && (
+            <View style={styles.section}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <REDText weight="bold" size={20} color="#fff">Episodes</REDText>
+                <REDText size={13} color={THEME.colors.textSecondary}>
+                  {currentEpisodes.length} Episodes
+                </REDText>
               </View>
-            </Pressable>
-          </View>
-        )}
 
-        {/* RED Community Reviews */}
-        {data?.reviews?.results && data.reviews.results.length > 0 && (
-          <View style={{ marginTop: 24, marginBottom: 32 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <REDText weight="bold" size={18} color="#fff">RED Community</REDText>
-              <Pressable style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 }}>
-                <MessageSquare color="#fff" size={14} style={{ marginRight: 6 }} />
-                <REDText size={13} weight="semibold">Write Review</REDText>
-              </Pressable>
-            </View>
+              {/* Season Selector Pills */}
+              {seasonsList.length > 1 && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, marginBottom: 16 }}>
+                  {seasonsList.map((s: any, idx: number) => {
+                    const isSelected = selectedSeasonIndex === idx;
+                    const seasonTitle = s.title || s.name || `Season ${s.seasonNumber || s.season_number || idx + 1}`;
+                    return (
+                      <Pressable
+                        key={idx}
+                        onPress={() => setSelectedSeasonIndex(idx)}
+                        style={[
+                          styles.seasonPill,
+                          isSelected && styles.seasonPillActive
+                        ]}
+                      >
+                        <REDText size={13} weight="bold" color={isSelected ? '#fff' : 'rgba(255,255,255,0.6)'}>
+                          {seasonTitle}
+                        </REDText>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
 
-            {data.reviews.results.slice(0, 3).map((review: any) => {
-              const avatarPath = review.author_details?.avatar_path;
-              let avatar = `https://i.pravatar.cc/100?u=${review.author}`;
-              if (avatarPath) {
-                if (avatarPath.startsWith('/http')) {
-                  avatar = avatarPath.slice(1);
-                } else {
-                  avatar = getImageUrl(avatarPath, 'w185');
-                }
-              }
-              
-              const rating = review.author_details?.rating ? Math.round(review.author_details.rating / 2) : null;
-              const date = new Date(review.created_at).toLocaleDateString('tr-TR');
+              {/* Episodes List */}
+              <View style={{ gap: 12 }}>
+                {currentEpisodes.map((ep: any, epIdx: number) => {
+                  const epNumber = ep.episodeNumber || ep.episode_number || epIdx + 1;
+                  const epTitle = ep.title || ep.name || `Episode ${epNumber}`;
+                  const thumbUri = ep.thumbnailUrl || (ep.still_path ? getImageUrl(ep.still_path, 'w342') : null);
 
-              return (
-                <View key={review.id} style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: 16, borderRadius: 16, marginBottom: 12 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                    <RNImage source={{ uri: avatar }} style={{ width: 32, height: 32, borderRadius: 16, marginRight: 10, backgroundColor: '#333' }} />
-                    <View style={{ flex: 1 }}>
-                      <REDText weight="bold" size={14} color="#fff">{review.author}</REDText>
-                      <REDText size={12} color="rgba(255,255,255,0.5)">{date}</REDText>
-                    </View>
-                    {rating !== null && (
-                      <View style={{ flexDirection: 'row' }}>
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} color={i < rating ? THEME.colors.red : 'rgba(255,255,255,0.2)'} fill={i < rating ? THEME.colors.red : 'transparent'} size={14} style={{ marginLeft: 2 }} />
-                        ))}
+                  return (
+                    <Pressable
+                      key={ep.id || epIdx}
+                      onPress={() => playEpisode(ep)}
+                      style={({ pressed }) => [
+                        styles.episodeCard,
+                        pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.08)' }
+                      ]}
+                    >
+                      {/* Thumbnail with Play Icon */}
+                      <View style={styles.episodeThumbContainer}>
+                        {thumbUri ? (
+                          <RNImage
+                            source={{ uri: thumbUri }}
+                            style={styles.episodeThumb}
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View style={[styles.episodeThumb, { backgroundColor: '#1e222d', justifyContent: 'center', alignItems: 'center' }]}>
+                            <Play color="rgba(255,255,255,0.4)" size={20} />
+                          </View>
+                        )}
+                        <View style={styles.episodePlayOverlay}>
+                          <View style={styles.episodePlayCircle}>
+                            <Play fill="#fff" color="#fff" size={14} style={{ marginLeft: 2 }} />
+                          </View>
+                        </View>
+                        {ep.duration && (
+                          <View style={styles.durationBadge}>
+                            <REDText size={10} weight="bold" color="#fff">{ep.duration}</REDText>
+                          </View>
+                        )}
                       </View>
-                    )}
-                  </View>
-                  <REDText size={14} color="rgba(255,255,255,0.8)" style={{ lineHeight: 22 }} numberOfLines={6}>
-                    {review.content}
-                  </REDText>
-                </View>
-              );
-            })}
-          </View>
-        )}
 
-        {/* Cast */}
-          {data?.credits?.cast && data.credits.cast.length > 0 && (
+                      {/* Episode Info */}
+                      <View style={{ flex: 1, justifyContent: 'center' }}>
+                        <REDText size={11} weight="bold" color={THEME.colors.red}>
+                          EPISODE {epNumber}
+                        </REDText>
+                        <REDText size={14} weight="bold" color="#fff" numberOfLines={1} style={{ marginTop: 2 }}>
+                          {epTitle}
+                        </REDText>
+                        {ep.overview ? (
+                          <REDText size={12} color="rgba(255,255,255,0.6)" numberOfLines={2} style={{ marginTop: 4, lineHeight: 16 }}>
+                            {ep.overview}
+                          </REDText>
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* Cast */}
+          {(data as any)?.credits?.cast && (data as any).credits.cast.length > 0 && (
             <View style={styles.section}>
               <REDText weight="bold" size={18} style={styles.sectionTitle}>Cast</REDText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 24, gap: 16 }}>
-                {data.credits.cast.slice(0, 10).map((person: any) => (
+                {(data as any).credits.cast.slice(0, 10).map((person: any) => (
                   <View key={person.id} style={{ width: 80, alignItems: 'center' }}>
                     {person.profile_path ? (
                       <RNImage 
@@ -371,7 +486,7 @@ export default function DetailScreen() {
                 ]}
               >
                 {data.backdrop_path ? (
-                  <RNImage source={{ uri: getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  <RNImage source={{ uri: isCartoon ? data.backdrop_path : getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : null}
                 <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }]}>
                   <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
@@ -384,11 +499,11 @@ export default function DetailScreen() {
           )}
 
           {/* More Like This */}
-          {data?.similar?.results && data.similar.results.length > 0 && (
+          {(data as any)?.similar?.results && (data as any).similar.results.length > 0 && (
             <View style={styles.section}>
               <REDText weight="bold" size={18} style={styles.sectionTitle}>More Like This</REDText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 24, gap: 12 }}>
-                {data.similar.results.slice(0, 10).map((similarItem: any) => (
+                {(data as any).similar.results.slice(0, 10).map((similarItem: any) => (
                   <Pressable key={similarItem.id} style={{ width: 120 }} onPress={() => router.push(`/detail/${type}/${similarItem.id}`)}>
                     {similarItem.poster_path ? (
                       <RNImage source={{ uri: getImageUrl(similarItem.poster_path, 'w500') }} style={styles.similarImage} resizeMode="cover" />
@@ -420,7 +535,6 @@ const styles = StyleSheet.create({
   actionsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 },
   playButton: { flex: 1, backgroundColor: THEME.colors.red, height: 52 },
   playIconWrapper: { backgroundColor: '#fff', borderRadius: 12, width: 24, height: 24, justifyContent: 'center', alignItems: 'center' },
-  iconButton: { width: 52, height: 52, justifyContent: 'center', alignItems: 'center' },
   watchlistButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -434,6 +548,68 @@ const styles = StyleSheet.create({
   },
   section: { marginTop: 32 },
   sectionTitle: { marginBottom: 16 },
+  seasonPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  seasonPillActive: {
+    backgroundColor: THEME.colors.red,
+    borderColor: THEME.colors.red,
+  },
+  episodeCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderRadius: 12,
+    padding: 10,
+    gap: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+  },
+  episodeThumbContainer: {
+    width: 110,
+    height: 70,
+    borderRadius: 8,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  episodeThumb: {
+    width: '100%',
+    height: '100%',
+  },
+  episodePlayOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  episodePlayCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  durationBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
   castImage: { width: 70, height: 70, borderRadius: 35, marginBottom: 8 },
   similarImage: { width: 120, height: 180, borderRadius: 8, marginBottom: 8 }
 });

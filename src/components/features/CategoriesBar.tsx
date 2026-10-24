@@ -9,6 +9,7 @@ import { ChevronDown } from 'lucide-react-native';
 const CATEGORIES = [
   "TV Shows",
   "Movies",
+  "Kids",
   "Categories",
 ];
 

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, ScrollView, View, ActivityIndicator } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
 import { ContentRow } from '../../src/components/features/ContentRow';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
+import { getAllCartoons } from '../../src/constants/cartoons';
 import { THEME } from '../../src/constants/theme';
 import { REDText } from '../../src/components/ui/REDText';
 import { TopNavBar } from '../../src/components/ui/TopNavBar';
@@ -25,12 +26,26 @@ export default function Home() {
   const { data: streamingSeries, isLoading: streamingSeriesLoading } = useQuery({ queryKey: ['streamingSeries'], queryFn: () => tmdbAPI.getStreamingSeries() });
   const { data: topRated, isLoading: topRatedLoading } = useQuery({ queryKey: ['topRated'], queryFn: () => tmdbAPI.getTopRated() });
   const { data: trendingPeople, isLoading: trendingPeopleLoading } = useQuery({ queryKey: ['trendingPeople'], queryFn: () => tmdbAPI.getTrendingPeople() });
-  const todayStr = React.useMemo(() => new Date().toISOString().split('T')[0], []);
+  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
   const { data: heroMix } = useQuery({ 
     queryKey: ['heroMix', todayStr], 
     queryFn: () => tmdbAPI.getHeroMix(),
     staleTime: 1000 * 60 * 60 * 12
   });
+
+  const kidsList = useMemo(() => {
+    return getAllCartoons().map((c) => ({
+      id: c.id,
+      title: c.title,
+      name: c.name,
+      posterUrl: c.posterUrl,
+      backdropUrl: c.backdropUrl,
+      overview: c.overview,
+      releaseDate: c.releaseDate,
+      voteAverage: c.voteAverage,
+      mediaType: 'cartoon' as const,
+    }));
+  }, []);
 
   const mapData = (data: any, logPrefix = '') => {
     if (!data?.results) return [];
@@ -71,9 +86,9 @@ export default function Home() {
   
   const heroList = mapData(heroMix, 'HERO_MIX');
 
-  const [heroIndex, setHeroIndex] = React.useState(0);
+  const [heroIndex, setHeroIndex] = useState(0);
 
-  const heroItems = React.useMemo(() => {
+  const heroItems = useMemo(() => {
     const valid = heroList.filter((item: any) => item.backdropUrl);
     if (valid.length === 0) return [];
 
@@ -82,12 +97,19 @@ export default function Home() {
     const startOfYear = new Date(now.getFullYear(), 0, 0);
     const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
     const offset = dayOfYear % valid.length;
-    return [...valid.slice(offset), ...valid.slice(0, offset)].slice(0, 12);
-  }, [heroList]);
+    const rotated = [...valid.slice(offset), ...valid.slice(0, offset)].slice(0, 10);
+
+    // Feature top animation in the Hero bar rotation
+    if (kidsList.length > 0) {
+      rotated.splice(2, 0, kidsList[0] as any);
+    }
+
+    return rotated;
+  }, [heroList, kidsList]);
 
   const heroItem = heroItems[heroIndex] || null;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (heroItems.length === 0) return;
     const interval = setInterval(() => {
       setHeroIndex(prev => (prev + 1) % heroItems.length);
@@ -97,8 +119,8 @@ export default function Home() {
 
   const { data: heroDetail } = useQuery({
     queryKey: ['heroDetail', heroItem?.id, heroItem?.mediaType],
-    queryFn: () => heroItem ? tmdbAPI.getDetails(heroItem.id, heroItem.mediaType as any) : null,
-    enabled: !!heroItem
+    queryFn: () => (heroItem && heroItem.mediaType !== 'cartoon') ? tmdbAPI.getDetails(heroItem.id, heroItem.mediaType as any) : null,
+    enabled: !!heroItem && heroItem.mediaType !== 'cartoon'
   });
 
   const logos = heroDetail?.images?.logos;
@@ -106,7 +128,9 @@ export default function Home() {
   const heroLogoUrl = logoObj ? getImageUrl(logoObj.file_path, 'w780') : undefined;
 
   let heroTrailerId = undefined;
-  if (heroDetail?.videos?.results) {
+  if (heroItem?.mediaType === 'cartoon') {
+    heroTrailerId = 'HwAPLk_sQ3w'; // The Amazing Digital Circus Episode 1
+  } else if (heroDetail?.videos?.results) {
     const ytVideos = heroDetail.videos.results.filter((v: any) => v.site === 'YouTube');
     const trailer = ytVideos.find((v: any) => v.type === 'Trailer') || ytVideos[0];
     if (trailer) {
@@ -142,7 +166,7 @@ export default function Home() {
             id={heroItem.id}
             type={heroItem.mediaType}
             title={heroItem.title}
-            metadata={`${heroItem.releaseDate?.split('-')[0] || ''} • ${heroItem.mediaType === 'movie' ? 'Movie' : 'Series'}`}
+            metadata={`${heroItem.releaseDate?.split('-')[0] || ''} • ${heroItem.mediaType === 'cartoon' ? 'Animation' : (heroItem.mediaType === 'movie' ? 'Movie' : 'Series')}`}
             rating={heroItem.voteAverage}
             description={heroItem.overview}
             imageUrl={heroItem.backdropUrl || heroItem.posterUrl}
@@ -152,13 +176,19 @@ export default function Home() {
         )}
         
         <View style={styles.rowsContainer}>
+          {/* Kids & Animation Row right at the top */}
+          <ContentRow 
+            title="Kids & Animation 🎈 (Watch Free)" 
+            data={kidsList} 
+            onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
+          />
+
           <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
           <ContentRow title="Popular Movies" data={moviesList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
           <ContentRow title="Popular Series" data={seriesList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
           <ContentRow title="Premium TV Shows" data={streamingList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
           <ContentRow title="Because You Watched..." data={moviesList.slice(5).concat(moviesList.slice(0, 5))} onItemPress={(id) => navigateToDetail(id, 'movie')} />
           <ContentRow title="Top Rated" data={topRatedList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
-
           <ContentRow title="More Like This" data={trendingList.slice(5).concat(trendingList.slice(0, 5))} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
         </View>
       </Animated.ScrollView>

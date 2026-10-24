@@ -102,4 +102,12 @@ export const tmdbAPI = {
       return null;
     }
   },
+  getSeasonDetails: async (tvId: string | number, seasonNumber: number) => {
+    try {
+      const res = await fetchFromTMDB(`/tv/${tvId}/season/${seasonNumber}`);
+      return res || null;
+    } catch {
+      return null;
+    }
+  },
 };
