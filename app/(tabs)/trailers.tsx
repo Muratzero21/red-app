@@ -20,24 +20,15 @@ interface TrailerCardProps {
 
 const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    setIsPlaying(isActive);
-  }, [isActive]);
+  const [userActivated, setUserActivated] = useState(false);
+  const [pendingPlay, setPendingPlay] = useState(false);
+  const [pendingCinema, setPendingCinema] = useState(false);
 
   const { data: details, isLoading: detailsLoading } = useQuery({
-    queryKey: ['trailer_detail', item.id],
-    queryFn: () => tmdbAPI.getDetails(item.id, 'movie'),
+    queryKey: ['trailer_feed_detail', item.id],
+    queryFn: () => tmdbAPI.getTrailersFeedData(item.id),
     staleTime: 1000 * 60 * 60,
   });
-
-  const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
-  const isSaved = watchlist.some(w => w.id.toString() === item.id.toString());
-
-  const toggleWatchlist = () => {
-    if (isSaved) removeFromWatchlist(item.id.toString());
-    else addToWatchlist({ id: item.id.toString(), title: item.title, posterUrl: getImageUrl(item.poster_path, 'w500'), mediaType: 'movie' });
-  };
 
   const videos = details?.videos?.results || [];
   const trailer = 
@@ -49,6 +40,39 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
 
   const logos = details?.images?.logos || [];
   const logo = logos.length > 0 ? logos[0].file_path : null;
+
+  // Sync with scroll visibility
+  useEffect(() => {
+    if (isActive) {
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
+      setUserActivated(false);
+    }
+  }, [isActive]);
+
+  // Handle pending user tap once trailer resolves
+  useEffect(() => {
+    if (trailer?.key) {
+      if (pendingPlay) {
+        setPendingPlay(false);
+        setUserActivated(true);
+        setIsPlaying(true);
+      }
+      if (pendingCinema && onOpenCinema) {
+        setPendingCinema(false);
+        onOpenCinema(trailer.key, item.title || item.name, item.overview);
+      }
+    }
+  }, [pendingPlay, pendingCinema, trailer?.key, onOpenCinema, item]);
+
+  const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
+  const isSaved = watchlist.some(w => w.id.toString() === item.id.toString());
+
+  const toggleWatchlist = () => {
+    if (isSaved) removeFromWatchlist(item.id.toString());
+    else addToWatchlist({ id: item.id.toString(), title: item.title, posterUrl: getImageUrl(item.poster_path, 'w500'), mediaType: 'movie' });
+  };
 
   const handleShare = async () => {
     try {
@@ -64,16 +88,35 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
     }
   };
 
+  const handlePlayPress = () => {
+    if (trailer?.key) {
+      setUserActivated(true);
+      setIsPlaying(true);
+    } else {
+      setPendingPlay(true);
+    }
+  };
+
+  const handleCinemaPress = () => {
+    if (trailer?.key && onOpenCinema) {
+      onOpenCinema(trailer.key, item.title || item.name, item.overview);
+    } else {
+      setPendingCinema(true);
+    }
+  };
+
   const onPlayerStateChange = useCallback((state: string) => {
     if (state === 'ended') {
       setIsPlaying(false);
     }
   }, []);
 
+  const shouldShowPlayer = (isActive || userActivated) && !!trailer?.key;
+
   return (
     <View style={styles.cardContainer}>
       <View style={styles.videoContainer}>
-        {isActive && trailer?.key ? (
+        {shouldShowPlayer ? (
           <YoutubePlayer
             height={VIDEO_HEIGHT}
             width={width}
@@ -83,18 +126,20 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
             webViewProps={{
               androidLayerType: 'hardware',
               allowsFullscreenVideo: true,
+              mediaPlaybackRequiresUserAction: false,
             }}
             initialPlayerParams={{
               preventFullScreen: false,
               controls: true,
               modestbranding: true,
               rel: false,
+              iv_load_policy: 3,
             }}
           />
         ) : (
           <TouchableOpacity 
-            activeOpacity={0.9} 
-            onPress={() => setIsPlaying(true)} 
+            activeOpacity={0.88} 
+            onPress={handlePlayPress} 
             style={[StyleSheet.absoluteFill, styles.center]}
           >
             {item.backdrop_path ? (
@@ -107,11 +152,16 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
               <View style={{ width, height: VIDEO_HEIGHT, backgroundColor: '#111' }} />
             )}
             <View style={[StyleSheet.absoluteFill, styles.overlay]}>
-              {isActive && detailsLoading ? (
-                <ActivityIndicator size="small" color={THEME.colors.red} />
+              {(detailsLoading || pendingPlay || pendingCinema) ? (
+                <View style={styles.loadingPill}>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <REDText size={12} weight="bold" color="#fff" style={{ marginLeft: 8 }}>
+                    Yükleniyor...
+                  </REDText>
+                </View>
               ) : (
                 <View style={styles.playButtonCircle}>
-                  <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
+                  <Play fill="#fff" color="#fff" size={26} style={{ marginLeft: 3 }} />
                 </View>
               )}
             </View>
@@ -137,15 +187,13 @@ const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema 
             <REDText style={styles.actionText}>{isSaved ? 'Saved' : 'My RED'}</REDText>
           </TouchableOpacity>
 
-          {trailer?.key && onOpenCinema ? (
-            <TouchableOpacity 
-              style={styles.actionBtn} 
-              onPress={() => onOpenCinema(trailer.key, item.title || item.name, item.overview)}
-            >
-              <Maximize2 color="#fff" size={20} />
-              <REDText style={styles.actionText}>Cinema</REDText>
-            </TouchableOpacity>
-          ) : null}
+          <TouchableOpacity 
+            style={styles.actionBtn} 
+            onPress={handleCinemaPress}
+          >
+            <Maximize2 color="#fff" size={20} />
+            <REDText style={styles.actionText}>Cinema</REDText>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
             <Share2 color="#fff" size={20} />
@@ -191,7 +239,7 @@ export default function TrailersScreen() {
     }
   }, []);
 
-  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 35 }).current;
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -291,17 +339,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   playButtonCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: THEME.colors.red,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
+    elevation: 10,
     shadowColor: THEME.colors.red,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+  },
+  loadingPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   infoContainer: {
     padding: 16,

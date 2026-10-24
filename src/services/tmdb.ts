@@ -94,6 +94,14 @@ export const tmdbAPI = {
   getMoviesByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/movie', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   getTvShowsByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/tv', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   searchMulti: (query: string, page = 1) => fetchFromTMDB('/search/multi', { query, page }),
+  getTrailersFeedData: async (id: string | number) => {
+    try {
+      const res = await fetchFromTMDB(`/movie/${id}`, { append_to_response: 'videos,images' });
+      return res || null;
+    } catch {
+      return null;
+    }
+  },
   getDetails: async (id: string | number, type: 'movie' | 'tv' = 'movie') => {
     try {
       const res = await fetchFromTMDB(`/${type}/${id}`, { append_to_response: 'videos,credits,similar,images,watch/providers,reviews' });
