@@ -291,8 +291,12 @@ export default function DetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               <REDText color={THEME.colors.textSecondary} size={15} weight="semibold">{metadata}</REDText>
               <View style={{ flexDirection: 'row', gap: 6 }}>
-                {(isStreamShow ? ['FREE STREAM', 'FULL HD', streamData?.badge || 'EXCLUSIVE'] : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])).map((badge) => (
-                  <View key={badge} style={styles.badge}>
+                {Array.from(new Set(
+                  isStreamShow 
+                    ? ['FREE STREAM', 'FULL HD', streamData?.badge && streamData.badge !== 'FREE STREAM' ? streamData.badge : 'EXCLUSIVE']
+                    : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])
+                )).map((badge, badgeIdx) => (
+                  <View key={`${badge}-${badgeIdx}`} style={styles.badge}>
                     <REDText size={10} weight="bold" color="rgba(255,255,255,0.8)">{badge}</REDText>
                   </View>
                 ))}
