@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, StyleSheet, Modal, Dimensions, Pressable, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Modal, Dimensions, Pressable, ActivityIndicator, StatusBar, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { X, Maximize2 } from 'lucide-react-native';
+import { X, ExternalLink } from 'lucide-react-native';
 import { REDText } from './REDText';
 import { THEME } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ interface YouTubePlayerModalProps {
 }
 
 const { width } = Dimensions.get('window');
-const VIDEO_HEIGHT = Math.min(width * (9 / 16), 340);
+const VIDEO_HEIGHT = Math.min(width * (9 / 16), 320);
 
 export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   visible,
@@ -25,11 +25,11 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   onClose,
 }) => {
   const insets = useSafeAreaInsets();
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   if (!visible || !videoId) return null;
 
-  // HTML with official YouTube IFrame Embed Player API
+  // Clean HTML with origin and autoplay permissions
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -64,7 +64,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
       <body>
         <div class="video-container">
           <iframe 
-            src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1&modestbranding=1&rel=0&controls=1&fs=1" 
+            src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&fs=1" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
             allowfullscreen>
           </iframe>
@@ -72,6 +72,13 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
       </body>
     </html>
   `;
+
+  const handleOpenExternal = () => {
+    const url = `https://www.youtube.com/watch?v=${videoId}`;
+    Linking.openURL(`vnd.youtube://${videoId}`).catch(() => {
+      Linking.openURL(url);
+    });
+  };
 
   return (
     <Modal
@@ -88,7 +95,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 8 }]}>
           <View style={{ flex: 1, marginRight: 12 }}>
             <REDText size={11} weight="bold" color={THEME.colors.red} style={{ letterSpacing: 1 }}>
-              RED IN-APP PLAYER
+              RED PLAYER
             </REDText>
             {title ? (
               <REDText size={15} weight="bold" color="#fff" numberOfLines={1} style={{ marginTop: 2 }}>
@@ -109,7 +116,10 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
         {/* Video Player Box */}
         <View style={styles.playerContainer}>
           <WebView
-            source={{ html: htmlContent }}
+            source={{ 
+              html: htmlContent,
+              baseUrl: 'https://www.youtube.com'
+            }}
             style={styles.webview}
             allowsFullscreenVideo={true}
             javaScriptEnabled={true}
@@ -118,6 +128,8 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
             allowsInlineMediaPlayback={true}
             onLoadEnd={() => setLoading(false)}
             originWhitelist={['*']}
+            mixedContentMode="always"
+            userAgent="Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
           />
 
           {loading && (
@@ -138,16 +150,24 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
             </REDText>
           ) : null}
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 }}>
-            <View style={styles.badge}>
-              <REDText size={10} weight="bold" color="#fff">FULL HD</REDText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={styles.badge}>
+                <REDText size={10} weight="bold" color="#fff">FULL HD</REDText>
+              </View>
+              <View style={[styles.badge, { borderColor: THEME.colors.red, backgroundColor: 'rgba(229,9,20,0.15)' }]}>
+                <REDText size={10} weight="bold" color={THEME.colors.red}>YOUTUBE</REDText>
+              </View>
             </View>
-            <View style={styles.badge}>
-              <REDText size={10} weight="bold" color="#fff">OFFICIAL EMBED</REDText>
-            </View>
-            <View style={[styles.badge, { borderColor: THEME.colors.red, backgroundColor: 'rgba(229,9,20,0.15)' }]}>
-              <REDText size={10} weight="bold" color={THEME.colors.red}>YOUTUBE</REDText>
-            </View>
+
+            {/* Quick Open in YouTube Button if network blocks in-app embed */}
+            <Pressable
+              onPress={handleOpenExternal}
+              style={({ pressed }) => [styles.externalBtn, pressed && { opacity: 0.7 }]}
+            >
+              <ExternalLink size={13} color="#fff" style={{ marginRight: 6 }} />
+              <REDText size={12} weight="semibold" color="#fff">Open App</REDText>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -166,7 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 14,
   },
   closeBtn: {
     width: 38,
@@ -201,7 +221,7 @@ const styles = StyleSheet.create({
   },
   detailsContainer: {
     paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingTop: 16,
     paddingBottom: 24,
   },
   badge: {
@@ -211,5 +231,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  externalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 });
