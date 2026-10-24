@@ -11,6 +11,7 @@ import { getCartoonById } from '../../../src/constants/cartoons';
 import { THEME } from '../../../src/constants/theme';
 import { REDText } from '../../../src/components/ui/REDText';
 import { REDButton } from '../../../src/components/ui/REDButton';
+import { YouTubePlayerModal } from '../../../src/components/ui/YouTubePlayerModal';
 import { useWatchlistStore } from '../../../src/store/useWatchlistStore';
 
 const { width, height } = Dimensions.get('window');
@@ -39,6 +40,17 @@ export default function DetailScreen() {
 
   // Selected Season index
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
+
+  // In-App YouTube Player state
+  const [playerModal, setPlayerModal] = useState<{
+    visible: boolean;
+    videoId: string | null;
+    title?: string;
+    subtitle?: string;
+  }>({
+    visible: false,
+    videoId: null,
+  });
 
   // 1. If it's a cartoon, load from local catalog
   const cartoonData = useMemo(() => {
@@ -182,9 +194,11 @@ export default function DetailScreen() {
 
   const playEpisode = (ep: any) => {
     if (ep.youtubeId) {
-      const url = `https://www.youtube.com/watch?v=${ep.youtubeId}`;
-      Linking.openURL(`vnd.youtube://${ep.youtubeId}`).catch(() => {
-        Linking.openURL(url);
+      setPlayerModal({
+        visible: true,
+        videoId: ep.youtubeId,
+        title: `${title} - ${ep.title}`,
+        subtitle: ep.overview,
       });
     } else {
       // Search for TMDB episode on YouTube
@@ -281,7 +295,7 @@ export default function DetailScreen() {
           {/* Action Buttons */}
           <View style={styles.actionsRow}>
             <REDButton 
-              title={isCartoon ? "Watch Episode 1" : (providerName ? `Play on ${providerName}` : "Play Trailer")} 
+              title={isCartoon ? "Watch Episode 1" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
               variant="primary" 
               icon={
                 providerLogo ? (
@@ -300,6 +314,13 @@ export default function DetailScreen() {
               onPress={() => {
                 if (isCartoon && cartoonData?.seasons?.[0]?.episodes?.[0]?.youtubeId) {
                   playEpisode(cartoonData.seasons[0].episodes[0]);
+                } else if (trailerId) {
+                  setPlayerModal({
+                    visible: true,
+                    videoId: trailerId,
+                    title: `${title} - Official Trailer`,
+                    subtitle: data?.overview,
+                  });
                 } else if (providerName) {
                   const pName = providerName.toLowerCase();
                   const encodedTitle = encodeURIComponent(data?.title || data?.name || '');
@@ -317,10 +338,6 @@ export default function DetailScreen() {
                   
                   Linking.openURL(deepLink).catch(() => {
                     if (watchLink) Linking.openURL(watchLink);
-                  });
-                } else if (trailerId) {
-                  Linking.openURL(`vnd.youtube://${trailerId}`).catch(() => {
-                    Linking.openURL(`https://www.youtube.com/watch?v=${trailerId}`);
                   });
                 } else {
                   Alert.alert("Play Not Available", "There are no streaming providers or trailers available for this title.");
@@ -474,12 +491,17 @@ export default function DetailScreen() {
             </View>
           )}
 
-          {/* Trailer */}
+          {/* Trailer Section */}
           {trailerId && (
             <View style={styles.section}>
               <REDText weight="bold" size={18} style={styles.sectionTitle}>Trailer</REDText>
               <Pressable 
-                onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${trailerId}`)}
+                onPress={() => setPlayerModal({
+                  visible: true,
+                  videoId: trailerId,
+                  title: `${title} - Official Trailer`,
+                  subtitle: data?.overview,
+                })}
                 style={({ pressed }) => [
                   { height: 160, borderRadius: 12, overflow: 'hidden', backgroundColor: '#161922', justifyContent: 'center', alignItems: 'center' },
                   pressed && { opacity: 0.8 }
@@ -520,6 +542,15 @@ export default function DetailScreen() {
           )}
         </View>
       </Animated.ScrollView>
+
+      {/* In-App YouTube Player Modal */}
+      <YouTubePlayerModal
+        visible={playerModal.visible}
+        videoId={playerModal.videoId}
+        title={playerModal.title}
+        subtitle={playerModal.subtitle}
+        onClose={() => setPlayerModal({ visible: false, videoId: null })}
+      />
     </View>
   );
 }
