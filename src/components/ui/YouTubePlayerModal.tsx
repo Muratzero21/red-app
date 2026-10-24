@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, ScrollView, Image as RNImage } from 'react-native';
+import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, ScrollView, Image as RNImage, ActivityIndicator } from 'react-native';
 import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import { X, Play, FastForward } from 'lucide-react-native';
 import { REDText } from './REDText';
@@ -168,6 +168,9 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
           {/* Netflix Clean Player Frame - No Artificial Red Glow / Borders */}
           <View style={styles.screenOuter}>
             <View style={styles.screenInner}>
+              <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="small" color={THEME.colors.red} />
+              </View>
               <YoutubePlayer
                 ref={playerRef}
                 width={PLAYER_WIDTH}
@@ -175,12 +178,10 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                 play={playing}
                 videoId={videoId}
                 onChangeState={onStateChange}
-                baseUrlOverride="https://www.youtube.com"
                 webViewProps={{
                   androidLayerType: 'hardware',
                   allowsFullscreenVideo: true,
                   mediaPlaybackRequiresUserAction: false,
-                  originWhitelist: ['*'],
                 }}
                 initialPlayerParams={{
                   preventFullScreen: false,
@@ -188,8 +189,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                   modestbranding: true,
                   rel: false,
                   iv_load_policy: 3,
-                  origin: 'https://www.youtube.com',
-                } as any}
+                }}
               />
             </View>
           </View>
