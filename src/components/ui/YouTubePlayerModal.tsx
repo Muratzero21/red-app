@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, Linking } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { X, ExternalLink } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { REDText } from './REDText';
 import { THEME } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,13 +34,6 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   }, []);
 
   if (!visible || !videoId) return null;
-
-  const handleOpenExternal = () => {
-    const url = `https://www.youtube.com/watch?v=${videoId}`;
-    Linking.openURL(`vnd.youtube://${videoId}`).catch(() => {
-      Linking.openURL(url);
-    });
-  };
 
   return (
     <Modal
@@ -103,24 +96,13 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
             </REDText>
           ) : null}
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <View style={styles.badge}>
-                <REDText size={10} weight="bold" color="#fff">FULL HD</REDText>
-              </View>
-              <View style={[styles.badge, { borderColor: THEME.colors.red, backgroundColor: 'rgba(229,9,20,0.15)' }]}>
-                <REDText size={10} weight="bold" color={THEME.colors.red}>YOUTUBE</REDText>
-              </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 }}>
+            <View style={styles.badge}>
+              <REDText size={10} weight="bold" color="#fff">FULL HD</REDText>
             </View>
-
-            {/* Quick Open in YouTube Button */}
-            <Pressable
-              onPress={handleOpenExternal}
-              style={({ pressed }) => [styles.externalBtn, pressed && { opacity: 0.7 }]}
-            >
-              <ExternalLink size={13} color="#fff" style={{ marginRight: 6 }} />
-              <REDText size={12} weight="semibold" color="#fff">Open App</REDText>
-            </Pressable>
+            <View style={[styles.badge, { borderColor: THEME.colors.red, backgroundColor: 'rgba(229,9,20,0.15)' }]}>
+              <REDText size={10} weight="bold" color={THEME.colors.red}>RED EXCLUSIVE</REDText>
+            </View>
           </View>
         </View>
       </View>
@@ -169,15 +151,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  externalBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
   },
 });
