@@ -52,6 +52,7 @@ export default function DetailScreen() {
 
   // Selected Season index
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
+  const [activeEpisode, setActiveEpisode] = useState<any>(null);
 
   // In-App YouTube Player state
   const [playerModal, setPlayerModal] = useState<{
@@ -123,6 +124,47 @@ export default function DetailScreen() {
     };
   });
 
+  // We ONLY show seasons & episodes for stream shows that have actual playable YouTube episodes!
+  // Subscription platform series (Netflix, Disney+, etc.) will not display unplayable episode lists.
+  const hasSeasons = isStreamShow && (streamData?.seasons?.length ?? 0) > 0;
+  const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
+  const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
+  const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
+
+  // Netflix-style next episode resolver for autoplay
+  const nextEpisode = useMemo(() => {
+    if (!activeEpisode || !currentEpisodes || currentEpisodes.length === 0) return null;
+    const currentIndex = currentEpisodes.findIndex(
+      (e: any) => e.id === activeEpisode.id || e.youtubeId === activeEpisode.youtubeId
+    );
+    if (currentIndex >= 0 && currentIndex < currentEpisodes.length - 1) {
+      const next = currentEpisodes[currentIndex + 1];
+      return {
+        id: next.id,
+        episodeNumber: next.episodeNumber || currentIndex + 2,
+        title: next.title,
+        youtubeId: next.youtubeId,
+        overview: next.overview,
+        duration: next.duration,
+        thumbnail: next.thumbnail || (next.youtubeId ? `https://img.youtube.com/vi/${next.youtubeId}/mqdefault.jpg` : undefined),
+      };
+    }
+    return null;
+  }, [activeEpisode, currentEpisodes]);
+
+  const playEpisode = (ep: any) => {
+    if (ep?.youtubeId) {
+      setActiveEpisode(ep);
+      const showTitle = data?.title || data?.name || streamData?.title || 'Show';
+      setPlayerModal({
+        visible: true,
+        videoId: ep.youtubeId,
+        title: `${showTitle} - ${ep.title}`,
+        subtitle: ep.overview,
+      });
+    }
+  };
+
   if (isLoading || !data) {
     return (
       <View style={styles.loadingContainer}>
@@ -183,48 +225,6 @@ export default function DetailScreen() {
       console.error(e);
     }
   };
-
-  const [activeEpisode, setActiveEpisode] = useState<any>(null);
-
-  const playEpisode = (ep: any) => {
-    if (ep?.youtubeId) {
-      setActiveEpisode(ep);
-      setPlayerModal({
-        visible: true,
-        videoId: ep.youtubeId,
-        title: `${title} - ${ep.title}`,
-        subtitle: ep.overview,
-      });
-    }
-  };
-
-  // We ONLY show seasons & episodes for stream shows that have actual playable YouTube episodes!
-  // Subscription platform series (Netflix, Disney+, etc.) will not display unplayable episode lists.
-  const hasSeasons = isStreamShow && (streamData?.seasons?.length ?? 0) > 0;
-  const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
-  const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
-  const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
-
-  // Netflix-style next episode resolver for autoplay
-  const nextEpisode = useMemo(() => {
-    if (!activeEpisode || !currentEpisodes || currentEpisodes.length === 0) return null;
-    const currentIndex = currentEpisodes.findIndex(
-      (e: any) => e.id === activeEpisode.id || e.youtubeId === activeEpisode.youtubeId
-    );
-    if (currentIndex >= 0 && currentIndex < currentEpisodes.length - 1) {
-      const next = currentEpisodes[currentIndex + 1];
-      return {
-        id: next.id,
-        episodeNumber: next.episodeNumber || currentIndex + 2,
-        title: next.title,
-        youtubeId: next.youtubeId,
-        overview: next.overview,
-        duration: next.duration,
-        thumbnail: next.thumbnail || (next.youtubeId ? `https://img.youtube.com/vi/${next.youtubeId}/mqdefault.jpg` : undefined),
-      };
-    }
-    return null;
-  }, [activeEpisode, currentEpisodes]);
 
   return (
     <View style={styles.container}>
