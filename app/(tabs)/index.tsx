@@ -44,6 +44,7 @@ export default function Home() {
       releaseDate: c.releaseDate,
       voteAverage: c.voteAverage,
       mediaType: 'cartoon' as const,
+      logoUrl: c.logoUrl,
     }));
   }, []);
 
@@ -58,6 +59,7 @@ export default function Home() {
       releaseDate: c.releaseDate,
       voteAverage: c.voteAverage,
       mediaType: 'stream' as const,
+      logoUrl: c.logoUrl,
     }));
   }, []);
 
@@ -72,6 +74,7 @@ export default function Home() {
       releaseDate: c.releaseDate,
       voteAverage: c.voteAverage,
       mediaType: 'stream' as const,
+      logoUrl: c.logoUrl,
     }));
   }, []);
 
@@ -153,11 +156,12 @@ export default function Home() {
 
   const logos = heroDetail?.images?.logos;
   const logoObj = logos?.find((l: any) => l.iso_639_1 === 'en') || logos?.[0];
-  const heroLogoUrl = logoObj ? getImageUrl(logoObj.file_path, 'w780') : undefined;
+  const heroLogoUrl = heroItem?.logoUrl || (logoObj ? getImageUrl(logoObj.file_path, 'w780') : undefined);
 
   let heroTrailerId = undefined;
   if (heroItem?.mediaType === 'cartoon') {
-    heroTrailerId = 'HwAPLk_sQ3w'; // The Amazing Digital Circus Episode 1
+    const cartoon = getAllCartoons().find(c => c.id === heroItem.id);
+    heroTrailerId = cartoon?.seasons?.[0]?.episodes?.[0]?.youtubeId || 'TpaoJCQxF1M';
   } else if (heroDetail?.videos?.results) {
     const ytVideos = heroDetail.videos.results.filter((v: any) => v.site === 'YouTube');
     const trailer = ytVideos.find((v: any) => v.type === 'Trailer') || ytVideos[0];
