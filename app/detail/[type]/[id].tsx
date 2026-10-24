@@ -131,6 +131,12 @@ export default function DetailScreen() {
   const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
   const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
   const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
+  const currentSeasonPillLabel = useMemo(() => {
+    if (!hasSeasons || seasonsList.length === 0) return 'Season 1';
+    const s = seasonsList[selectedSeasonIndex];
+    const sNum = s?.seasonNumber || selectedSeasonIndex + 1;
+    return `Season ${sNum}`;
+  }, [hasSeasons, seasonsList, selectedSeasonIndex]);
 
   // Netflix-style next episode resolver for autoplay
   const nextEpisode = useMemo(() => {
@@ -389,19 +395,21 @@ export default function DetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <REDText weight="bold" size={20} color="#fff">Episodes</REDText>
 
-                {/* Netflix Season Button (Always Opens Netflix Season Picker) */}
-                <Pressable
-                  onPress={() => setSeasonModalVisible(true)}
-                  style={({ pressed }) => [
-                    styles.netflixSeasonBtn,
-                    pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.18)' }
-                  ]}
-                >
-                  <REDText size={13} weight="bold" color="#fff">
-                    {currentSeasonTitle}
-                  </REDText>
-                  <ChevronDown size={15} color="#fff" style={{ marginLeft: 6 }} />
-                </Pressable>
+                {/* Netflix Season Pill Button: Only visible if seasons.length > 1 */}
+                {seasonsList.length > 1 && (
+                  <Pressable
+                    onPress={() => setSeasonModalVisible(true)}
+                    style={({ pressed }) => [
+                      styles.netflixSeasonPillBtn,
+                      pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.2)' }
+                    ]}
+                  >
+                    <REDText size={13} weight="bold" color="#fff">
+                      {currentSeasonPillLabel}
+                    </REDText>
+                    <ChevronDown size={14} color="#fff" style={{ marginLeft: 6 }} />
+                  </Pressable>
+                )}
               </View>
 
               {/* Episodes List */}
@@ -554,20 +562,26 @@ export default function DetailScreen() {
         </View>
       </Animated.ScrollView>
 
-      {/* Netflix-Style Season Selector Modal */}
+      {/* Netflix-Style Season Selector Bottom Sheet */}
       <Modal
         visible={seasonModalVisible}
         transparent={true}
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setSeasonModalVisible(false)}
       >
         <Pressable 
-          style={styles.seasonModalBackdrop}
+          style={styles.bottomSheetBackdrop}
           onPress={() => setSeasonModalVisible(false)}
         >
-          <View style={styles.seasonModalContent} onStartShouldSetResponder={() => true}>
+          <Pressable 
+            style={styles.bottomSheetContent} 
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Grabber Handle */}
+            <View style={styles.bottomSheetHandle} />
+
             {/* Header */}
-            <View style={styles.seasonModalHeader}>
+            <View style={styles.bottomSheetHeader}>
               <View>
                 <REDText size={18} weight="bold" color="#fff">
                   Seasons
@@ -580,7 +594,7 @@ export default function DetailScreen() {
                 onPress={() => setSeasonModalVisible(false)}
                 hitSlop={12}
                 style={({ pressed }) => [
-                  styles.seasonModalCloseIconBtn,
+                  styles.bottomSheetCloseIconBtn,
                   pressed && { opacity: 0.7, backgroundColor: 'rgba(255,255,255,0.2)' }
                 ]}
               >
@@ -589,10 +603,14 @@ export default function DetailScreen() {
             </View>
 
             {/* Season List */}
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 360 }}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 380 }}>
               {seasonsList.map((season: any, idx: number) => {
                 const isSelected = idx === selectedSeasonIndex;
-                const sTitle = season.title || `Season ${season.seasonNumber || idx + 1}`;
+                const seasonNumber = season.seasonNumber || idx + 1;
+                const seasonDisplayName = `Season ${seasonNumber}`;
+                const seasonSubtext = season.title && season.title !== seasonDisplayName 
+                  ? season.title 
+                  : null;
                 const epCount = season.episodes?.length || 0;
 
                 return (
@@ -603,20 +621,25 @@ export default function DetailScreen() {
                       setSeasonModalVisible(false);
                     }}
                     style={({ pressed }) => [
-                      styles.seasonModalItem,
-                      isSelected && styles.seasonModalItemSelected,
+                      styles.bottomSheetSeasonItem,
+                      isSelected && styles.bottomSheetSeasonItemSelected,
                       pressed && { opacity: 0.8 }
                     ]}
                   >
                     <View style={{ flex: 1, paddingRight: 10 }}>
                       <REDText 
-                        size={15} 
-                        weight={isSelected ? 'bold' : 'regular'} 
+                        size={16} 
+                        weight={isSelected ? 'bold' : 'medium'} 
                         color={isSelected ? '#fff' : 'rgba(255,255,255,0.8)'}
                       >
-                        {sTitle}
+                        {seasonDisplayName}
                       </REDText>
-                      <REDText size={12} color="rgba(255,255,255,0.4)" style={{ marginTop: 3 }}>
+                      {seasonSubtext && (
+                        <REDText size={12} color="rgba(255,255,255,0.45)" style={{ marginTop: 2 }} numberOfLines={1}>
+                          {seasonSubtext}
+                        </REDText>
+                      )}
+                      <REDText size={11} color="rgba(255,255,255,0.35)" style={{ marginTop: 2 }}>
                         {epCount} {epCount === 1 ? 'Episode' : 'Episodes'}
                       </REDText>
                     </View>
@@ -635,7 +658,7 @@ export default function DetailScreen() {
             <Pressable
               onPress={() => setSeasonModalVisible(false)}
               style={({ pressed }) => [
-                styles.seasonModalCloseBtn,
+                styles.bottomSheetCloseBtn,
                 pressed && { opacity: 0.8 }
               ]}
             >
@@ -643,7 +666,7 @@ export default function DetailScreen() {
                 Close
               </REDText>
             </Pressable>
-          </View>
+          </Pressable>
         </Pressable>
       </Modal>
 
@@ -687,65 +710,74 @@ const styles = StyleSheet.create({
   },
   section: { marginTop: 32 },
   sectionTitle: { marginBottom: 16 },
-  netflixSeasonBtn: {
+  netflixSeasonPillBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  seasonModalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.78)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  seasonModalContent: {
-    width: '100%',
-    maxWidth: 380,
-    backgroundColor: '#16181f',
+    paddingVertical: 6,
     borderRadius: 20,
-    padding: 20,
     borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+  },
+  bottomSheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'flex-end',
+  },
+  bottomSheetContent: {
+    width: '100%',
+    backgroundColor: '#16181f',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 12,
+    paddingBottom: 36,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderBottomWidth: 0,
     borderColor: 'rgba(255,255,255,0.12)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: { width: 0, height: -8 },
     shadowOpacity: 0.5,
-    shadowRadius: 20,
+    shadowRadius: 16,
     elevation: 25,
   },
-  seasonModalHeader: {
+  bottomSheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  bottomSheetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 14,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.08)',
   },
-  seasonModalCloseIconBtn: {
+  bottomSheetCloseIconBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  seasonModalItem: {
+  bottomSheetSeasonItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
-    marginBottom: 6,
+    marginBottom: 8,
     backgroundColor: 'rgba(255,255,255,0.03)',
   },
-  seasonModalItemSelected: {
+  bottomSheetSeasonItemSelected: {
     backgroundColor: 'rgba(229, 9, 20, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(229, 9, 20, 0.4)',
@@ -758,9 +790,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  seasonModalCloseBtn: {
+  bottomSheetCloseBtn: {
     marginTop: 14,
-    paddingVertical: 12,
+    paddingVertical: 13,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
