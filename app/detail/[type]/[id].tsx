@@ -181,8 +181,11 @@ export default function DetailScreen() {
     }
   };
 
+  const [activeEpisode, setActiveEpisode] = useState<any>(null);
+
   const playEpisode = (ep: any) => {
     if (ep?.youtubeId) {
+      setActiveEpisode(ep);
       setPlayerModal({
         visible: true,
         videoId: ep.youtubeId,
@@ -198,6 +201,27 @@ export default function DetailScreen() {
   const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
   const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
   const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
+
+  // Netflix-style next episode resolver for autoplay
+  const nextEpisode = useMemo(() => {
+    if (!activeEpisode || !currentEpisodes || currentEpisodes.length === 0) return null;
+    const currentIndex = currentEpisodes.findIndex(
+      (e: any) => e.id === activeEpisode.id || e.youtubeId === activeEpisode.youtubeId
+    );
+    if (currentIndex >= 0 && currentIndex < currentEpisodes.length - 1) {
+      const next = currentEpisodes[currentIndex + 1];
+      return {
+        id: next.id,
+        episodeNumber: next.episodeNumber || currentIndex + 2,
+        title: next.title,
+        youtubeId: next.youtubeId,
+        overview: next.overview,
+        duration: next.duration,
+        thumbnail: next.thumbnail || (next.youtubeId ? `https://img.youtube.com/vi/${next.youtubeId}/mqdefault.jpg` : undefined),
+      };
+    }
+    return null;
+  }, [activeEpisode, currentEpisodes]);
 
   return (
     <View style={styles.container}>
@@ -533,6 +557,8 @@ export default function DetailScreen() {
         title={playerModal.title}
         subtitle={playerModal.subtitle}
         onClose={() => setPlayerModal({ visible: false, videoId: null })}
+        nextEpisode={nextEpisode}
+        onPlayNextEpisode={(next) => playEpisode(next)}
       />
     </View>
   );
