@@ -253,7 +253,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             title: '1. Bölüm - Operasyon Başlıyor',
             duration: '68m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
-            youtubeId: 'XkszEcCUtmk',
+            youtubeId: 'DkAHxvoA2Q8',
             overview: 'Ali Candan yurt dışı görevindeyken Aslan Akbey tarafından çağrılır. Kurtlar Vadisi operasyonu resmen başlar.'
           },
           {
@@ -262,8 +262,17 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             title: '2. Bölüm - Yeni Hayat',
             duration: '72m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
-            youtubeId: 'b_VbU_placeholder_kv2',
+            youtubeId: 'lPigtgxb4Cg',
             overview: 'Polat Alemdar yeni kimliğiyle eski hayatına veda edip Çakır ile ilk teması kurmak için sahaya adım atar.'
+          },
+          {
+            id: 'kv-e3',
+            episodeNumber: 3,
+            title: '3. Bölüm - Kumarhane Masası',
+            duration: '75m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
+            youtubeId: 'sEBuF0hVRbc',
+            overview: 'Polat ve Çakır kumarhane aleminde ortak düşmanlarına karşı ilk büyük hamlelerini planlarlar.'
           }
         ]
       }
@@ -297,6 +306,15 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
             youtubeId: 'eo76L8gueeU',
             overview: 'Ezel Kıbrıs kumarhanesinde Eyşan, Cengiz ve Ali\'nin karşısına kusursuz bir iş adamı olarak ilk kez çıkar.'
+          },
+          {
+            id: 'ezel-e2',
+            episodeNumber: 2,
+            title: '2. Bölüm - İhanetle Gelen Kardeşlik',
+            duration: '88m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
+            youtubeId: '4tulyH8Y91Q',
+            overview: 'Ezel, geçmişin hesabını sormak için Cengiz ve Ali\'nin güvenini kazanma adımlarını hızlandırır.'
           }
         ]
       }
@@ -330,6 +348,15 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/tQprHjpB1Utq3QmPDdQRKwPDDRh.jpg',
             youtubeId: 'YjEfvVX-V9c',
             overview: 'Kuzey dört yıl hapis yattıktan sonra tahliye olur, ancak geçmişin acıları ve Cemre\'nin varlığı iki kardeşi yeniden sınar.'
+          },
+          {
+            id: 'kg-e2',
+            episodeNumber: 2,
+            title: '2. Bölüm - Yeni Bir Başlangıç',
+            duration: '85m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/eG35U9iYp6cWigQxIpzwlPEPY0l.jpg',
+            youtubeId: 'uPJ_O1j94Jw',
+            overview: 'Kuzey sokak dövüşlerine girerken Güney ailesinin beklentileri ve Simay\'ın baskısıyla mücadele eder.'
           }
         ]
       }
@@ -363,6 +390,15 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/pF1OQe4zaXX9vOwxbxjZzws0CAe.jpg',
             youtubeId: 'FjyoVZNJriM',
             overview: 'Ankara\'da şüpheli bir kadın cinayeti işlenir. Başkomiser Behzat Ç. ve ekibi Harun, Hayalet, Akbaba dosyanın peşine düşer.'
+          },
+          {
+            id: 'behzat-e2',
+            episodeNumber: 2,
+            title: '2. Bölüm - Adalet',
+            duration: '80m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/aRqNQ5v2tvZ9ZRAXpYik0JamHkm.jpg',
+            youtubeId: '2foQ8FOZVsE',
+            overview: 'Cinayet masası bir holding yöneticisinin şüpheli intiharını aydınlatmaya çalışırken bürokrasinin engelleriyle karşılaşır.'
           }
         ]
       }

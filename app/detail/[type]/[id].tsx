@@ -95,21 +95,6 @@ export default function DetailScreen() {
 
   const isLoading = isStreamShow ? !streamData : tmdbLoading;
 
-  // TMDB TV Seasons
-  const tmdbSeasons = useMemo(() => {
-    if (!isTv || !tmdbData?.seasons) return [];
-    return tmdbData.seasons.filter((s: any) => s.season_number > 0);
-  }, [isTv, tmdbData?.seasons]);
-
-  const selectedTmdbSeasonNumber = tmdbSeasons[selectedSeasonIndex]?.season_number || 1;
-
-  // Fetch TMDB Episodes for selected season
-  const { data: tmdbSeasonData } = useQuery({
-    queryKey: ['tvSeason', stringId, selectedTmdbSeasonNumber],
-    queryFn: () => tmdbAPI.getSeasonDetails(stringId, selectedTmdbSeasonNumber),
-    enabled: isTv && tmdbSeasons.length > 0
-  });
-
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -197,34 +182,22 @@ export default function DetailScreen() {
   };
 
   const playEpisode = (ep: any) => {
-    if (ep.youtubeId) {
+    if (ep?.youtubeId) {
       setPlayerModal({
         visible: true,
         videoId: ep.youtubeId,
         title: `${title} - ${ep.title}`,
         subtitle: ep.overview,
       });
-    } else {
-      // Search for TMDB episode on YouTube
-      const query = encodeURIComponent(`${title} Season ${selectedTmdbSeasonNumber} Episode ${ep.episode_number || 1}`);
-      Linking.openURL(`https://www.youtube.com/results?search_query=${query}`);
     }
   };
 
-  // Determine seasons list
-  const seasonsList = isStreamShow 
-    ? (streamData?.seasons || []) 
-    : tmdbSeasons;
-
-  const currentEpisodes = isStreamShow 
-    ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || [])
-    : (tmdbSeasonData?.episodes || []);
-
-  const hasSeasons = isStreamShow || (isTv && seasonsList.length > 0);
-
-  const currentSeasonTitle = isStreamShow 
-    ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`)
-    : (tmdbSeasons[selectedSeasonIndex]?.name || `Season ${selectedSeasonIndex + 1}`);
+  // We ONLY show seasons & episodes for stream shows that have actual playable YouTube episodes!
+  // Subscription platform series (Netflix, Disney+, etc.) will not display unplayable episode lists.
+  const hasSeasons = isStreamShow && (streamData?.seasons?.length ?? 0) > 0;
+  const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
+  const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
+  const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
 
   return (
     <View style={styles.container}>
@@ -408,7 +381,7 @@ export default function DetailScreen() {
                 {currentEpisodes.map((ep: any, epIdx: number) => {
                   const epNumber = ep.episodeNumber || ep.episode_number || epIdx + 1;
                   const epTitle = ep.title || ep.name || `Episode ${epNumber}`;
-                  const thumbUri = ep.thumbnailUrl || (ep.still_path ? getImageUrl(ep.still_path, 'w342') : null);
+                  const thumbUri = ep.thumbnail || ep.thumbnailUrl || (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg` : null) || (ep.still_path ? getImageUrl(ep.still_path, 'w342') : null);
 
                   return (
                     <Pressable
