@@ -213,16 +213,16 @@ export default function Home() {
             onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
           />
 
-          {/* Türk Dizi Klasikleri Row */}
+          {/* Turkish Series Row */}
           <ContentRow 
-            title="Türk Dizi Klasikleri (Ücretsiz Full HD)" 
+            title="Turkish Series" 
             data={turkishClassicsList} 
             onItemPress={(id) => navigateToDetail(id, 'stream')} 
           />
 
-          {/* Viral Web Serileri */}
+          {/* Viral Web Series */}
           <ContentRow 
-            title="Viral Web Serileri" 
+            title="Viral Web Series" 
             data={indieWebList} 
             onItemPress={(id) => navigateToDetail(id, 'stream')} 
           />

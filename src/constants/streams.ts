@@ -225,7 +225,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   }
 ];
 
-// 2. TÜRK DİZİ KLASİKLERİ (TÜM BÖLÜMLER RESMİ FULL HD)
+// 2. TURKISH SERIES (OFFICIAL FULL HD EPISODES)
 export const TURKISH_CLASSICS: StreamShow[] = [
   {
     id: 'kurtlar-vadisi',
@@ -233,19 +233,19 @@ export const TURKISH_CLASSICS: StreamShow[] = [
     title: 'Kurtlar Vadisi',
     name: 'Kurtlar Vadisi',
     category: 'turkish_classics',
-    categoryTitle: 'Türk Dizi Klasikleri',
+    categoryTitle: 'Turkish Series',
     posterUrl: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
     logoUrl: 'https://image.tmdb.org/t/p/w500/aWo4bjV3nS1EEIvAeC7v5of5uxy.png',
-    overview: 'Bu bir mafya dizisidir. Devlet adına çalışan istihbaratçı Ali Candan, yüzünü değiştirip Polat Alemdar kimliğiyle mafyanın en derin merkezine sızar.',
+    overview: 'This is a mafia series. Intelligence agent Ali Candan changes his face and identity to Polat Alemdar to infiltrate the deepest core of the syndicate.',
     releaseDate: '2003 - 2005',
     voteAverage: 9.4,
-    badge: 'TÜM BÖLÜMLER HD',
+    badge: 'FULL HD STREAM',
     isFullSeries: true,
     seasons: [
       {
         seasonNumber: 1,
-        title: '1. Sezon (Efsane Dönem)',
+        title: 'Season 1',
         episodes: [
           {
             id: 'kv-e1',
@@ -254,7 +254,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '68m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'DkAHxvoA2Q8',
-            overview: 'Ali Candan yurt dışı görevindeyken Aslan Akbey tarafından çağrılır. Kurtlar Vadisi operasyonu resmen başlar.'
+            overview: 'Ali Candan is called back from abroad by Aslan Akbey. Operation Valley of the Wolves officially begins.'
           },
           {
             id: 'kv-e2',
@@ -263,7 +263,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '72m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
             youtubeId: 'lPigtgxb4Cg',
-            overview: 'Polat Alemdar yeni kimliğiyle eski hayatına veda edip Çakır ile ilk teması kurmak için sahaya adım atar.'
+            overview: 'Polat Alemdar bids farewell to his old life under his new identity and steps into the field.'
           },
           {
             id: 'kv-e3',
@@ -272,7 +272,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '75m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'sEBuF0hVRbc',
-            overview: 'Polat ve Çakır kumarhane aleminde ortak düşmanlarına karşı ilk büyük hamlelerini planlarlar.'
+            overview: 'Polat and Çakır plan their first major move against common rivals in the underworld casino circle.'
           }
         ]
       }
@@ -284,19 +284,19 @@ export const TURKISH_CLASSICS: StreamShow[] = [
     title: 'Ezel',
     name: 'Ezel',
     category: 'turkish_classics',
-    categoryTitle: 'Türk Dizi Klasikleri',
+    categoryTitle: 'Turkish Series',
     posterUrl: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
     logoUrl: 'https://image.tmdb.org/t/p/w500/zrwsVY36od6IaXn4bZ8vBytLDYp.png',
-    overview: 'En yakın arkadaşları ve sevdiği kadın tarafından ihanete uğrayıp hapse atılan Ömer, hapiste Ramiz Dayı ile tanışıp estetik ameliyatla Ezel olarak geri döner.',
+    overview: 'Betrayed by his trusted best friends and the woman he loved, Ömer is framed and imprisoned. In prison, he meets Ramiz Dayı and returns as Ezel to claim his revenge.',
     releaseDate: '2009 - 2011',
     voteAverage: 9.6,
-    badge: 'TÜM BÖLÜMLER 1080P',
+    badge: '1080P STREAM',
     isFullSeries: true,
     seasons: [
       {
         seasonNumber: 1,
-        title: '1. Sezon: İntikam',
+        title: 'Season 1: Revenge',
         episodes: [
           {
             id: 'ezel-e1',
@@ -305,7 +305,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '85m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
             youtubeId: 'eo76L8gueeU',
-            overview: 'Ezel Kıbrıs kumarhanesinde Eyşan, Cengiz ve Ali\'nin karşısına kusursuz bir iş adamı olarak ilk kez çıkar.'
+            overview: 'Ezel appears before Eyşan, Cengiz, and Ali at the Cyprus casino as an enigmatic high-roller.'
           },
           {
             id: 'ezel-e2',
@@ -314,7 +314,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '88m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
             youtubeId: '4tulyH8Y91Q',
-            overview: 'Ezel, geçmişin hesabını sormak için Cengiz ve Ali\'nin güvenini kazanma adımlarını hızlandırır.'
+            overview: 'Ezel accelerates his steps to earn the confidence of Cengiz and Ali.'
           }
         ]
       }
@@ -326,19 +326,19 @@ export const TURKISH_CLASSICS: StreamShow[] = [
     title: 'Kuzey Güney',
     name: 'Kuzey Güney',
     category: 'turkish_classics',
-    categoryTitle: 'Türk Dizi Klasikleri',
+    categoryTitle: 'Turkish Series',
     posterUrl: 'https://image.tmdb.org/t/p/w500/eG35U9iYp6cWigQxIpzwlPEPY0l.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/tQprHjpB1Utq3QmPDdQRKwPDDRh.jpg',
     logoUrl: 'https://image.tmdb.org/t/p/w500/77yJ9kKHXriIqD37rJovQTwohCm.png',
-    overview: 'Biri isyankar ve gözü pek, diğeri sakin ve başarılı iki kardeşin tek bir araba kazası ve aynı kıza duydukları aşk yüzünden altüst olan hayatları.',
+    overview: 'Two diametrically opposed brothers—one hot-headed and fearless, the other calm and studious—find their lives shattered after a tragic car crash.',
     releaseDate: '2011 - 2013',
     voteAverage: 8.8,
-    badge: 'TÜM BÖLÜMLER HD',
+    badge: 'FULL HD STREAM',
     isFullSeries: true,
     seasons: [
       {
         seasonNumber: 1,
-        title: '1. Sezon',
+        title: 'Season 1',
         episodes: [
           {
             id: 'kg-e1',
@@ -347,7 +347,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '90m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/tQprHjpB1Utq3QmPDdQRKwPDDRh.jpg',
             youtubeId: 'YjEfvVX-V9c',
-            overview: 'Kuzey dört yıl hapis yattıktan sonra tahliye olur, ancak geçmişin acıları ve Cemre\'nin varlığı iki kardeşi yeniden sınar.'
+            overview: 'Kuzey is released from prison after taking the fall for his brother, but the scars of the past and Cemre continue to test them.'
           },
           {
             id: 'kg-e2',
@@ -356,7 +356,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '85m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/eG35U9iYp6cWigQxIpzwlPEPY0l.jpg',
             youtubeId: 'uPJ_O1j94Jw',
-            overview: 'Kuzey sokak dövüşlerine girerken Güney ailesinin beklentileri ve Simay\'ın baskısıyla mücadele eder.'
+            overview: 'Kuzey enters underground street fights while Güney navigates family pressure.'
           }
         ]
       }
@@ -368,19 +368,19 @@ export const TURKISH_CLASSICS: StreamShow[] = [
     title: 'Behzat Ç.',
     name: 'Behzat Ç. Bir Ankara Polisiyesi',
     category: 'turkish_classics',
-    categoryTitle: 'Türk Dizi Klasikleri',
+    categoryTitle: 'Turkish Series',
     posterUrl: 'https://image.tmdb.org/t/p/w500/aRqNQ5v2tvZ9ZRAXpYik0JamHkm.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/pF1OQe4zaXX9vOwxbxjZzws0CAe.jpg',
     logoUrl: 'https://image.tmdb.org/t/p/w500/w6OVfjClWvujlCiYMcdth2H1S4E.png',
-    overview: 'Ankara Emniyet Müdürlüğü Cinayet Büro Amiri Behzat Ç. ve ekibinin başkent sokaklarındaki cinayetleri kendine has kurallarıyla çözme mücadelesi.',
+    overview: 'An unyielding homicide chief and his misfit squad navigate murder cases and deep bureaucratic corruption on the streets of Ankara.',
     releaseDate: '2010 - 2013',
     voteAverage: 9.1,
-    badge: 'ORİJİNAL HD',
+    badge: 'ORIGINAL HD',
     isFullSeries: true,
     seasons: [
       {
         seasonNumber: 1,
-        title: '1. Sezon',
+        title: 'Season 1',
         episodes: [
           {
             id: 'behzat-e1',
@@ -389,7 +389,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '78m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/pF1OQe4zaXX9vOwxbxjZzws0CAe.jpg',
             youtubeId: 'FjyoVZNJriM',
-            overview: 'Ankara\'da şüpheli bir kadın cinayeti işlenir. Başkomiser Behzat Ç. ve ekibi Harun, Hayalet, Akbaba dosyanın peşine düşer.'
+            overview: 'A suspicious homicide occurs in Ankara. Chief Inspector Behzat Ç. and his team take the case.'
           },
           {
             id: 'behzat-e2',
@@ -398,7 +398,7 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             duration: '80m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/aRqNQ5v2tvZ9ZRAXpYik0JamHkm.jpg',
             youtubeId: '2foQ8FOZVsE',
-            overview: 'Cinayet masası bir holding yöneticisinin şüpheli intiharını aydınlatmaya çalışırken bürokrasinin engelleriyle karşılaşır.'
+            overview: 'The squad investigates the alleged suicide of a corporate executive against political obstruction.'
           }
         ]
       }
@@ -414,7 +414,7 @@ export const INDIE_WEB_SERIES: StreamShow[] = [
     title: 'Hazbin Hotel',
     name: 'Hazbin Hotel (Official Pilot & Specials)',
     category: 'indie_web',
-    categoryTitle: 'Viral Web Serileri',
+    categoryTitle: 'Viral Web Series',
     posterUrl: 'https://image.tmdb.org/t/p/w500/aVYHMW8pdzJ9qG1OGRMKyGy9xor.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/9K6QtLqyocVHgIZe4yqCIl1q2ZR.jpg',
     logoUrl: 'https://image.tmdb.org/t/p/w500/r91aVEvQjmbR3NTbTPvqrziInHv.png',
