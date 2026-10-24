@@ -176,14 +176,15 @@ export default function Home() {
         )}
         
         <View style={styles.rowsContainer}>
-          {/* Kids & Animation Row right at the top */}
+          <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
+
+          {/* Kids & Animation Row */}
           <ContentRow 
             title="Kids & Animation" 
             data={kidsList} 
             onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
           />
 
-          <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
           <ContentRow title="Popular Movies" data={moviesList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
           <ContentRow title="Popular Series" data={seriesList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
           <ContentRow title="Premium TV Shows" data={streamingList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
