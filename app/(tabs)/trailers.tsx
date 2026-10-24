@@ -2,17 +2,30 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Dimensions, ActivityIndicator, Image, TouchableOpacity, RefreshControl, Share } from 'react-native';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
-import { Linking } from 'react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { THEME } from '../../src/constants/theme';
 import { REDText } from '../../src/components/ui/REDText';
-import { Bookmark, Plus, Share2, Play } from 'lucide-react-native';
+import { Bookmark, Plus, Share2, Play, Maximize2 } from 'lucide-react-native';
 import { useWatchlistStore } from '../../src/store/useWatchlistStore';
-import { LinearGradient } from 'expo-linear-gradient';
+import { YouTubePlayerModal } from '../../src/components/ui/YouTubePlayerModal';
 
 const { width } = Dimensions.get('window');
+const VIDEO_HEIGHT = Math.round(width * (9 / 16));
 
-const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
-  const { data: details } = useQuery({
+interface TrailerCardProps {
+  item: any;
+  isActive: boolean;
+  onOpenCinema?: (videoId: string, title: string, subtitle?: string) => void;
+}
+
+const TrailerCard: React.FC<TrailerCardProps> = ({ item, isActive, onOpenCinema }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    setIsPlaying(isActive);
+  }, [isActive]);
+
+  const { data: details, isLoading: detailsLoading } = useQuery({
     queryKey: ['trailer_detail', item.id],
     queryFn: () => tmdbAPI.getDetails(item.id, 'movie'),
     staleTime: 1000 * 60 * 60,
@@ -27,9 +40,16 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
   };
 
   const videos = details?.videos?.results || [];
-  const trailer = videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube' && v.iso_639_1 === 'en') || videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || videos[0];
+  const trailer = 
+    videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube' && v.iso_639_1 === 'en') || 
+    videos.find((v: any) => v.type === 'Trailer' && v.site === 'YouTube') || 
+    videos.find((v: any) => v.type === 'Teaser' && v.site === 'YouTube') ||
+    videos.find((v: any) => v.site === 'YouTube') ||
+    videos[0];
+
   const logos = details?.images?.logos || [];
   const logo = logos.length > 0 ? logos[0].file_path : null;
+
   const handleShare = async () => {
     try {
       const shareUrl = trailer?.key 
@@ -37,36 +57,67 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
         : `https://www.themoviedb.org/movie/${item.id}`;
       await Share.share({
         title: item.title || item.name,
-        message: `Watch the trailer for "${item.title || item.name}" on RED! 🎬\n${shareUrl}`,
+        message: `Watch "${item.title || item.name}" on RED! 🎬\n${shareUrl}`,
       });
     } catch (e) {
       console.error(e);
     }
   };
 
-  const openTrailer = () => {
-    if (trailer?.key) {
-      Linking.openURL(`https://www.youtube.com/watch?v=${trailer.key}`);
+  const onPlayerStateChange = useCallback((state: string) => {
+    if (state === 'ended') {
+      setIsPlaying(false);
     }
-  };
+  }, []);
 
   return (
     <View style={styles.cardContainer}>
-      <TouchableOpacity activeOpacity={0.9} onPress={openTrailer} style={styles.videoContainer}>
-        {item.backdrop_path ? (
-          <Image 
-            source={{ uri: getImageUrl(item.backdrop_path, 'w1280') }}
-            style={{ width, height: width * (9 / 16) }}
+      <View style={styles.videoContainer}>
+        {isActive && trailer?.key ? (
+          <YoutubePlayer
+            height={VIDEO_HEIGHT}
+            width={width}
+            play={isPlaying}
+            videoId={trailer.key}
+            onChangeState={onPlayerStateChange}
+            webViewProps={{
+              androidLayerType: 'hardware',
+              allowsFullscreenVideo: true,
+            }}
+            initialPlayerParams={{
+              preventFullScreen: false,
+              controls: true,
+              modestbranding: true,
+              rel: false,
+            }}
           />
         ) : (
-          <View style={{ width, height: width * (9 / 16), backgroundColor: '#111' }} />
+          <TouchableOpacity 
+            activeOpacity={0.9} 
+            onPress={() => setIsPlaying(true)} 
+            style={[StyleSheet.absoluteFill, styles.center]}
+          >
+            {item.backdrop_path ? (
+              <Image 
+                source={{ uri: getImageUrl(item.backdrop_path, 'w1280') }}
+                style={{ width, height: VIDEO_HEIGHT }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={{ width, height: VIDEO_HEIGHT, backgroundColor: '#111' }} />
+            )}
+            <View style={[StyleSheet.absoluteFill, styles.overlay]}>
+              {isActive && detailsLoading ? (
+                <ActivityIndicator size="small" color={THEME.colors.red} />
+              ) : (
+                <View style={styles.playButtonCircle}>
+                  <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         )}
-        <View style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)' }]}>
-          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
-            <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
-          </View>
-        </View>
-      </TouchableOpacity>
+      </View>
 
       <View style={styles.infoContainer}>
         {logo ? (
@@ -82,11 +133,22 @@ const TrailerCard = ({ item, isActive }: { item: any, isActive: boolean }) => {
         
         <View style={styles.actions}>
           <TouchableOpacity style={styles.actionBtn} onPress={toggleWatchlist}>
-            {isSaved ? <Bookmark fill={THEME.colors.red} color={THEME.colors.red} size={24} /> : <Plus color="#fff" size={24} />}
+            {isSaved ? <Bookmark fill={THEME.colors.red} color={THEME.colors.red} size={22} /> : <Plus color="#fff" size={22} />}
             <REDText style={styles.actionText}>{isSaved ? 'Saved' : 'My RED'}</REDText>
           </TouchableOpacity>
+
+          {trailer?.key && onOpenCinema ? (
+            <TouchableOpacity 
+              style={styles.actionBtn} 
+              onPress={() => onOpenCinema(trailer.key, item.title || item.name, item.overview)}
+            >
+              <Maximize2 color="#fff" size={20} />
+              <REDText style={styles.actionText}>Cinema</REDText>
+            </TouchableOpacity>
+          ) : null}
+
           <TouchableOpacity style={styles.actionBtn} onPress={handleShare}>
-            <Share2 color="#fff" size={22} />
+            <Share2 color="#fff" size={20} />
             <REDText style={styles.actionText}>Share</REDText>
           </TouchableOpacity>
         </View>
@@ -99,8 +161,17 @@ export default function TrailersScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [startPage, setStartPage] = useState(() => Math.floor(Math.random() * 20) + 1);
   const [refreshing, setRefreshing] = useState(false);
+  const [cinemaModal, setCinemaModal] = useState<{
+    visible: boolean;
+    videoId: string | null;
+    title?: string;
+    subtitle?: string;
+  }>({
+    visible: false,
+    videoId: null,
+  });
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['trailers_feed_infinite', startPage],
     queryFn: ({ pageParam = startPage }) => tmdbAPI.getPopularMovies(pageParam),
     initialPageParam: startPage,
@@ -115,12 +186,12 @@ export default function TrailersScreen() {
   const allMovies = data?.pages.flatMap(page => page.results) || [];
 
   const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
-    if (viewableItems.length > 0) {
+    if (viewableItems.length > 0 && viewableItems[0].index !== null) {
       setActiveIndex(viewableItems[0].index);
     }
   }, []);
 
-  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 40 }).current;
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -131,8 +202,21 @@ export default function TrailersScreen() {
     }, 1000);
   }, []);
 
+  const handleOpenCinema = useCallback((videoId: string, title: string, subtitle?: string) => {
+    setCinemaModal({
+      visible: true,
+      videoId,
+      title,
+      subtitle,
+    });
+  }, []);
+
+  const handleCloseCinema = useCallback(() => {
+    setCinemaModal(prev => ({ ...prev, visible: false }));
+  }, []);
+
   if (isLoading) {
-      return (
+    return (
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color={THEME.colors.red} />
       </View>
@@ -145,7 +229,11 @@ export default function TrailersScreen() {
         data={allMovies}
         keyExtractor={(item, index) => item.id.toString() + index}
         renderItem={({ item, index }) => (
-          <TrailerCard item={item} isActive={index === activeIndex} />
+          <TrailerCard 
+            item={item} 
+            isActive={index === activeIndex} 
+            onOpenCinema={handleOpenCinema}
+          />
         )}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -161,6 +249,15 @@ export default function TrailersScreen() {
         initialNumToRender={2}
         maxToRenderPerBatch={2}
         windowSize={3}
+      />
+
+      {/* OLED Cinema Theater Modal for full luxury viewing */}
+      <YouTubePlayerModal
+        visible={cinemaModal.visible}
+        videoId={cinemaModal.videoId}
+        title={cinemaModal.title}
+        subtitle={cinemaModal.subtitle}
+        onClose={handleCloseCinema}
       />
     </View>
   );
@@ -178,24 +275,45 @@ const styles = StyleSheet.create({
   cardContainer: {
     width,
     backgroundColor: THEME.colors.background,
-    marginBottom: 60,
-    
+    marginBottom: 40,
   },
   videoContainer: {
     width: '100%',
-    backgroundColor: '#0f1015',
+    height: VIDEO_HEIGHT,
+    backgroundColor: '#0a0b0e',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  overlay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  playButtonCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: THEME.colors.red,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: THEME.colors.red,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
   },
   infoContainer: {
     padding: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     marginBottom: 8,
   },
   logoImage: {
     width: 150,
     height: 45,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   overview: {
     fontSize: 14,
@@ -206,7 +324,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 32,
+    gap: 28,
   },
   actionBtn: {
     alignItems: 'center',
@@ -216,6 +334,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 14,
     color: '#fff',
-    fontWeight: 'bold',
-  }
+    fontWeight: '600',
+  },
 });
