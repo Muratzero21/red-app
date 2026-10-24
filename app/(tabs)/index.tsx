@@ -178,7 +178,7 @@ export default function Home() {
         <View style={styles.rowsContainer}>
           {/* Kids & Animation Row right at the top */}
           <ContentRow 
-            title="Kids & Animation 🎈 (Watch Free)" 
+            title="Kids & Animation" 
             data={kidsList} 
             onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
           />
