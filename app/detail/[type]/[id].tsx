@@ -158,7 +158,7 @@ export default function DetailScreen() {
 
   const logos = (data as any)?.images?.logos;
   const logoObj = logos?.find((l: any) => l.iso_639_1 === 'en') || logos?.[0];
-  const logoUrl = logoObj ? getImageUrl(logoObj.file_path, 'w500') : null;
+  const logoUrl = isCartoon ? cartoonData?.logoUrl : (logoObj ? getImageUrl(logoObj.file_path, 'w500') : null);
 
   const watchProviders = (data as any)?.['watch/providers']?.results?.TR || (data as any)?.['watch/providers']?.results?.US;
   const providerName = watchProviders?.flatrate?.[0]?.provider_name;

@@ -20,6 +20,7 @@ export interface CartoonItem {
   name: string;
   posterUrl: string;
   backdropUrl: string;
+  logoUrl?: string;
   overview: string;
   releaseDate: string;
   voteAverage: number;
@@ -36,6 +37,7 @@ export const KIDS_CARTOONS: CartoonItem[] = [
     name: 'The Amazing Digital Circus',
     posterUrl: 'https://image.tmdb.org/t/p/w500/lpfrgfomX8uNFxv4VaEzvJGs9TK.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/vPVdWiLUNQyaGMazyZGVAyRcYBG.jpg',
+    logoUrl: 'https://image.tmdb.org/t/p/w500/kqxkOvN7wIwucwxFWdTFqL9XRi2.png',
     overview: 'A woman gets trapped in a wacky virtual world along with five other humans and is now subjected to the whims of wacky AI and their own personal traumas.',
     releaseDate: '2023 - 2024',
     voteAverage: 8.9,
@@ -84,6 +86,7 @@ export const KIDS_CARTOONS: CartoonItem[] = [
     name: 'The Tom and Jerry Show',
     posterUrl: 'https://image.tmdb.org/t/p/w500/41EWXLXTZO4MLb2BL28mWZuydyq.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/utqCOvMmjjMTlXNZz6PHOzRM5QP.jpg',
+    logoUrl: 'https://image.tmdb.org/t/p/w500/cwog1QvmNjtFoQVioOLVv15un0v.png',
     overview: 'The iconic cat-and-mouse duo in their timeless slapstick rivalries, full of hilarious chases, musical orchestrations, and legendary tricks.',
     releaseDate: 'Warner Bros Animation',
     voteAverage: 9.3,
@@ -123,6 +126,7 @@ export const KIDS_CARTOONS: CartoonItem[] = [
     name: 'Shaun the Sheep',
     posterUrl: 'https://image.tmdb.org/t/p/w500/z2gPfTQd3I0JLWOAEdKYMQRLoun.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/onwny8s0VTTN7te9TJnItgvyWHy.jpg',
+    logoUrl: 'https://image.tmdb.org/t/p/w500/mkd18fKB8dlLOZpzH5OMz9VIoqI.png',
     overview: 'Shaun is a clever, rather unusual sheep who leads his flock into hilarious capers on Mossy Bottom Farm, constantly dodging Bitzer the dog.',
     releaseDate: 'Aardman Animations',
     voteAverage: 8.8,
@@ -153,6 +157,7 @@ export const KIDS_CARTOONS: CartoonItem[] = [
     name: 'Gravity Falls',
     posterUrl: 'https://image.tmdb.org/t/p/w500/qwi3p6PzKfQZ4YXBzv3CP5pO2dE.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/lhg7eA6CTOCL10QNVdKiyxkgPsL.jpg',
+    logoUrl: 'https://image.tmdb.org/t/p/w500/3hbS7CLEuv7FHZeRzKxeMnoWlhe.png',
     overview: 'Twin siblings Dipper and Mabel Pines spend the summer at their great-uncle Stan\'s tourist trap in Gravity Falls, uncovering supernatural mysteries.',
     releaseDate: 'Disney Television Animation',
     voteAverage: 8.7,
@@ -183,6 +188,7 @@ export const KIDS_CARTOONS: CartoonItem[] = [
     name: 'Avatar: The Last Airbender',
     posterUrl: 'https://image.tmdb.org/t/p/w500/lzZpWEaqzP0qVA5nkCc5ASbNcSy.jpg',
     backdropUrl: 'https://image.tmdb.org/t/p/original/aVvRQJ2Ckhlym4uh0YGc166CUoP.jpg',
+    logoUrl: 'https://image.tmdb.org/t/p/w500/gGdbg6Jwl6rM95BRAlf54EKNgHj.png',
     overview: 'In a war-torn world of elemental magic, a young boy reawakens to undertake a dangerous mystic quest to fulfill his destiny as the Avatar.',
     releaseDate: 'Nickelodeon Animation',
     voteAverage: 8.9,
