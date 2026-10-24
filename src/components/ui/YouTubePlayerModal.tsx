@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Modal, Dimensions, Pressable, ActivityIndicator, StatusBar, Linking } from 'react-native';
-import { WebView } from 'react-native-webview';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, Modal, Dimensions, Pressable, StatusBar, Linking } from 'react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { X, ExternalLink } from 'lucide-react-native';
 import { REDText } from './REDText';
 import { THEME } from '../../constants/theme';
@@ -25,53 +25,15 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   onClose,
 }) => {
   const insets = useSafeAreaInsets();
-  const [loading, setLoading] = useState(true);
+  const [playing, setPlaying] = useState(true);
+
+  const onStateChange = useCallback((state: string) => {
+    if (state === 'ended') {
+      setPlaying(false);
+    }
+  }, []);
 
   if (!visible || !videoId) return null;
-
-  // Clean HTML with origin and autoplay permissions
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body, html { 
-            background: #000; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-          }
-          .video-container { 
-            position: relative; 
-            width: 100%; 
-            height: 100%; 
-          }
-          iframe { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-          }
-        </style>
-      </head>
-      <body>
-        <div class="video-container">
-          <iframe 
-            src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&fs=1" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" 
-            allowfullscreen>
-          </iframe>
-        </div>
-      </body>
-    </html>
-  `;
 
   const handleOpenExternal = () => {
     const url = `https://www.youtube.com/watch?v=${videoId}`;
@@ -113,33 +75,24 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
           </Pressable>
         </View>
 
-        {/* Video Player Box */}
+        {/* Video Player Box using Official React Native YouTube Iframe */}
         <View style={styles.playerContainer}>
-          <WebView
-            source={{ 
-              html: htmlContent,
-              baseUrl: 'https://www.youtube.com'
+          <YoutubePlayer
+            height={VIDEO_HEIGHT}
+            play={playing}
+            videoId={videoId}
+            onChangeState={onStateChange}
+            webViewProps={{
+              androidLayerType: 'hardware',
+              allowsFullscreenVideo: true,
             }}
-            style={styles.webview}
-            allowsFullscreenVideo={true}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            mediaPlaybackRequiresUserAction={false}
-            allowsInlineMediaPlayback={true}
-            onLoadEnd={() => setLoading(false)}
-            originWhitelist={['*']}
-            mixedContentMode="always"
-            userAgent="Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+            initialPlayerParams={{
+              preventFullScreen: false,
+              controls: true,
+              modestbranding: true,
+              rel: false,
+            }}
           />
-
-          {loading && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color={THEME.colors.red} />
-              <REDText size={13} color="rgba(255,255,255,0.7)" style={{ marginTop: 8 }}>
-                Loading video...
-              </REDText>
-            </View>
-          )}
         </View>
 
         {/* Bottom Details Bar */}
@@ -160,7 +113,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
               </View>
             </View>
 
-            {/* Quick Open in YouTube Button if network blocks in-app embed */}
+            {/* Quick Open in YouTube Button */}
             <Pressable
               onPress={handleOpenExternal}
               style={({ pressed }) => [styles.externalBtn, pressed && { opacity: 0.7 }]}
@@ -202,22 +155,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: VIDEO_HEIGHT,
     backgroundColor: '#000',
-    position: 'relative',
-  },
-  webview: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#000',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   detailsContainer: {
     paddingHorizontal: 20,
