@@ -122,6 +122,33 @@ export const KIDS_CARTOONS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/41EWXLXTZO4MLb2BL28mWZuydyq.jpg',
             youtubeId: 'e-gC9F5c7F4',
             overview: 'Kitchen raids after dark turn into an explosive culinary battleground between the cunning mouse and the stubborn cat.'
+          },
+          {
+            id: 'tj-e3',
+            episodeNumber: 3,
+            title: 'Classic Slapstick in Full Screen',
+            duration: '25m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/utqCOvMmjjMTlXNZz6PHOzRM5QP.jpg',
+            youtubeId: 't0Q2otsqC4I',
+            overview: 'Timeless slapstick cartoon mayhem as Tom sets high-velocity booby traps around the house.'
+          },
+          {
+            id: 'tj-e4',
+            episodeNumber: 4,
+            title: 'Tom and Jerry Explore New York',
+            duration: '21m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/41EWXLXTZO4MLb2BL28mWZuydyq.jpg',
+            youtubeId: 'giO_iq5Xe_c',
+            overview: 'The famous duo ventures across the Empire State and Central Park in an unforgettable urban chase.'
+          },
+          {
+            id: 'tj-e5',
+            episodeNumber: 5,
+            title: 'Summer Olympics & Sports Day',
+            duration: '24m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/utqCOvMmjjMTlXNZz6PHOzRM5QP.jpg',
+            youtubeId: 'Myr2_jyscA4',
+            overview: 'Tennis matches, track and field, and high dives become the ultimate playground for Tom and Jerry.'
           }
         ]
       }
@@ -154,6 +181,42 @@ export const KIDS_CARTOONS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/onwny8s0VTTN7te9TJnItgvyWHy.jpg',
             youtubeId: 'Gj2KkW_eLzY',
             overview: 'Shaun rallies the flock to order take-away pizza dressed as humans without the farmer noticing.'
+          },
+          {
+            id: 'sts-e2',
+            episodeNumber: 2,
+            title: 'Bathtime & Shape Up With Shaun',
+            duration: '16m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/z2gPfTQd3I0JLWOAEdKYMQRLoun.jpg',
+            youtubeId: 'DgDIrZX0Re8',
+            overview: 'Getting the flock clean turns into an underwater carnival when Shaun discovers warm bubble bath.'
+          },
+          {
+            id: 'sts-e3',
+            episodeNumber: 3,
+            title: 'Tooth Fairy & Camping Chaos',
+            duration: '19m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/onwny8s0VTTN7te9TJnItgvyWHy.jpg',
+            youtubeId: 'h0qXK0M4I6Q',
+            overview: 'A lost tooth and a late-night camping trip in the barn bring hilarious nocturnal confusion.'
+          },
+          {
+            id: 'sts-e4',
+            episodeNumber: 4,
+            title: 'Movie Time at Mossy Bottom Farm',
+            duration: '22m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/z2gPfTQd3I0JLWOAEdKYMQRLoun.jpg',
+            youtubeId: 'D5nvZDT5pNM',
+            overview: 'Shaun sets up an outdoor cinema for the sheep while Bitzer tries to keep the peace.'
+          },
+          {
+            id: 'sts-e5',
+            episodeNumber: 5,
+            title: 'Movie Nights & Creative Mischief',
+            duration: '20m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/onwny8s0VTTN7te9TJnItgvyWHy.jpg',
+            youtubeId: 'YyuliF8pV-s',
+            overview: 'Inventive gadgets and wild farmyard escapades keep the farmer completely unaware.'
           }
         ]
       }
@@ -273,6 +336,24 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
             youtubeId: 'sEBuF0hVRbc',
             overview: 'Polat and Çakır plan their first major move against common rivals in the underworld casino circle.'
+          },
+          {
+            id: 'kv-e4',
+            episodeNumber: 4,
+            title: '4. Bölüm - Sevko ve Konsey',
+            duration: '74m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/aGi8EuXsf5bbM4O59Uu0pucLcT.jpg',
+            youtubeId: 'YdlTLOQGagU',
+            overview: 'The council puts pressure on the streets while Polat learns the unspoken rules of the valley.'
+          },
+          {
+            id: 'kv-e5',
+            episodeNumber: 5,
+            title: '5. Bölüm - Kurt Kanunu',
+            duration: '76m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/sjLv7xpBCP7DZiYS41hMFPRyLQl.jpg',
+            youtubeId: 'WyXjWs3qXHk',
+            overview: 'Aslan Akbey guides Polat through a lethal ambush as the mafia structure begins to notice him.'
           }
         ]
       }
@@ -315,6 +396,33 @@ export const TURKISH_CLASSICS: StreamShow[] = [
             thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
             youtubeId: '4tulyH8Y91Q',
             overview: 'Ezel accelerates his steps to earn the confidence of Cengiz and Ali.'
+          },
+          {
+            id: 'ezel-e3',
+            episodeNumber: 3,
+            title: '3. Bölüm - Geçmişin Gölgesi',
+            duration: '82m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
+            youtubeId: 'Jqm1MDxUNlo',
+            overview: 'Ezel forces Eyşan to confront the memories of Ömer without revealing his true identity.'
+          },
+          {
+            id: 'ezel-e4',
+            episodeNumber: 4,
+            title: '4. Bölüm - Kumar Masası',
+            duration: '86m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/ex1K2iIwgxuzv54w89BrOJMqpTd.jpg',
+            youtubeId: 'yl-iudreN-g',
+            overview: 'High stakes at the poker table test Cengiz\'s loyalty and greed.'
+          },
+          {
+            id: 'ezel-e5',
+            episodeNumber: 5,
+            title: '5. Bölüm - Ramiz Dayı\'nın Öğüdü',
+            duration: '84m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/3IJPtnlFoY8bjllHxnEw21qlK2p.jpg',
+            youtubeId: 'qH8kwrHFE5A',
+            overview: 'Ramiz Dayı shares crucial wisdom about patience and vengeance with Ezel.'
           }
         ]
       }
