@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert, Share } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert, Share, Modal } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
-import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown } from 'lucide-react-native';
+import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown, X } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
 import { getStreamShowById, getCartoonById } from '../../../src/constants/streams';
 import { THEME } from '../../../src/constants/theme';
@@ -50,8 +50,9 @@ export default function DetailScreen() {
   const inMyList = watchlist.some(w => String(w.id) === stringId);
   const dominantColor = getDominantColor(stringId);
 
-  // Selected Season index
+  // Selected Season index & modal state
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
+  const [seasonModalVisible, setSeasonModalVisible] = useState(false);
   const [activeEpisode, setActiveEpisode] = useState<any>(null);
 
   // In-App YouTube Player state
@@ -388,13 +389,9 @@ export default function DetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <REDText weight="bold" size={20} color="#fff">Episodes</REDText>
 
-                {/* Netflix Season Button (Always Visible) */}
+                {/* Netflix Season Button (Always Opens Netflix Season Picker) */}
                 <Pressable
-                  onPress={() => {
-                    if (seasonsList.length > 1) {
-                      setSelectedSeasonIndex((prev) => (prev + 1) % seasonsList.length);
-                    }
-                  }}
+                  onPress={() => setSeasonModalVisible(true)}
                   style={({ pressed }) => [
                     styles.netflixSeasonBtn,
                     pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.18)' }
@@ -557,6 +554,99 @@ export default function DetailScreen() {
         </View>
       </Animated.ScrollView>
 
+      {/* Netflix-Style Season Selector Modal */}
+      <Modal
+        visible={seasonModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSeasonModalVisible(false)}
+      >
+        <Pressable 
+          style={styles.seasonModalBackdrop}
+          onPress={() => setSeasonModalVisible(false)}
+        >
+          <View style={styles.seasonModalContent} onStartShouldSetResponder={() => true}>
+            {/* Header */}
+            <View style={styles.seasonModalHeader}>
+              <View>
+                <REDText size={18} weight="bold" color="#fff">
+                  Seasons
+                </REDText>
+                <REDText size={12} color="rgba(255,255,255,0.45)" style={{ marginTop: 2 }}>
+                  {title}
+                </REDText>
+              </View>
+              <Pressable 
+                onPress={() => setSeasonModalVisible(false)}
+                hitSlop={12}
+                style={({ pressed }) => [
+                  styles.seasonModalCloseIconBtn,
+                  pressed && { opacity: 0.7, backgroundColor: 'rgba(255,255,255,0.2)' }
+                ]}
+              >
+                <X size={18} color="#fff" />
+              </Pressable>
+            </View>
+
+            {/* Season List */}
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 360 }}>
+              {seasonsList.map((season: any, idx: number) => {
+                const isSelected = idx === selectedSeasonIndex;
+                const sTitle = season.title || `Season ${season.seasonNumber || idx + 1}`;
+                const epCount = season.episodes?.length || 0;
+
+                return (
+                  <Pressable
+                    key={season.seasonNumber || idx}
+                    onPress={() => {
+                      setSelectedSeasonIndex(idx);
+                      setSeasonModalVisible(false);
+                    }}
+                    style={({ pressed }) => [
+                      styles.seasonModalItem,
+                      isSelected && styles.seasonModalItemSelected,
+                      pressed && { opacity: 0.8 }
+                    ]}
+                  >
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <REDText 
+                        size={15} 
+                        weight={isSelected ? 'bold' : 'regular'} 
+                        color={isSelected ? '#fff' : 'rgba(255,255,255,0.8)'}
+                      >
+                        {sTitle}
+                      </REDText>
+                      <REDText size={12} color="rgba(255,255,255,0.4)" style={{ marginTop: 3 }}>
+                        {epCount} {epCount === 1 ? 'Episode' : 'Episodes'}
+                      </REDText>
+                    </View>
+
+                    {isSelected && (
+                      <View style={styles.seasonCheckCircle}>
+                        <Check size={14} color="#fff" strokeWidth={3} />
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            {/* Bottom Close Action */}
+            <Pressable
+              onPress={() => setSeasonModalVisible(false)}
+              style={({ pressed }) => [
+                styles.seasonModalCloseBtn,
+                pressed && { opacity: 0.8 }
+              ]}
+            >
+              <REDText size={14} weight="bold" color="rgba(255,255,255,0.85)">
+                Close
+              </REDText>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
       {/* In-App YouTube Player Modal */}
       <YouTubePlayerModal
         visible={playerModal.visible}
@@ -606,6 +696,75 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  seasonModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.78)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  seasonModalContent: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#16181f',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 25,
+  },
+  seasonModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+  },
+  seasonModalCloseIconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  seasonModalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginBottom: 6,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+  },
+  seasonModalItemSelected: {
+    backgroundColor: 'rgba(229, 9, 20, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.4)',
+  },
+  seasonCheckCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: THEME.colors.red,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  seasonModalCloseBtn: {
+    marginTop: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   netflixEpisodeRow: {
     paddingVertical: 14,

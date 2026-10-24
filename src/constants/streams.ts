@@ -62,7 +62,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
         title: 'Season 1 Elmore Chronicles',
         episodes: [
           {
-            id: 'gumball-e1',
+            id: 'gumball-s1e1',
             episodeNumber: 1,
             title: 'Season 1 Complete Full Episodes Marathon',
             duration: '210m',
@@ -70,6 +70,54 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'TpaoJCQxF1M',
             source_type: 'youtube',
             overview: 'From returning an overdue DVD to surviving Elmore Junior High, Gumball and Darwin face unforgettable comic mayhem.'
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Special Compilation',
+        episodes: [
+          {
+            id: 'gumball-s2e1',
+            episodeNumber: 1,
+            title: '5 Full Episodes Mega Compilation',
+            duration: '60m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: 'N_yoag2lIkI',
+            source_type: 'youtube',
+            overview: 'Iconic adventures including The Disaster, The Awkwardness, and The Romantic back-to-back.'
+          }
+        ]
+      },
+      {
+        seasonNumber: 3,
+        title: 'Season 3 Mega Marathon',
+        episodes: [
+          {
+            id: 'gumball-s3e1',
+            episodeNumber: 1,
+            title: 'Five Full Episodes Mega Block',
+            duration: '75m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/gmO3aezFgDcrhcymhNSJLGZ3CT.jpg',
+            youtubeId: '1fqGkoHlGv8',
+            source_type: 'youtube',
+            overview: 'Nonstop high-energy episodes: The Slide, The Password, The Box, and The Potato in full HD.'
+          }
+        ]
+      },
+      {
+        seasonNumber: 4,
+        title: 'Season 4 Epic Finale Block',
+        episodes: [
+          {
+            id: 'gumball-s4e1',
+            episodeNumber: 1,
+            title: 'Season Finale Mega Compilation',
+            duration: '90m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/2NGCRWnZpsIevwpjBLkoXfnqSgg.jpg',
+            youtubeId: 'eYG6TfsC-V8',
+            source_type: 'youtube',
+            overview: 'The definitive Elmore block featuring The Potion, The Spinoffs, and the legendary surreal finale.'
           }
         ]
       }
@@ -95,10 +143,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1',
+        title: 'Season 1 Complete 4K Marathon',
         episodes: [
           {
-            id: 'at-e1',
+            id: 'at-s1e1',
             episodeNumber: 1,
             title: 'Season 1 Complete 4K Marathon',
             duration: '220m',
@@ -106,10 +154,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'A8DCX5bIdt8',
             source_type: 'youtube',
             overview: 'Finn and Jake fight candy zombies, battle the Ice King, and explore dungeons in this complete first season block.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Land of Ooo Chronicles',
+        episodes: [
           {
-            id: 'at-e2',
-            episodeNumber: 2,
+            id: 'at-s2e1',
+            episodeNumber: 1,
             title: 'Land of Ooo Epic Chronicles',
             duration: '180m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/qk3eQ8jW4opJ48gFWYUXWaMT4l.jpg',
@@ -141,10 +195,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Park Shenanigans',
+        title: 'Season 1 Park Shenanigans',
         episodes: [
           {
-            id: 'rs-e1',
+            id: 'rs-s1e1',
             episodeNumber: 1,
             title: 'Season 3 Complete Park Adventures',
             duration: '190m',
@@ -152,10 +206,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'k38mFjHFu-U',
             source_type: 'youtube',
             overview: 'Mordecai and Rigby try to set up chairs, play video games, and evade Benson while accidentally summoning cosmic demons.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Intergalactic Madness',
+        episodes: [
           {
-            id: 'rs-e2',
-            episodeNumber: 2,
+            id: 'rs-s2e1',
+            episodeNumber: 1,
             title: 'Season 4 Intergalactic Madness',
             duration: '185m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/mS5SLxMYcKfUxA0utBSR5MOAWWr.jpg',
@@ -187,10 +247,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1',
+        title: 'Season 1 Bear Origins',
         episodes: [
           {
-            id: 'wbb-e1',
+            id: 'wbb-s1e1',
             episodeNumber: 1,
             title: 'Season 1 Full Episodes Compilation',
             duration: '210m',
@@ -198,10 +258,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'boOzKLyomJo',
             source_type: 'youtube',
             overview: 'The bears master the bear stack, try food truck cuisine, and attempt to become viral internet sensations.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Stack Escapades',
+        episodes: [
           {
-            id: 'wbb-e2',
-            episodeNumber: 2,
+            id: 'wbb-s2e1',
+            episodeNumber: 1,
             title: 'Season 2 Bear Stack Escapades',
             duration: '195m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/3xWzlLZ0kAD6SkVZTekFM9lxZyP.jpg',
@@ -233,10 +299,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Classic Omnitrix Saga',
+        title: 'Season 1 Classic Omnitrix',
         episodes: [
           {
-            id: 'b10-e1',
+            id: 'b10-s1e1',
             episodeNumber: 1,
             title: 'Classic Season 1 Full Marathon',
             duration: '200m',
@@ -244,10 +310,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'YE-pFTEgsjI',
             source_type: 'youtube',
             overview: 'From discovering the Omnitrix in the forest to defeating Vilgax, Ben fights extraterrestrial evil with Grandpa Max and Gwen.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Hero Transformations',
+        episodes: [
           {
-            id: 'b10-e2',
-            episodeNumber: 2,
+            id: 'b10-s2e1',
+            episodeNumber: 1,
             title: 'The Omnitrix Saga Marathon',
             duration: '180m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/a4H0UR7aUkGZlT6Q9r9grBrjJWR.jpg',
@@ -279,7 +351,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Creek Adventures',
+        title: 'Season 1 Creek Adventures',
         episodes: [
           {
             id: 'cotc-e1',
@@ -315,10 +387,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Titans Tower Chronicles',
+        title: 'Season 1 Titans Tower Marathon',
         episodes: [
           {
-            id: 'ttg-e1',
+            id: 'ttg-s1e1',
             episodeNumber: 1,
             title: 'Ultimate Full Episodes Marathon',
             duration: '150m',
@@ -326,10 +398,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: '4M6OihNrAbM',
             source_type: 'youtube',
             overview: 'Waffles, burrito battles, and Halloween monster mayhem in the ultimate Teen Titans Go! marathon.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Raven & Heroes Special',
+        episodes: [
           {
-            id: 'ttg-e2',
-            episodeNumber: 2,
+            id: 'ttg-s2e1',
+            episodeNumber: 1,
             title: 'Raven & Titans Mega Compilation',
             duration: '120m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/kPKAigYUlWRpnfo4Ptiwlz4FWXU.jpg',
@@ -416,10 +494,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1 Adventures',
+        title: 'Season 1 City Adventures',
         episodes: [
           {
-            id: 'tayo-e1',
+            id: 'tayo-s1e1',
             episodeNumber: 1,
             title: 'A Day in the Life of Tayo',
             duration: '11m',
@@ -427,10 +505,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'z_qxfE7t7RM',
             source_type: 'youtube',
             overview: 'Tayo passes his bus license exam and heads out into the bustling city for his very first day of operations.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Complete Marathon',
+        episodes: [
           {
-            id: 'tayo-e2',
-            episodeNumber: 2,
+            id: 'tayo-s2e1',
+            episodeNumber: 1,
             title: 'Season 1 Full Marathon (All 26 Episodes)',
             duration: '300m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/ieUwI8Y8FhhFNWVOwau0gDoHPnj.jpg',
@@ -462,10 +546,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1',
+        title: 'Season 1 Rail Village Debut',
         episodes: [
           {
-            id: 'titipo-e1',
+            id: 'titipo-s1e1',
             episodeNumber: 1,
             title: 'Getting Lost - Series Premiere',
             duration: '12m',
@@ -473,10 +557,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: 'r00wZo51MfQ',
             source_type: 'youtube',
             overview: 'Titipo sets off on his very first delivery trial to the big city but quickly discovers how tricky rail junctions can be.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 Complete Marathon',
+        episodes: [
           {
-            id: 'titipo-e2',
-            episodeNumber: 2,
+            id: 'titipo-s2e1',
+            episodeNumber: 1,
             title: 'Season 1 Full Compilation (Episodes 1-26)',
             duration: '300m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/mMGUOuV4wmW8QJ5f41jhtZ1ACXU.jpg',
@@ -508,10 +598,10 @@ export const KIDS_CARTOONS: StreamShow[] = [
     seasons: [
       {
         seasonNumber: 1,
-        title: 'Season 1',
+        title: 'Season 1 Snowy Forest Adventures',
         episodes: [
           {
-            id: 'pororo-e1',
+            id: 'pororo-s1e1',
             episodeNumber: 1,
             title: "We're Friends - Series Premiere",
             duration: '6m',
@@ -519,10 +609,16 @@ export const KIDS_CARTOONS: StreamShow[] = [
             youtubeId: '8kIe7reaK3o',
             source_type: 'youtube',
             overview: 'Pororo discovers a large mysterious egg in the forest that hatches into Crong the baby dinosaur.'
-          },
+          }
+        ]
+      },
+      {
+        seasonNumber: 2,
+        title: 'Season 2 52-Episode Marathon',
+        episodes: [
           {
-            id: 'pororo-e2',
-            episodeNumber: 2,
+            id: 'pororo-s2e1',
+            episodeNumber: 1,
             title: 'Season 1 Full Episodes Marathon (E01-E52)',
             duration: '260m',
             thumbnail: 'https://image.tmdb.org/t/p/w500/oD2r5c3IG4C6RDx847tG8OtLutK.jpg',
