@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
 import { ContentRow } from '../../src/components/features/ContentRow';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
-import { getAllCartoons } from '../../src/constants/cartoons';
+import { getAllCartoons, getStreamShowsByCategory } from '../../src/constants/streams';
 import { THEME } from '../../src/constants/theme';
 import { REDText } from '../../src/components/ui/REDText';
 import { TopNavBar } from '../../src/components/ui/TopNavBar';
@@ -44,6 +44,34 @@ export default function Home() {
       releaseDate: c.releaseDate,
       voteAverage: c.voteAverage,
       mediaType: 'cartoon' as const,
+    }));
+  }, []);
+
+  const turkishClassicsList = useMemo(() => {
+    return getStreamShowsByCategory('turkish_classics').map((c) => ({
+      id: c.id,
+      title: c.title,
+      name: c.name,
+      posterUrl: c.posterUrl,
+      backdropUrl: c.backdropUrl,
+      overview: c.overview,
+      releaseDate: c.releaseDate,
+      voteAverage: c.voteAverage,
+      mediaType: 'stream' as const,
+    }));
+  }, []);
+
+  const indieWebList = useMemo(() => {
+    return getStreamShowsByCategory('indie_web').map((c) => ({
+      id: c.id,
+      title: c.title,
+      name: c.name,
+      posterUrl: c.posterUrl,
+      backdropUrl: c.backdropUrl,
+      overview: c.overview,
+      releaseDate: c.releaseDate,
+      voteAverage: c.voteAverage,
+      mediaType: 'stream' as const,
     }));
   }, []);
 
@@ -183,6 +211,20 @@ export default function Home() {
             title="Kids & Animation" 
             data={kidsList} 
             onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
+          />
+
+          {/* Türk Dizi Klasikleri Row */}
+          <ContentRow 
+            title="Türk Dizi Klasikleri (Ücretsiz Full HD)" 
+            data={turkishClassicsList} 
+            onItemPress={(id) => navigateToDetail(id, 'stream')} 
+          />
+
+          {/* Viral Web Serileri */}
+          <ContentRow 
+            title="Viral Web Serileri" 
+            data={indieWebList} 
+            onItemPress={(id) => navigateToDetail(id, 'stream')} 
           />
 
           <ContentRow title="Popular Movies" data={moviesList} onItemPress={(id) => navigateToDetail(id, 'movie')} />

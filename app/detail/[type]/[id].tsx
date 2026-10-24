@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
 import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
-import { getCartoonById } from '../../../src/constants/cartoons';
+import { getStreamShowById, getCartoonById } from '../../../src/constants/streams';
 import { THEME } from '../../../src/constants/theme';
 import { REDText } from '../../../src/components/ui/REDText';
 import { REDButton } from '../../../src/components/ui/REDButton';
@@ -34,6 +34,18 @@ export default function DetailScreen() {
   const stringId = Array.isArray(id) ? id[0] : String(id);
   const isCartoon = type === 'cartoon';
   const isTv = type === 'tv';
+
+  // 1. If it's a stream show (cartoons, turkish classics, indie web), resolve from hybrid catalog
+  const streamShow = useMemo(() => {
+    return getStreamShowById(stringId);
+  }, [stringId]);
+
+  const isStreamShow = isCartoon || type === 'stream' || !!streamShow;
+  const streamData = useMemo(() => {
+    if (streamShow) return streamShow;
+    if (isCartoon) return getCartoonById(stringId);
+    return null;
+  }, [streamShow, isCartoon, stringId]);
   
   const inMyList = watchlist.some(w => String(w.id) === stringId);
   const dominantColor = getDominantColor(stringId);
@@ -52,36 +64,28 @@ export default function DetailScreen() {
     videoId: null,
   });
 
-  // 1. If it's a cartoon, load from local catalog
-  const cartoonData = useMemo(() => {
-    if (isCartoon) {
-      return getCartoonById(stringId);
-    }
-    return null;
-  }, [isCartoon, stringId]);
-
   // 2. If it's TMDB content, fetch details
   const { data: tmdbData, isLoading: tmdbLoading } = useQuery({
     queryKey: ['detail', type, id],
     queryFn: () => tmdbAPI.getDetails(id as string, type as 'movie' | 'tv'),
-    enabled: !isCartoon
+    enabled: !isStreamShow
   });
 
-  const data = isCartoon ? {
-    title: cartoonData?.title,
-    name: cartoonData?.name,
-    backdrop_path: cartoonData?.backdropUrl,
-    poster_path: cartoonData?.posterUrl,
-    overview: cartoonData?.overview,
-    release_date: cartoonData?.releaseDate,
-    vote_average: cartoonData?.voteAverage,
+  const data = isStreamShow ? {
+    title: streamData?.title,
+    name: streamData?.name,
+    backdrop_path: streamData?.backdropUrl,
+    poster_path: streamData?.posterUrl,
+    overview: streamData?.overview,
+    release_date: streamData?.releaseDate,
+    vote_average: streamData?.voteAverage,
     runtime: null,
     videos: {
-      results: cartoonData?.seasons?.[0]?.episodes?.[0]?.youtubeId ? [
+      results: streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId ? [
         {
           site: 'YouTube',
           type: 'Trailer',
-          key: cartoonData.seasons[0].episodes[0].youtubeId
+          key: streamData.seasons[0].episodes[0].youtubeId
         }
       ] : []
     },
@@ -89,7 +93,7 @@ export default function DetailScreen() {
     similar: { results: [] }
   } : tmdbData;
 
-  const isLoading = isCartoon ? !cartoonData : tmdbLoading;
+  const isLoading = isStreamShow ? !streamData : tmdbLoading;
 
   // TMDB TV Seasons
   const tmdbSeasons = useMemo(() => {
@@ -144,7 +148,7 @@ export default function DetailScreen() {
 
   const title = data.title || data.name;
   const releaseYear = (data.release_date || data.first_air_date || '').split('-')[0];
-  const runtime = data.runtime ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m` : (isCartoon ? 'Animation' : '');
+  const runtime = data.runtime ? `${Math.floor(data.runtime / 60)}h ${data.runtime % 60}m` : (isStreamShow ? 'Full Series' : '');
   const metadata = [releaseYear, runtime].filter(Boolean).join(' • ');
 
   let trailerId = null;
@@ -158,7 +162,7 @@ export default function DetailScreen() {
 
   const logos = (data as any)?.images?.logos;
   const logoObj = logos?.find((l: any) => l.iso_639_1 === 'en') || logos?.[0];
-  const logoUrl = isCartoon ? cartoonData?.logoUrl : (logoObj ? getImageUrl(logoObj.file_path, 'w500') : null);
+  const logoUrl = isStreamShow ? streamData?.logoUrl : (logoObj ? getImageUrl(logoObj.file_path, 'w500') : null);
 
   const watchProviders = (data as any)?.['watch/providers']?.results?.TR || (data as any)?.['watch/providers']?.results?.US;
   const providerName = watchProviders?.flatrate?.[0]?.provider_name;
@@ -173,7 +177,7 @@ export default function DetailScreen() {
         id: stringId,
         title: data.title || data.name,
         mediaType: type as any,
-        posterUrl: isCartoon ? (cartoonData?.posterUrl || '') : getImageUrl((data as any).poster_path, 'w500')
+        posterUrl: isStreamShow ? (streamData?.posterUrl || '') : getImageUrl((data as any).poster_path, 'w500')
       });
     }
   };
@@ -208,18 +212,18 @@ export default function DetailScreen() {
   };
 
   // Determine seasons list
-  const seasonsList = isCartoon 
-    ? (cartoonData?.seasons || []) 
+  const seasonsList = isStreamShow 
+    ? (streamData?.seasons || []) 
     : tmdbSeasons;
 
-  const currentEpisodes = isCartoon 
-    ? (cartoonData?.seasons?.[selectedSeasonIndex]?.episodes || [])
+  const currentEpisodes = isStreamShow 
+    ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || [])
     : (tmdbSeasonData?.episodes || []);
 
-  const hasSeasons = isCartoon || (isTv && seasonsList.length > 0);
+  const hasSeasons = isStreamShow || (isTv && seasonsList.length > 0);
 
-  const currentSeasonTitle = isCartoon 
-    ? (cartoonData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`)
+  const currentSeasonTitle = isStreamShow 
+    ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`)
     : (tmdbSeasons[selectedSeasonIndex]?.name || `Season ${selectedSeasonIndex + 1}`);
 
   return (
@@ -257,7 +261,7 @@ export default function DetailScreen() {
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
           {(data.backdrop_path || data.poster_path) ? (
             <RNImage
-              source={{ uri: isCartoon ? (data.backdrop_path || data.poster_path) : getImageUrl(data.backdrop_path || data.poster_path, 'original') }}
+              source={{ uri: isStreamShow ? (data.backdrop_path || data.poster_path) : getImageUrl(data.backdrop_path || data.poster_path, 'original') }}
               style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
               resizeMode="cover"
             />
@@ -287,7 +291,7 @@ export default function DetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
               <REDText color={THEME.colors.textSecondary} size={15} weight="semibold">{metadata}</REDText>
               <View style={{ flexDirection: 'row', gap: 6 }}>
-                {(isCartoon ? ['FREE', 'HD', 'FAMILY'] : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])).map((badge) => (
+                {(isStreamShow ? ['FREE STREAM', 'FULL HD', streamData?.badge || 'EXCLUSIVE'] : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])).map((badge) => (
                   <View key={badge} style={styles.badge}>
                     <REDText size={10} weight="bold" color="rgba(255,255,255,0.8)">{badge}</REDText>
                   </View>
@@ -299,7 +303,7 @@ export default function DetailScreen() {
           {/* Action Buttons */}
           <View style={styles.actionsRow}>
             <REDButton 
-              title={isCartoon ? "Watch Episode 1" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
+              title={isStreamShow ? "Bölüm 1'i İzle" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
               variant="primary" 
               icon={
                 providerLogo ? (
@@ -316,8 +320,8 @@ export default function DetailScreen() {
               } 
               style={styles.playButton}
               onPress={() => {
-                if (isCartoon && cartoonData?.seasons?.[0]?.episodes?.[0]?.youtubeId) {
-                  playEpisode(cartoonData.seasons[0].episodes[0]);
+                if (isStreamShow && streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId) {
+                  playEpisode(streamData.seasons[0].episodes[0]);
                 } else if (trailerId) {
                   setPlayerModal({
                     visible: true,
@@ -514,7 +518,7 @@ export default function DetailScreen() {
                 ]}
               >
                 {data.backdrop_path ? (
-                  <RNImage source={{ uri: isCartoon ? data.backdrop_path : getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                  <RNImage source={{ uri: isStreamShow ? data.backdrop_path : getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : null}
                 <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }]}>
                   <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
