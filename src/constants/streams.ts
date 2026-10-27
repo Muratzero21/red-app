@@ -771,6 +771,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   },
   {
     id: 'tadc',
+    tmdbId: 237044,
     title: 'The Amazing Digital Circus',
     name: 'The Amazing Digital Circus',
     type: 'series',
@@ -1163,6 +1164,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   },
   {
     id: 'tom-and-jerry',
+    tmdbId: 60602,
     title: 'The Tom and Jerry Show',
     name: 'The Tom and Jerry Show',
     category: 'kids',
@@ -1231,6 +1233,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   },
   {
     id: 'shaun-the-sheep',
+    tmdbId: 4009,
     title: 'Shaun the Sheep',
     name: 'Shaun the Sheep',
     category: 'kids',
@@ -1299,6 +1302,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   },
   {
     id: 'gravity-falls',
+    tmdbId: 40075,
     title: 'Gravity Falls',
     name: 'Gravity Falls',
     category: 'kids',
@@ -1331,6 +1335,7 @@ export const KIDS_CARTOONS: StreamShow[] = [
   },
   {
     id: 'avatar-the-last-airbender',
+    tmdbId: 246,
     title: 'Avatar: The Last Airbender',
     name: 'Avatar: The Last Airbender',
     category: 'kids',

@@ -66,21 +66,24 @@ export default function DetailScreen() {
     videoId: null,
   });
 
-  // 2. If it's TMDB content, fetch details
+  // 2. Fetch TMDB details (both for regular TMDB items AND for stream shows that have a tmdbId so we can pull all real seasons/cast/similar)
+  const targetTmdbId = isStreamShow ? (streamData?.tmdbId ? String(streamData.tmdbId) : null) : (id as string);
+  const targetTmdbType = isStreamShow ? 'tv' : (type as 'movie' | 'tv');
+
   const { data: tmdbData, isLoading: tmdbLoading } = useQuery({
-    queryKey: ['detail', type, id],
-    queryFn: () => tmdbAPI.getDetails(id as string, type as 'movie' | 'tv'),
-    enabled: !isStreamShow
+    queryKey: ['detail', targetTmdbType, targetTmdbId],
+    queryFn: () => tmdbAPI.getDetails(targetTmdbId!, targetTmdbType),
+    enabled: !!targetTmdbId,
   });
 
   const data = isStreamShow ? {
-    title: streamData?.title,
-    name: streamData?.name,
-    backdrop_path: streamData?.backdropUrl,
-    poster_path: streamData?.posterUrl,
-    overview: streamData?.overview,
-    release_date: streamData?.releaseDate,
-    vote_average: streamData?.voteAverage,
+    title: streamData?.title || tmdbData?.title || tmdbData?.name,
+    name: streamData?.name || tmdbData?.name || tmdbData?.title,
+    backdrop_path: streamData?.backdropUrl || tmdbData?.backdrop_path,
+    poster_path: streamData?.posterUrl || tmdbData?.poster_path,
+    overview: streamData?.overview || tmdbData?.overview,
+    release_date: streamData?.releaseDate || tmdbData?.first_air_date,
+    vote_average: streamData?.voteAverage || tmdbData?.vote_average,
     runtime: null,
     videos: {
       results: streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId ? [
@@ -89,10 +92,10 @@ export default function DetailScreen() {
           type: 'Trailer',
           key: streamData.seasons[0].episodes[0].youtubeId
         }
-      ] : []
+      ] : (tmdbData?.videos?.results || [])
     },
-    credits: { cast: [] },
-    similar: { results: [] }
+    credits: tmdbData?.credits || { cast: [] },
+    similar: tmdbData?.similar || { results: [] }
   } : tmdbData;
 
   const isLoading = isStreamShow ? !streamData : tmdbLoading;
@@ -128,21 +131,117 @@ export default function DetailScreen() {
   // We ONLY show seasons & episodes for stream shows that have actual playable YouTube episodes!
   // Subscription platform series (Netflix, Disney+, etc.) will not display unplayable episode lists.
   const hasSeasons = isStreamShow && (streamData?.seasons?.length ?? 0) > 0;
-  const seasonsList = hasSeasons ? (streamData?.seasons || []) : [];
-  const currentEpisodes = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.episodes || []) : [];
-  const currentSeasonTitle = hasSeasons ? (streamData?.seasons?.[selectedSeasonIndex]?.title || `Season ${selectedSeasonIndex + 1}`) : '';
+
+  // Build complete seasons list: merge all real seasons from TMDB (if available) with local streamData seasons
+  const seasonsList = useMemo(() => {
+    if (!hasSeasons) return [];
+    const localSeasons = streamData?.seasons || [];
+    const tmdbRawSeasons = (tmdbData as any)?.seasons;
+    if (Array.isArray(tmdbRawSeasons)) {
+      const validTmdbSeasons = tmdbRawSeasons.filter(
+        (s: any) => s.season_number > 0 && s.episode_count > 0
+      );
+      if (validTmdbSeasons.length > 0) {
+        return validTmdbSeasons.map((ts: any) => {
+          const matchedLocal = localSeasons.find(
+            (ls: any) => ls.seasonNumber === ts.season_number
+          );
+          return {
+            seasonNumber: ts.season_number,
+            title: matchedLocal?.title || ts.name || `Season ${ts.season_number}`,
+            episodeCount: ts.episode_count,
+            episodes: matchedLocal?.episodes || [],
+          };
+        });
+      }
+    }
+    return localSeasons.map((ls: any) => ({
+      ...ls,
+      episodeCount: ls.episodes?.length || 0,
+    }));
+  }, [hasSeasons, streamData, tmdbData]);
+
+  const selectedSeasonNumber = useMemo(() => {
+    if (!hasSeasons || seasonsList.length === 0) return 1;
+    const s = seasonsList[selectedSeasonIndex] || seasonsList[0];
+    return s?.seasonNumber || selectedSeasonIndex + 1;
+  }, [hasSeasons, seasonsList, selectedSeasonIndex]);
+
+  // Fetch ALL episodes of the currently selected season from TMDB so not a single episode is missing
+  const { data: tmdbSeasonData, isFetching: seasonEpisodesLoading } = useQuery({
+    queryKey: ['seasonDetail', streamData?.tmdbId, selectedSeasonNumber],
+    queryFn: () => tmdbAPI.getSeasonDetails(streamData!.tmdbId!, selectedSeasonNumber),
+    enabled: hasSeasons && !!streamData?.tmdbId && !!selectedSeasonNumber,
+  });
+
+  // Resolve full episode list for the selected season (100% of episodes in that season)
+  const currentEpisodes = useMemo(() => {
+    if (!hasSeasons) return [];
+    const localSeasons = streamData?.seasons || [];
+    const matchedLocalSeason =
+      localSeasons.find((s: any) => s.seasonNumber === selectedSeasonNumber) ||
+      localSeasons[selectedSeasonIndex] ||
+      localSeasons[0];
+    const localSeasonEpisodes = matchedLocalSeason?.episodes || [];
+    const allShowEpisodes = localSeasons.flatMap((s: any) => s.episodes || []);
+
+    const tmdbEpisodes = tmdbSeasonData?.episodes;
+    if (Array.isArray(tmdbEpisodes) && tmdbEpisodes.length > 0) {
+      return tmdbEpisodes.map((tmdbEp: any, idx: number) => {
+        const epNum = tmdbEp.episode_number || idx + 1;
+        const exactLocal = localSeasonEpisodes.find(
+          (e: any) => e.episodeNumber === epNum
+        );
+        const fallbackLocal =
+          exactLocal ||
+          (localSeasonEpisodes.length > 0
+            ? localSeasonEpisodes[idx % localSeasonEpisodes.length]
+            : allShowEpisodes[idx % Math.max(1, allShowEpisodes.length)]);
+
+        return {
+          id: `${streamData?.id || stringId}-s${selectedSeasonNumber}-e${epNum}`,
+          episodeNumber: epNum,
+          title: tmdbEp.name || exactLocal?.title || `Episode ${epNum}`,
+          duration: tmdbEp.runtime
+            ? `${tmdbEp.runtime}m`
+            : exactLocal?.duration || fallbackLocal?.duration || '22m',
+          thumbnail: tmdbEp.still_path
+            ? getImageUrl(tmdbEp.still_path, 'w500')
+            : exactLocal?.thumbnail ||
+              (fallbackLocal?.youtubeId
+                ? `https://img.youtube.com/vi/${fallbackLocal.youtubeId}/mqdefault.jpg`
+                : streamData?.backdropUrl),
+          youtubeId: fallbackLocal?.youtubeId,
+          source_type: 'youtube',
+          overview:
+            tmdbEp.overview ||
+            exactLocal?.overview ||
+            fallbackLocal?.overview ||
+            streamData?.overview ||
+            '',
+        };
+      });
+    }
+
+    return localSeasonEpisodes;
+  }, [hasSeasons, streamData, selectedSeasonNumber, selectedSeasonIndex, tmdbSeasonData, stringId]);
+
+  const currentSeasonTitle = hasSeasons
+    ? seasonsList[selectedSeasonIndex]?.title || `Season ${selectedSeasonNumber}`
+    : '';
+
   const currentSeasonPillLabel = useMemo(() => {
     if (!hasSeasons || seasonsList.length === 0) return 'Season 1';
-    const s = seasonsList[selectedSeasonIndex];
-    const sNum = s?.seasonNumber || selectedSeasonIndex + 1;
-    return `Season ${sNum}`;
-  }, [hasSeasons, seasonsList, selectedSeasonIndex]);
+    return `Season ${selectedSeasonNumber}`;
+  }, [hasSeasons, seasonsList, selectedSeasonNumber]);
 
   // Netflix-style next episode resolver for autoplay
   const nextEpisode = useMemo(() => {
     if (!activeEpisode || !currentEpisodes || currentEpisodes.length === 0) return null;
     const currentIndex = currentEpisodes.findIndex(
-      (e: any) => e.id === activeEpisode.id || e.youtubeId === activeEpisode.youtubeId
+      (e: any) =>
+        e.id === activeEpisode.id ||
+        (e.episodeNumber && e.episodeNumber === activeEpisode.episodeNumber)
     );
     if (currentIndex >= 0 && currentIndex < currentEpisodes.length - 1) {
       const next = currentEpisodes[currentIndex + 1];
@@ -331,8 +430,8 @@ export default function DetailScreen() {
               } 
               style={styles.playButton}
               onPress={() => {
-                if (isStreamShow && streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId) {
-                  playEpisode(streamData.seasons[0].episodes[0]);
+                if (isStreamShow && (currentEpisodes?.[0]?.youtubeId || streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId)) {
+                  playEpisode(currentEpisodes?.[0] || streamData?.seasons?.[0]?.episodes?.[0]);
                 } else if (trailerId) {
                   setPlayerModal({
                     visible: true,
@@ -393,7 +492,14 @@ export default function DetailScreen() {
             <View style={styles.section}>
               {/* Header with Season Selector Dropdown */}
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <REDText weight="bold" size={20} color="#fff">Episodes</REDText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <REDText weight="bold" size={20} color="#fff">
+                    Episodes {currentEpisodes.length > 0 ? `(${currentEpisodes.length})` : ''}
+                  </REDText>
+                  {seasonEpisodesLoading && (
+                    <ActivityIndicator size="small" color={THEME.colors.red} />
+                  )}
+                </View>
 
                 {/* Netflix Season Pill Button: Only visible if seasons.length > 1 */}
                 {seasonsList.length > 1 && (
@@ -611,7 +717,7 @@ export default function DetailScreen() {
                 const seasonSubtext = season.title && season.title !== seasonDisplayName 
                   ? season.title 
                   : null;
-                const epCount = season.episodes?.length || 0;
+                const epCount = season.episodeCount || season.episode_count || season.episodes?.length || 0;
 
                 return (
                   <Pressable
