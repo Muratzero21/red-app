@@ -289,7 +289,7 @@ export default function TrailersScreen() {
           }
         }}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator color={THEME.colors.red} style={{ margin: 40 }} /> : null}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator color={THEME.colors.red} style={{ margin: 40 }} /> : undefined}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={THEME.colors.red} />}
         onViewableItemsChanged={onViewableItemsChanged}
