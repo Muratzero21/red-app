@@ -26,6 +26,8 @@ export interface YouTubePlayerModalProps {
   onClose: () => void;
   nextEpisode?: NextEpisodeInfo | null;
   onPlayNextEpisode?: (ep: NextEpisodeInfo) => void;
+  initialStartSeconds?: number;
+  onProgressUpdate?: (currentTime: number, duration: number) => void;
 }
 
 const { width } = Dimensions.get('window');
@@ -42,9 +44,12 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   onClose,
   nextEpisode,
   onPlayNextEpisode,
+  initialStartSeconds,
+  onProgressUpdate,
 }) => {
   const insets = useSafeAreaInsets();
   const playerRef = useRef<YoutubeIframeRef>(null);
+  const hasSeekedRef = useRef(false);
 
   const [playing, setPlaying] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -57,6 +62,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
     setDismissedPrompt(false);
     setCountdown(5);
     setPlaying(true);
+    hasSeekedRef.current = false;
   }, [videoId]);
 
   const handlePlayNext = useCallback(() => {
@@ -68,7 +74,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   }, [nextEpisode, onPlayNextEpisode]);
 
   // Handle ENDED state: automatically play next episode immediately
-  const onStateChange = useCallback((state: string) => {
+  const onStateChange = useCallback(async (state: string) => {
     if (state === 'ended') {
       setPlaying(false);
       if (nextEpisode) {
@@ -76,13 +82,35 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
       }
     } else if (state === 'playing') {
       setPlaying(true);
+      if (initialStartSeconds && initialStartSeconds > 5 && !hasSeekedRef.current) {
+        hasSeekedRef.current = true;
+        try {
+          playerRef.current?.seekTo(initialStartSeconds, true);
+        } catch {
+          // ignore
+        }
+      }
+    } else if (state === 'paused') {
+      try {
+        if (playerRef.current && onProgressUpdate) {
+          const [currentTime, duration] = await Promise.all([
+            playerRef.current.getCurrentTime(),
+            playerRef.current.getDuration(),
+          ]);
+          if (currentTime > 0) {
+            onProgressUpdate(currentTime, duration);
+          }
+        }
+      } catch {
+        // ignore
+      }
     }
-  }, [nextEpisode, handlePlayNext]);
+  }, [nextEpisode, handlePlayNext, initialStartSeconds, onProgressUpdate]);
 
-  // Check remaining time: 15 seconds before ending, trigger the Next Episode prompt
+  // Check remaining time (15s before ending triggers Next Episode prompt) AND persist playback progress
   useEffect(() => {
     let interval: any = null;
-    if (visible && playing && nextEpisode && !showPrompt && !dismissedPrompt) {
+    if (visible && playing) {
       interval = setInterval(async () => {
         try {
           if (playerRef.current) {
@@ -90,7 +118,10 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
               playerRef.current.getCurrentTime(),
               playerRef.current.getDuration(),
             ]);
-            if (duration > 0 && currentTime > 0) {
+            if (currentTime > 0) {
+              onProgressUpdate?.(currentTime, duration);
+            }
+            if (duration > 0 && currentTime > 0 && nextEpisode && !showPrompt && !dismissedPrompt) {
               const remaining = duration - currentTime;
               if (remaining <= 15) {
                 setShowPrompt(true);
@@ -101,12 +132,12 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
         } catch {
           // ignore
         }
-      }, 1000);
+      }, 2000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [visible, playing, nextEpisode, showPrompt, dismissedPrompt]);
+  }, [visible, playing, nextEpisode, showPrompt, dismissedPrompt, onProgressUpdate]);
 
   // Countdown timer for 5s auto-start
   useEffect(() => {

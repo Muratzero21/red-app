@@ -8,6 +8,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 import { useLanguageStore } from '../src/store/useLanguageStore';
 import { useWatchlistStore } from '../src/store/useWatchlistStore';
+import { useWatchProgressStore } from '../src/store/useWatchProgressStore';
 import { queryClient } from '../src/services/queryClient';
 import { ErrorBoundary } from '../src/components/ui/ErrorBoundary';
 
@@ -21,6 +22,7 @@ try {
 export default function RootLayout() {
   const initLanguage = useLanguageStore(state => state.initLanguage);
   const initWatchlist = useWatchlistStore(state => state.initWatchlist);
+  const initWatchProgress = useWatchProgressStore(state => state.initWatchProgress);
 
   useEffect(() => {
     let isMounted = true;
@@ -30,6 +32,7 @@ export default function RootLayout() {
         await Promise.allSettled([
           initLanguage().catch(() => {}),
           initWatchlist().catch(() => {}),
+          initWatchProgress().catch(() => {}),
         ]);
       } catch (e) {
         console.warn('Initialization error:', e);

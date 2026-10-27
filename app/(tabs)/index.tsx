@@ -4,6 +4,7 @@ import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native
 import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
 import { ContentRow } from '../../src/components/features/ContentRow';
+import { ContinueWatchingRow } from '../../src/components/features/ContinueWatchingRow';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
 import { getAllCartoons, getStreamShowsByCategory } from '../../src/constants/streams';
 import { THEME } from '../../src/constants/theme';
@@ -208,6 +209,16 @@ export default function Home() {
         )}
         
         <View style={styles.rowsContainer}>
+          {/* Netflix Continue Watching Row (Right Below Hero) */}
+          <ContinueWatchingRow
+            onResumePress={(item) =>
+              router.push(`/detail/${item.mediaType}/${item.showId}?autoResume=1`)
+            }
+            onInfoPress={(item) =>
+              router.push(`/detail/${item.mediaType}/${item.showId}`)
+            }
+          />
+
           <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
 
           {/* Kids & Animation Row */}

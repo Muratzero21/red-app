@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator, Image as RNImage, Linking, Pressable, Alert, Share, Modal } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -13,6 +13,7 @@ import { REDText } from '../../../src/components/ui/REDText';
 import { REDButton } from '../../../src/components/ui/REDButton';
 import { YouTubePlayerModal } from '../../../src/components/ui/YouTubePlayerModal';
 import { useWatchlistStore } from '../../../src/store/useWatchlistStore';
+import { useWatchProgressStore } from '../../../src/store/useWatchProgressStore';
 
 const { width, height } = Dimensions.get('window');
 const HEADER_HEIGHT = height * 0.55;
@@ -27,10 +28,14 @@ const getDominantColor = (idStr: string) => {
 };
 
 export default function DetailScreen() {
-  const { type, id } = useLocalSearchParams();
+  const { type, id, autoResume } = useLocalSearchParams();
   const scrollY = useSharedValue(0);
   
   const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
+  const continueWatching = useWatchProgressStore(state => state.continueWatching);
+  const episodeProgressMap = useWatchProgressStore(state => state.episodeProgress);
+  const saveProgress = useWatchProgressStore(state => state.saveProgress);
+
   const stringId = Array.isArray(id) ? id[0] : String(id);
   const isCartoon = type === 'cartoon';
   const isTv = type === 'tv';
@@ -46,6 +51,13 @@ export default function DetailScreen() {
     if (isCartoon) return getCartoonById(stringId);
     return null;
   }, [streamShow, isCartoon, stringId]);
+
+  const canonicalShowId = streamData?.id || stringId;
+  const savedShowProgress = useMemo(() => {
+    return continueWatching.find(
+      (item) => String(item.showId) === String(canonicalShowId) || String(item.showId) === String(stringId)
+    );
+  }, [continueWatching, canonicalShowId, stringId]);
   
   const inMyList = watchlist.some(w => String(w.id) === stringId);
   const dominantColor = getDominantColor(stringId);
@@ -54,6 +66,8 @@ export default function DetailScreen() {
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
   const [seasonModalVisible, setSeasonModalVisible] = useState(false);
   const [activeEpisode, setActiveEpisode] = useState<any>(null);
+  const hasSyncedSavedSeason = useRef(false);
+  const hasAutoResumed = useRef(false);
 
   // In-App YouTube Player state
   const [playerModal, setPlayerModal] = useState<{
@@ -61,6 +75,7 @@ export default function DetailScreen() {
     videoId: string | null;
     title?: string;
     subtitle?: string;
+    initialStartSeconds?: number;
   }>({
     visible: false,
     videoId: null,
@@ -258,18 +273,137 @@ export default function DetailScreen() {
     return null;
   }, [activeEpisode, currentEpisodes]);
 
-  const playEpisode = (ep: any) => {
+  // Automatically switch to the season where the user left off on initial load
+  useEffect(() => {
+    if (!hasSyncedSavedSeason.current && savedShowProgress && seasonsList.length > 0) {
+      const targetIdx = seasonsList.findIndex(
+        (s: any, idx: number) => (s.seasonNumber || idx + 1) === savedShowProgress.seasonNumber
+      );
+      if (targetIdx >= 0) {
+        setSelectedSeasonIndex(targetIdx);
+      }
+      hasSyncedSavedSeason.current = true;
+    }
+  }, [savedShowProgress, seasonsList]);
+
+  // Parse minutes string like "22m" or "75m" into seconds
+  const parseDurationSeconds = (durStr?: string) => {
+    if (!durStr) return 1320;
+    const match = String(durStr).match(/(\d+)/);
+    return match ? parseInt(match[1], 10) * 60 : 1320;
+  };
+
+  const playEpisode = useCallback((ep: any, explicitSeasonNumber?: number, startSec?: number) => {
     if (ep?.youtubeId) {
-      setActiveEpisode(ep);
+      const sNum = explicitSeasonNumber || selectedSeasonNumber || 1;
+      const epNum = ep.episodeNumber || ep.episode_number || 1;
+      const epKey = `${String(canonicalShowId)}:S${sNum}:E${epNum}`;
+      const existingEpProg = episodeProgressMap[epKey];
+      const resumeAt = startSec !== undefined ? startSec : (existingEpProg?.currentTime || 0);
+      const estDuration = existingEpProg?.duration || parseDurationSeconds(ep.duration);
+
+      const enrichedEp = {
+        ...ep,
+        seasonNumber: sNum,
+        episodeNumber: epNum,
+      };
+      setActiveEpisode(enrichedEp);
+
       const showTitle = data?.title || data?.name || streamData?.title || 'Show';
+      const epTitle = ep.title || ep.name || `Episode ${epNum}`;
+      const thumbUri =
+        ep.thumbnail ||
+        ep.thumbnailUrl ||
+        (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg` : undefined) ||
+        streamData?.backdropUrl;
+
+      // Save immediately so it registers in Continue Watching right away
+      saveProgress({
+        showId: String(canonicalShowId),
+        showTitle,
+        mediaType: (isCartoon ? 'cartoon' : isStreamShow ? 'stream' : (type as any)) || 'stream',
+        posterUrl: isStreamShow ? (streamData?.posterUrl || '') : getImageUrl((data as any)?.poster_path, 'w500'),
+        backdropUrl: isStreamShow ? (streamData?.backdropUrl || '') : getImageUrl((data as any)?.backdrop_path, 'w780'),
+        seasonNumber: sNum,
+        episodeNumber: epNum,
+        episodeId: ep.id || `${canonicalShowId}-s${sNum}-e${epNum}`,
+        episodeTitle: epTitle,
+        youtubeId: ep.youtubeId,
+        thumbnail: thumbUri,
+        overview: ep.overview,
+        currentTime: resumeAt > 5 ? resumeAt : Math.max(60, Math.round(estDuration * 0.08)),
+        duration: estDuration,
+      });
+
       setPlayerModal({
         visible: true,
         videoId: ep.youtubeId,
-        title: `${showTitle} - ${ep.title}`,
+        title: `${showTitle} - S${sNum}:E${epNum} ${epTitle}`,
         subtitle: ep.overview,
+        initialStartSeconds: resumeAt > 5 ? resumeAt : undefined,
       });
     }
-  };
+  }, [
+    selectedSeasonNumber,
+    canonicalShowId,
+    episodeProgressMap,
+    data,
+    streamData,
+    saveProgress,
+    isCartoon,
+    isStreamShow,
+    type,
+  ]);
+
+  // Support ?autoResume=1 when tapped from the Home Continue Watching row
+  useEffect(() => {
+    if (autoResume === '1' && !hasAutoResumed.current && savedShowProgress) {
+      hasAutoResumed.current = true;
+      playEpisode(
+        {
+          id: savedShowProgress.episodeId,
+          episodeNumber: savedShowProgress.episodeNumber,
+          title: savedShowProgress.episodeTitle,
+          youtubeId: savedShowProgress.youtubeId,
+          thumbnail: savedShowProgress.thumbnail,
+          overview: savedShowProgress.overview,
+          duration: `${Math.round((savedShowProgress.duration || 1320) / 60)}m`,
+        },
+        savedShowProgress.seasonNumber,
+        savedShowProgress.currentTime
+      );
+    }
+  }, [autoResume, savedShowProgress, playEpisode]);
+
+  const handlePlayerProgressUpdate = useCallback((currentTime: number, duration: number) => {
+    if (!activeEpisode || !isStreamShow) return;
+    const sNum = activeEpisode.seasonNumber || selectedSeasonNumber || 1;
+    const epNum = activeEpisode.episodeNumber || activeEpisode.episode_number || 1;
+    const showTitle = data?.title || data?.name || streamData?.title || 'Show';
+    const epTitle = activeEpisode.title || activeEpisode.name || `Episode ${epNum}`;
+    const thumbUri =
+      activeEpisode.thumbnail ||
+      activeEpisode.thumbnailUrl ||
+      (activeEpisode.youtubeId ? `https://img.youtube.com/vi/${activeEpisode.youtubeId}/mqdefault.jpg` : undefined) ||
+      streamData?.backdropUrl;
+
+    saveProgress({
+      showId: String(canonicalShowId),
+      showTitle,
+      mediaType: (isCartoon ? 'cartoon' : 'stream'),
+      posterUrl: streamData?.posterUrl || '',
+      backdropUrl: streamData?.backdropUrl || '',
+      seasonNumber: sNum,
+      episodeNumber: epNum,
+      episodeId: activeEpisode.id || `${canonicalShowId}-s${sNum}-e${epNum}`,
+      episodeTitle: epTitle,
+      youtubeId: activeEpisode.youtubeId,
+      thumbnail: thumbUri,
+      overview: activeEpisode.overview,
+      currentTime,
+      duration: duration > 0 ? duration : parseDurationSeconds(activeEpisode.duration),
+    });
+  }, [activeEpisode, isStreamShow, selectedSeasonNumber, data, streamData, saveProgress, canonicalShowId, isCartoon]);
 
   if (isLoading || !data) {
     return (
@@ -411,9 +545,15 @@ export default function DetailScreen() {
           </Animated.View>
 
           {/* Action Buttons */}
-          <View style={styles.actionsRow}>
+          <View style={[styles.actionsRow, savedShowProgress && isStreamShow ? { marginBottom: 12 } : null]}>
             <REDButton 
-              title={isStreamShow ? "Watch Episode 1" : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))} 
+              title={
+                isStreamShow
+                  ? (savedShowProgress
+                      ? `Resume S${savedShowProgress.seasonNumber}:E${savedShowProgress.episodeNumber}`
+                      : "Watch Episode 1")
+                  : (trailerId ? "Play Trailer" : (providerName ? `Play on ${providerName}` : "Play Trailer"))
+              } 
               variant="primary" 
               icon={
                 providerLogo ? (
@@ -430,8 +570,22 @@ export default function DetailScreen() {
               } 
               style={styles.playButton}
               onPress={() => {
-                if (isStreamShow && (currentEpisodes?.[0]?.youtubeId || streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId)) {
-                  playEpisode(currentEpisodes?.[0] || streamData?.seasons?.[0]?.episodes?.[0]);
+                if (isStreamShow && savedShowProgress?.youtubeId) {
+                  playEpisode(
+                    {
+                      id: savedShowProgress.episodeId,
+                      episodeNumber: savedShowProgress.episodeNumber,
+                      title: savedShowProgress.episodeTitle,
+                      youtubeId: savedShowProgress.youtubeId,
+                      thumbnail: savedShowProgress.thumbnail,
+                      overview: savedShowProgress.overview,
+                      duration: `${Math.round((savedShowProgress.duration || 1320) / 60)}m`,
+                    },
+                    savedShowProgress.seasonNumber,
+                    savedShowProgress.currentTime
+                  );
+                } else if (isStreamShow && (currentEpisodes?.[0]?.youtubeId || streamData?.seasons?.[0]?.episodes?.[0]?.youtubeId)) {
+                  playEpisode(currentEpisodes?.[0] || streamData?.seasons?.[0]?.episodes?.[0], selectedSeasonNumber, 0);
                 } else if (trailerId) {
                   setPlayerModal({
                     visible: true,
@@ -480,6 +634,28 @@ export default function DetailScreen() {
             </Pressable>
           </View>
 
+          {/* Netflix Resume Progress Strip under CTA button when show has saved progress */}
+          {isStreamShow && savedShowProgress && (
+            <View style={styles.resumeStatusContainer}>
+              <View style={styles.resumeProgressTrack}>
+                <View
+                  style={[
+                    styles.resumeProgressFill,
+                    { width: `${Math.round(Math.max(6, Math.min(98, (savedShowProgress.progress || 0.12) * 100)))}%` },
+                  ]}
+                />
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.85)" numberOfLines={1} style={{ flex: 1, marginRight: 8 }}>
+                  S{savedShowProgress.seasonNumber}:E{savedShowProgress.episodeNumber} &quot;{savedShowProgress.episodeTitle}&quot;
+                </REDText>
+                <REDText size={12} weight="bold" color="rgba(255,255,255,0.55)">
+                  {savedShowProgress.remainingMinutes}m left
+                </REDText>
+              </View>
+            </View>
+          )}
+
           {/* Synopsis */}
           <View style={{ marginBottom: 28 }}>
             <REDText size={15} color="rgba(255,255,255,0.8)" style={{ lineHeight: 24 }}>
@@ -524,19 +700,29 @@ export default function DetailScreen() {
                   const epNumber = ep.episodeNumber || ep.episode_number || epIdx + 1;
                   const epTitle = ep.title || ep.name || `Episode ${epNumber}`;
                   const thumbUri = ep.thumbnail || ep.thumbnailUrl || (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg` : null) || (ep.still_path ? getImageUrl(ep.still_path, 'w342') : null);
+                  const epProgressKey = `${String(canonicalShowId)}:S${selectedSeasonNumber}:E${epNumber}`;
+                  const epProgressObj = episodeProgressMap[epProgressKey];
+                  const epProgressPct = epProgressObj
+                    ? Math.round(Math.max(6, Math.min(98, (epProgressObj.progress || 0.1) * 100)))
+                    : 0;
+                  const isCurrentlyPausedEp =
+                    savedShowProgress &&
+                    savedShowProgress.seasonNumber === selectedSeasonNumber &&
+                    savedShowProgress.episodeNumber === epNumber;
 
                   return (
                     <Pressable
                       key={ep.id || epIdx}
-                      onPress={() => playEpisode(ep)}
+                      onPress={() => playEpisode(ep, selectedSeasonNumber)}
                       style={({ pressed }) => [
                         styles.netflixEpisodeRow,
+                        isCurrentlyPausedEp && { backgroundColor: 'rgba(229, 9, 20, 0.06)', paddingHorizontal: 8, borderRadius: 10 },
                         pressed && { opacity: 0.8, backgroundColor: 'rgba(255,255,255,0.04)' }
                       ]}
                     >
                       {/* Top Part: Thumbnail + Title + Play Button */}
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-                        {/* 16:9 Thumbnail with Play Overlay */}
+                        {/* 16:9 Thumbnail with Play Overlay & Red Progress Bar */}
                         <View style={styles.netflixThumbBox}>
                           {thumbUri ? (
                             <RNImage
@@ -555,8 +741,13 @@ export default function DetailScreen() {
                             </View>
                           </View>
                           {ep.duration && (
-                            <View style={styles.netflixDurationBadge}>
+                            <View style={[styles.netflixDurationBadge, epProgressPct > 0 && { bottom: 6 }]}>
                               <REDText size={9} weight="bold" color="#fff">{ep.duration}</REDText>
+                            </View>
+                          )}
+                          {epProgressPct > 0 && (
+                            <View style={styles.episodeThumbProgressTrack}>
+                              <View style={[styles.episodeThumbProgressFill, { width: `${epProgressPct}%` }]} />
                             </View>
                           )}
                         </View>
@@ -566,9 +757,18 @@ export default function DetailScreen() {
                           <REDText size={15} weight="bold" color="#fff" numberOfLines={1}>
                             {epNumber}. {epTitle}
                           </REDText>
-                          <REDText size={12} color="rgba(255,255,255,0.5)" style={{ marginTop: 4 }}>
-                            {ep.duration ? `${ep.duration} • ` : ''}Episode {epNumber}
-                          </REDText>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <REDText size={12} color="rgba(255,255,255,0.5)">
+                              {ep.duration ? `${ep.duration} • ` : ''}Episode {epNumber}
+                            </REDText>
+                            {isCurrentlyPausedEp && (
+                              <View style={styles.resumeEpChip}>
+                                <REDText size={10} weight="bold" color={THEME.colors.red}>
+                                  RESUME • {savedShowProgress.remainingMinutes}m left
+                                </REDText>
+                              </View>
+                            )}
+                          </View>
                         </View>
 
                         {/* Netflix Play Circle Action Button */}
@@ -583,6 +783,13 @@ export default function DetailScreen() {
                           {ep.overview}
                         </REDText>
                       ) : null}
+
+                      {/* Full-Width Episode Red Progress Bar under watched episode row */}
+                      {epProgressPct > 0 && (
+                        <View style={styles.episodeRowProgressTrack}>
+                          <View style={[styles.episodeRowProgressFill, { width: `${epProgressPct}%` }]} />
+                        </View>
+                      )}
                     </Pressable>
                   );
                 })}
@@ -786,7 +993,9 @@ export default function DetailScreen() {
         genre={primaryGenre}
         onClose={() => setPlayerModal({ visible: false, videoId: null })}
         nextEpisode={nextEpisode}
-        onPlayNextEpisode={(next) => playEpisode(next)}
+        onPlayNextEpisode={(next) => playEpisode(next, selectedSeasonNumber, 0)}
+        initialStartSeconds={playerModal.initialStartSeconds}
+        onProgressUpdate={handlePlayerProgressUpdate}
       />
     </View>
   );
@@ -801,6 +1010,55 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 24, marginTop: -140 },
   badge: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.05)' },
   actionsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 24 },
+  resumeStatusContainer: {
+    marginBottom: 22,
+    paddingHorizontal: 4,
+  },
+  resumeProgressTrack: {
+    width: '100%',
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    overflow: 'hidden',
+  },
+  resumeProgressFill: {
+    height: '100%',
+    backgroundColor: THEME.colors.red,
+    borderRadius: 2,
+  },
+  episodeThumbProgressTrack: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3.5,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+  },
+  episodeThumbProgressFill: {
+    height: '100%',
+    backgroundColor: THEME.colors.red,
+  },
+  episodeRowProgressTrack: {
+    width: '100%',
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    marginTop: 10,
+    overflow: 'hidden',
+  },
+  episodeRowProgressFill: {
+    height: '100%',
+    backgroundColor: THEME.colors.red,
+    borderRadius: 1.5,
+  },
+  resumeEpChip: {
+    backgroundColor: 'rgba(229, 9, 20, 0.14)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.35)',
+  },
   playButton: { flex: 1, backgroundColor: THEME.colors.red, height: 52 },
   playIconWrapper: { backgroundColor: '#fff', borderRadius: 12, width: 24, height: 24, justifyContent: 'center', alignItems: 'center' },
   watchlistButton: {
