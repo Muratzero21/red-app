@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -20,6 +20,7 @@ import {
   LiveChannel,
   getLiveChannelById,
 } from '../src/constants/liveChannels';
+import { resolveActiveLiveStreamId } from '../src/services/liveStreamResolver';
 
 const { width } = Dimensions.get('window');
 const VIDEO_HEIGHT = Math.round(width * (9 / 16));
@@ -43,27 +44,40 @@ export default function LiveTvScreen() {
   );
 
   const [activeChannel, setActiveChannel] = useState<LiveChannel>(initialChannel);
+  const [dynamicLiveId, setDynamicLiveId] = useState<string | null>(null);
   const [fallbackIndex, setFallbackIndex] = useState<number>(-1);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [playing, setPlaying] = useState<boolean>(true);
 
   const currentVideoId = useMemo(() => {
+    if (dynamicLiveId) return dynamicLiveId;
     if (fallbackIndex < 0) return activeChannel.youtubeId;
     return (
       activeChannel.backupYoutubeIds[fallbackIndex] ||
       activeChannel.backupYoutubeIds[0] ||
       activeChannel.youtubeId
     );
-  }, [activeChannel, fallbackIndex]);
+  }, [activeChannel, fallbackIndex, dynamicLiveId]);
 
   const handleSelectChannel = useCallback((channel: LiveChannel) => {
     setActiveChannel(channel);
+    setDynamicLiveId(null);
     setFallbackIndex(-1);
     setPlaying(true);
   }, []);
 
-  const handlePlayerError = useCallback(() => {
-    // Automatically switch to backup live stream ID if primary ID is rotated or restricted
+  const handlePlayerError = useCallback(async () => {
+    // 1. Dynamically resolve the channel's active real-time live stream ID on YouTube
+    try {
+      const liveId = await resolveActiveLiveStreamId(activeChannel);
+      if (liveId && liveId !== currentVideoId) {
+        setDynamicLiveId(liveId);
+        return;
+      }
+    } catch {
+      // ignore
+    }
+    // 2. Fallback to backup live stream IDs
     setFallbackIndex((prev) => {
       const nextIdx = prev + 1;
       if (nextIdx < activeChannel.backupYoutubeIds.length) {
@@ -71,7 +85,7 @@ export default function LiveTvScreen() {
       }
       return prev;
     });
-  }, [activeChannel]);
+  }, [activeChannel, currentVideoId]);
 
   const filteredChannels = useMemo(() => {
     if (selectedCategory === 'all') return LIVE_CHANNELS;
