@@ -120,7 +120,7 @@ export default function Home() {
   const [heroIndex, setHeroIndex] = useState(0);
 
   const heroItems = useMemo(() => {
-    const valid = heroList.filter((item: any) => item.backdropUrl);
+    const valid = heroList.filter((item: any) => item.posterUrl);
     if (valid.length === 0) return [];
 
     // Daily deterministic rotation so lead spotlight changes every 24 hours
@@ -201,7 +201,7 @@ export default function Home() {
             metadata={`${heroItem.releaseDate?.split('-')[0] || ''} • ${heroItem.mediaType === 'cartoon' ? 'Animation' : (heroItem.mediaType === 'movie' ? 'Movie' : 'Series')}`}
             rating={heroItem.voteAverage}
             description={heroItem.overview}
-            imageUrl={heroItem.backdropUrl || heroItem.posterUrl}
+            imageUrl={(heroItem.posterUrl || '').replace('/w500/', '/original/')}
             logoUrl={heroLogoUrl}
             trailerId={heroTrailerId}
           />
