@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
 import { ContentRow } from '../../src/components/features/ContentRow';
 import { ContinueWatchingRow } from '../../src/components/features/ContinueWatchingRow';
+import { LiveChannelsRow } from '../../src/components/features/LiveChannelsRow';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
 import { getAllCartoons, getStreamShowsByCategory } from '../../src/constants/streams';
 import { THEME } from '../../src/constants/theme';
@@ -219,6 +220,14 @@ export default function Home() {
             }
           />
 
+          {/* 24/7 Global Live TV Channels Row */}
+          <LiveChannelsRow
+            onChannelPress={(channel) =>
+              router.push({ pathname: '/live-tv', params: { channelId: channel.id } })
+            }
+            onSeeAllPress={() => router.push('/live-tv')}
+          />
+
           <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
 
           {/* Kids & Animation Row */}
@@ -228,12 +237,9 @@ export default function Home() {
             onItemPress={(id) => navigateToDetail(id, 'cartoon')} 
           />
 
-          {/* Turkish Series Row */}
-          <ContentRow 
-            title="Turkish Series" 
-            data={turkishClassicsList} 
-            onItemPress={(id) => navigateToDetail(id, 'stream')} 
-          />
+          <ContentRow title="Popular Movies" data={moviesList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
+          <ContentRow title="Popular Series" data={seriesList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
+          <ContentRow title="Premium TV Shows" data={streamingList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
 
           {/* Viral Web Series */}
           <ContentRow 
@@ -242,12 +248,16 @@ export default function Home() {
             onItemPress={(id) => navigateToDetail(id, 'stream')} 
           />
 
-          <ContentRow title="Popular Movies" data={moviesList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
-          <ContentRow title="Popular Series" data={seriesList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
-          <ContentRow title="Premium TV Shows" data={streamingList} onItemPress={(id) => navigateToDetail(id, 'tv')} />
           <ContentRow title="Because You Watched..." data={moviesList.slice(5).concat(moviesList.slice(0, 5))} onItemPress={(id) => navigateToDetail(id, 'movie')} />
           <ContentRow title="Top Rated" data={topRatedList} onItemPress={(id) => navigateToDetail(id, 'movie')} />
           <ContentRow title="More Like This" data={trendingList.slice(5).concat(trendingList.slice(0, 5))} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />
+
+          {/* International Classics (Placed at the bottom for global-first hierarchy) */}
+          <ContentRow 
+            title="International Classics" 
+            data={turkishClassicsList} 
+            onItemPress={(id) => navigateToDetail(id, 'stream')} 
+          />
         </View>
       </Animated.ScrollView>
     </View>

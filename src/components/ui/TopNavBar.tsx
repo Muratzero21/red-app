@@ -27,22 +27,41 @@ export const TopNavBar = ({ scrollY, title, showBack }: TopNavBarProps) => {
 
   return (
     <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
-
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          {title ? <REDText weight="bold" size={24}>{title}</REDText> : <Image 
-            source={require('../../../assets/images/red-logo.png')} 
-            style={styles.logoImage} 
-            contentFit="contain" 
-          />}
+          {title ? (
+            <REDText weight="bold" size={24}>{title}</REDText>
+          ) : (
+            <Image 
+              source={require('../../../assets/images/red-logo.png')} 
+              style={styles.logoImage} 
+              contentFit="contain" 
+            />
+          )}
         </View>
         
-        <Pressable 
-          onPress={() => router.push('/search-engine')}
-          style={({ pressed }) => [styles.searchBtn, pressed && { opacity: 0.7 }]}
-        >
-          <Search color={THEME.colors.textPrimary} size={24} />
-        </Pressable>
+        <View style={styles.rightActions}>
+          {/* Global 24/7 Live TV Pill Button */}
+          <Pressable
+            onPress={() => router.push('/live-tv')}
+            style={({ pressed }) => [
+              styles.livePillBtn,
+              pressed && { opacity: 0.78, transform: [{ scale: 0.96 }] },
+            ]}
+          >
+            <View style={styles.liveDot} />
+            <REDText size={11} weight="bold" color="#fff" style={{ letterSpacing: 0.8 }}>
+              LIVE
+            </REDText>
+          </Pressable>
+
+          <Pressable 
+            onPress={() => router.push('/search-engine')}
+            style={({ pressed }) => [styles.searchBtn, pressed && { opacity: 0.7 }]}
+          >
+            <Search color={THEME.colors.textPrimary} size={24} />
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -71,8 +90,30 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
   },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  livePillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(229, 9, 20, 0.88)',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    marginRight: 5,
+  },
   searchBtn: {
     padding: 8,
     marginRight: -8,
-  }
+  },
 });

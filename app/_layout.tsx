@@ -67,6 +67,7 @@ export default function RootLayout() {
               }}
             >
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="live-tv" options={{ animation: 'fade_from_bottom' }} />
               <Stack.Screen name="detail/[type]/[id]" options={{ animation: 'fade_from_bottom' }} />
               <Stack.Screen name="genre/[id]" options={{ presentation: 'card', animation: 'slide_from_right' }} />
               <Stack.Screen name="legal/privacy" options={{ animation: 'slide_from_right' }} />
