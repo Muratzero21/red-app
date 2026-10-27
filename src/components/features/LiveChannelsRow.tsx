@@ -73,10 +73,10 @@ export const LiveChannelsRow: React.FC<LiveChannelsRowProps> = ({
                 </REDText>
               </View>
 
-              {/* Top-right Category pill */}
+              {/* Top-right Category or Telemetry pill */}
               <View style={styles.categoryPill}>
-                <REDText size={9} weight="semibold" color="rgba(255,255,255,0.85)">
-                  {item.categoryLabel}
+                <REDText size={9} weight="bold" color="rgba(255,255,255,0.9)">
+                  {item.telemetryTag || item.categoryLabel}
                 </REDText>
               </View>
 

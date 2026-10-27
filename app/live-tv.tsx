@@ -26,6 +26,7 @@ const VIDEO_HEIGHT = Math.round(width * (9 / 16));
 
 const CATEGORIES = [
   { key: 'all', label: 'All Channels' },
+  { key: 'sports', label: '🏎️ F1 & Sports' },
   { key: 'kids', label: 'Kids & Animation' },
   { key: 'space_science', label: 'Space & Science' },
   { key: 'news', label: 'World News' },
@@ -149,6 +150,13 @@ export default function LiveTvScreen() {
               {activeChannel.categoryLabel}
             </REDText>
           </View>
+          {activeChannel.telemetryTag && (
+            <View style={styles.telemetryTag}>
+              <REDText size={10} weight="bold" color="#fff">
+                {activeChannel.telemetryTag}
+              </REDText>
+            </View>
+          )}
           <View style={styles.viewersBadge}>
             <Users size={11} color="rgba(255,255,255,0.6)" />
             <REDText size={11} color="rgba(255,255,255,0.6)" style={{ marginLeft: 4 }}>
@@ -374,6 +382,14 @@ const styles = StyleSheet.create({
   categoryTag: {
     backgroundColor: 'rgba(255,255,255,0.08)',
     paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  telemetryTag: {
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.28)',
+    paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 4,
   },
