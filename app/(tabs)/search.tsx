@@ -1,68 +1,190 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Dimensions } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Dimensions,
+  Image as RNImage,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronRight, Search as SearchIcon } from 'lucide-react-native';
+import { Play, Star, Search as SearchIcon } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { REDText } from '../../src/components/ui/REDText';
 import { THEME } from '../../src/constants/theme';
-import { LinearGradient } from 'expo-linear-gradient';
+import { getAllStreamShows, StreamShow } from '../../src/constants/streams';
 
-const GENRES = [
-  { id: 28, name: 'Action' },
-  { id: 12, name: 'Adventure' },
-  { id: 16, name: 'Animation' },
-  { id: 35, name: 'Comedy' },
-  { id: 80, name: 'Crime' },
-  { id: 99, name: 'Documentary' },
-  { id: 18, name: 'Drama' },
-  { id: 14, name: 'Fantasy' },
-  { id: 27, name: 'Horror' },
-  { id: 9648, name: 'Mystery' },
-  { id: 10749, name: 'Romance' },
-  { id: 878, name: 'Science Fiction' },
-  { id: 53, name: 'Thriller' }
-];
+const { width } = Dimensions.get('window');
+const GRID_PADDING = 16;
+const GRID_GAP = 12;
+const CARD_WIDTH = Math.floor((width - GRID_PADDING * 2 - GRID_GAP * 2) / 3);
+const POSTER_HEIGHT = Math.round(CARD_WIDTH * 1.48);
 
-export default function DiscoverScreen() {
+const SERIES_CATEGORIES = [
+  { key: 'all', label: 'All' },
+  { key: 'kids', label: 'Animation' },
+  { key: 'turkish_classics', label: 'Drama' },
+  { key: 'indie_web', label: 'Mini-Series' },
+] as const;
+
+export default function SeriesScreen() {
   const insets = useSafeAreaInsets();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // Filter strictly to series that have active playable episodes with a valid YouTube stream ID
+  const playableSeries = useMemo(() => {
+    return getAllStreamShows().filter((show) =>
+      show.seasons?.some((s) =>
+        s.episodes?.some((ep) => Boolean(ep.youtubeId && ep.youtubeId.trim().length > 0))
+      )
+    );
+  }, []);
+
+  const filteredSeries = useMemo(() => {
+    if (selectedCategory === 'all') return playableSeries;
+    return playableSeries.filter((s) => s.category === selectedCategory);
+  }, [playableSeries, selectedCategory]);
+
+  const handlePressSeries = (show: StreamShow) => {
+    const routeType = show.category === 'kids' ? 'cartoon' : 'stream';
+    router.push(`/detail/${routeType}/${show.id}`);
+  };
 
   return (
     <View style={styles.container}>
-      {/* Background Gradient */}
       <LinearGradient
-        colors={['rgba(25, 0, 5, 0.4)', THEME.colors.background]}
-        locations={[0, 0.3]}
+        colors={['rgba(229, 9, 20, 0.12)', THEME.colors.background]}
+        locations={[0, 0.28]}
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 24) }]}>
-        <REDText weight="bold" size={32}>Discover</REDText>
-        <Pressable style={styles.searchIcon}>
-          <SearchIcon color="#fff" size={24} />
+      {/* Top Header */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 4 }]}>
+        <View>
+          <REDText weight="bold" size={28} color="#fff">
+            Series
+          </REDText>
+          <REDText size={12} color="rgba(255,255,255,0.5)" style={{ marginTop: 2 }}>
+            {filteredSeries.length} Full Playable Series Ready to Stream
+          </REDText>
+        </View>
+
+        <Pressable
+          onPress={() => router.push('/search-engine')}
+          style={({ pressed }) => [styles.searchIconBtn, pressed && { opacity: 0.7 }]}
+        >
+          <SearchIcon color="#fff" size={20} />
         </Pressable>
       </View>
 
-      <ScrollView 
+      {/* Horizontal Category Filter Pills */}
+      <View style={styles.filterSection}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScroll}
+        >
+          {SERIES_CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.key;
+            return (
+              <Pressable
+                key={cat.key}
+                onPress={() => setSelectedCategory(cat.key)}
+                style={[styles.filterPill, isSelected && styles.filterPillActive]}
+              >
+                <REDText
+                  size={13}
+                  weight={isSelected ? 'bold' : 'medium'}
+                  color={isSelected ? '#fff' : 'rgba(255,255,255,0.65)'}
+                >
+                  {cat.label}
+                </REDText>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Playable Series Grid */}
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
       >
-        <REDText weight="semibold" size={16} color={THEME.colors.textSecondary} style={styles.sectionTitle}>
-          Genres
-        </REDText>
-        
-        {GENRES.map((genre, index) => (
-          <Pressable
-            key={genre.id}
-            style={({ pressed }) => [
-              styles.genreRow,
-              pressed && { backgroundColor: 'rgba(255,255,255,0.05)' }
-            ]}
-            onPress={() => router.push({ pathname: '/genre/[id]', params: { id: genre.id, name: genre.name } })}
-          >
-            <REDText size={18} weight="semibold">{genre.name}</REDText>
-            <ChevronRight color="rgba(255,255,255,0.3)" size={20} />
-          </Pressable>
-        ))}
+        <View style={styles.gridContainer}>
+          {filteredSeries.map((show) => {
+            const totalEpisodes = show.seasons.reduce(
+              (acc, s) => acc + (s.episodes?.length || 0),
+              0
+            );
+            return (
+              <Pressable
+                key={show.id}
+                onPress={() => handlePressSeries(show)}
+                style={({ pressed }) => [
+                  styles.seriesCard,
+                  pressed && { opacity: 0.82, transform: [{ scale: 0.97 }] },
+                ]}
+              >
+                <View style={styles.posterBox}>
+                  <RNImage
+                    source={{ uri: show.posterUrl || show.backdropUrl }}
+                    style={styles.posterImage}
+                    resizeMode="cover"
+                  />
+
+                  {/* Top-left Playable Indicator */}
+                  <View style={styles.streamBadge}>
+                    <Play size={8} color="#fff" fill="#fff" style={{ marginRight: 3 }} />
+                    <REDText size={8.5} weight="bold" color="#fff" style={{ letterSpacing: 0.4 }}>
+                      STREAM
+                    </REDText>
+                  </View>
+
+                  {/* Bottom Rating & Episode Pill */}
+                  <LinearGradient
+                    colors={['transparent', 'rgba(10,11,16,0.92)']}
+                    style={styles.posterBottomGradient}
+                  >
+                    <View style={styles.ratingRow}>
+                      <Star size={10} color="#F5C518" fill="#F5C518" />
+                      <REDText size={10} weight="bold" color="#fff" style={{ marginLeft: 3 }}>
+                        {show.voteAverage.toFixed(1)}
+                      </REDText>
+                    </View>
+                    <REDText size={9.5} weight="semibold" color="rgba(255,255,255,0.75)">
+                      {show.seasons.length > 1
+                        ? `${show.seasons.length} Seasons`
+                        : `${totalEpisodes} Ep`}
+                    </REDText>
+                  </LinearGradient>
+                </View>
+
+                <REDText
+                  size={12.5}
+                  weight="bold"
+                  color="#fff"
+                  numberOfLines={1}
+                  style={styles.cardTitle}
+                >
+                  {show.title}
+                </REDText>
+                <REDText
+                  size={10.5}
+                  color="rgba(255,255,255,0.5)"
+                  numberOfLines={1}
+                  style={{ marginTop: 1 }}
+                >
+                  {show.category === 'kids'
+                    ? 'Animation'
+                    : show.category === 'turkish_classics'
+                    ? 'Drama'
+                    : 'Mini-Series'}
+                </REDText>
+              </Pressable>
+            );
+          })}
+        </View>
       </ScrollView>
     </View>
   );
@@ -77,31 +199,91 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
   },
-  searchIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+  searchIconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.07)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  filterSection: {
+    paddingVertical: 10,
+  },
+  filterScroll: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  filterPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.09)',
+  },
+  filterPillActive: {
+    backgroundColor: THEME.colors.red,
+    borderColor: THEME.colors.red,
+  },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: GRID_PADDING,
+    paddingTop: 6,
   },
-  sectionTitle: {
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  genreRow: {
+  gridContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: GRID_GAP,
+    rowGap: 18,
+  },
+  seriesCard: {
+    width: CARD_WIDTH,
+  },
+  posterBox: {
+    width: CARD_WIDTH,
+    height: POSTER_HEIGHT,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#161822',
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  posterImage: {
+    width: '100%',
+    height: '100%',
+  },
+  streamBadge: {
+    position: 'absolute',
+    top: 7,
+    left: 7,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
-  }
+    backgroundColor: 'rgba(229, 9, 20, 0.92)',
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 4,
+  },
+  posterBottomGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 7,
+    paddingTop: 18,
+    paddingBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    marginTop: 7,
+  },
 });

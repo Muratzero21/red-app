@@ -11,8 +11,8 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import Svg, { Path, Rect, Circle } from 'react-native-svg';
-import { Home, Search, Heart, Settings } from 'lucide-react-native';
+import Svg, { Path, Rect } from 'react-native-svg';
+import { Home, Tv, Heart, Settings } from 'lucide-react-native';
 import { REDText } from './REDText';
 
 const ACTIVE_RED = '#E50914';
@@ -36,29 +36,44 @@ const HomeTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, col
   return <Home size={21} color={color} strokeWidth={1.8} />;
 };
 
-// 2. Search Icon
-const SearchTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
+// 2. Series Icon (Minimalist TV / Screen icon - filled when active, outline when inactive)
+const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
       <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
-        <Circle
-          cx="11"
-          cy="11"
-          r="7.5"
-          fill="rgba(229, 9, 20, 0.25)"
+        <Rect
+          x="2.5"
+          y="4.5"
+          width="19"
+          height="13.5"
+          rx="3"
+          fill="rgba(229, 9, 20, 0.22)"
           stroke={ACTIVE_RED}
-          strokeWidth="2.2"
+          strokeWidth="2"
         />
         <Path
-          d="M16.65 16.65L21 21"
+          d="M8 21H16"
           stroke={ACTIVE_RED}
-          strokeWidth="2.4"
+          strokeWidth="2.2"
           strokeLinecap="round"
+        />
+        <Path
+          d="M12 18V21"
+          stroke={ACTIVE_RED}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <Path
+          d="M10.4 8.8L14.8 11.25L10.4 13.7V8.8Z"
+          fill={ACTIVE_RED}
+          stroke={ACTIVE_RED}
+          strokeWidth="1"
+          strokeLinejoin="round"
         />
       </Svg>
     );
   }
-  return <Search size={21} color={color} strokeWidth={1.8} />;
+  return <Tv size={21} color={color} strokeWidth={1.8} />;
 };
 
 // 3. Modern Vertical Video "Shorts" Icon (Portrait frame + Play triangle)
@@ -200,7 +215,7 @@ const TabBarItem: React.FC<TabItemProps> = ({
       case 'index':
         return <HomeTabIcon active={isFocused} color={color} />;
       case 'search':
-        return <SearchTabIcon active={isFocused} color={color} />;
+        return <SeriesTabIcon active={isFocused} color={color} />;
       case 'trailers':
         return <ShortsVerticalIcon active={isFocused} color={color} />;
       case 'watchlist':
@@ -260,7 +275,7 @@ export interface FloatingGlassTabBarProps {
 
 const TAB_LABELS: Record<string, string> = {
   index: 'Home',
-  search: 'Search',
+  search: 'Series',
   trailers: 'Shorts',
   watchlist: 'Watchlist',
   settings: 'Settings',

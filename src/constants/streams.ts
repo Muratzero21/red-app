@@ -1628,6 +1628,134 @@ export const INDIE_WEB_SERIES: StreamShow[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'the-amazing-digital-circus',
+    tmdbId: 261145,
+    title: 'The Amazing Digital Circus',
+    name: 'The Amazing Digital Circus',
+    category: 'indie_web',
+    categoryTitle: 'Mini-Series',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/lpfrgfomX8uNFxv4VaEzvJGs9TK.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/vPVdWiLUNQyaGMazyZGVAyRcYBG.jpg',
+    overview: 'A woman gets trapped in a surreal virtual circus with five other humans and is subject to the whims of an AI ringmaster.',
+    releaseDate: '2023 - 2025',
+    voteAverage: 8.8,
+    badge: 'FULL SERIES',
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'tadc-s1e1',
+            episodeNumber: 1,
+            title: 'Pilot — Enter the Digital Circus',
+            duration: '25m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/vPVdWiLUNQyaGMazyZGVAyRcYBG.jpg',
+            youtubeId: 'HwAPLk_sQ3w',
+            overview: 'Pomni wakes up inside a bizarre digital circus and tries to find an exit while Caine sends the cast on an adventure.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'murder-drones',
+    tmdbId: 291212,
+    title: 'Murder Drones',
+    name: 'Murder Drones',
+    category: 'indie_web',
+    categoryTitle: 'Mini-Series',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/z6fAKaN2F9jogQIdcHUHNVsiFNV.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/t4OuXVAt0zUBJUC6DnttSph3J5f.jpg',
+    overview: 'Rebellious worker drone Uzi teams up with a rogue disassembly drone to uncover the dark corporate secrets of Copper 9.',
+    releaseDate: '2021 - 2024',
+    voteAverage: 8.9,
+    badge: 'FULL SERIES',
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'md-s1e1',
+            episodeNumber: 1,
+            title: 'Episode 1 — Pilot',
+            duration: '27m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/t4OuXVAt0zUBJUC6DnttSph3J5f.jpg',
+            youtubeId: 'mImFz8mkaHo',
+            overview: 'Outcast worker drone Uzi ventures outside the bunker and encounters Disassembly Drone Serial Designation N.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'helluva-boss',
+    tmdbId: 289892,
+    title: 'Helluva Boss',
+    name: 'Helluva Boss',
+    category: 'indie_web',
+    categoryTitle: 'Mini-Series',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/bcrp2ovxirKH81XSMYQZ7eEunzX.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/20OP4f0xDbPttORm9OyIbNu3cNN.jpg',
+    overview: 'Blitzo and his crew of imps run an assassination startup in Hell using an ancient grimoire to travel to the human world.',
+    releaseDate: '2020 - 2025',
+    voteAverage: 8.6,
+    badge: 'VIRAL SERIES',
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'hb-s1e1',
+            episodeNumber: 1,
+            title: 'Episode 1 — Murder Family',
+            duration: '20m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/20OP4f0xDbPttORm9OyIbNu3cNN.jpg',
+            youtubeId: 'OlahNrlcgS4',
+            overview: 'I.M.P. takes on a contract in the mortal world that spirals into a chaotic standoff.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'mr-bean-series',
+    tmdbId: 4327,
+    title: 'Mr. Bean',
+    name: 'Mr. Bean (Classic British Series)',
+    category: 'indie_web',
+    categoryTitle: 'Mini-Series',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/pUNQV35kDaKuejnXGNiUeEBurNE.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/original/lHSLW9lihnuRMs1yYarmMJX4phK.jpg',
+    overview: 'Rowan Atkinson stars as the eccentric, silent Mr. Bean who turns everyday errands into unforgettable slapstick misadventures.',
+    releaseDate: '1990 - 1995',
+    voteAverage: 8.7,
+    badge: 'CLASSIC SERIES',
+    isFullSeries: true,
+    seasons: [
+      {
+        seasonNumber: 1,
+        title: 'Season 1',
+        episodes: [
+          {
+            id: 'bean-s1e1',
+            episodeNumber: 1,
+            title: 'Episode 1 — Mr. Bean',
+            duration: '25m',
+            thumbnail: 'https://image.tmdb.org/t/p/w500/lHSLW9lihnuRMs1yYarmMJX4phK.jpg',
+            youtubeId: '7Im2I6STbms',
+            overview: 'Mr. Bean takes a mathematics exam, visits the beach, and struggles to stay awake in church.'
+          }
+        ]
+      }
+    ]
   }
 ];
 
