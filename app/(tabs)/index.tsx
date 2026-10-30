@@ -104,7 +104,8 @@ export default function Home() {
         releaseDate: item.release_date || item.first_air_date,
         voteAverage: item.vote_average,
         mediaType,
-        logoUrl: item.logoUrl
+        logoUrl: item.logoUrl,
+        trailerId: item.trailerId,
       };
     });
   };
@@ -121,23 +122,8 @@ export default function Home() {
   const [heroIndex, setHeroIndex] = useState(0);
 
   const heroItems = useMemo(() => {
-    const valid = heroList.filter((item: any) => item.backdropUrl);
-    if (valid.length === 0) return [];
-
-    // Daily deterministic rotation so lead spotlight changes every 24 hours
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 0);
-    const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
-    const offset = dayOfYear % valid.length;
-    const rotated = [...valid.slice(offset), ...valid.slice(0, offset)].slice(0, 10);
-
-    // Feature top animation in the Hero bar rotation
-    if (kidsList.length > 0) {
-      rotated.splice(2, 0, kidsList[0] as any);
-    }
-
-    return rotated;
-  }, [heroList, kidsList]);
+    return heroList.filter((item: any) => item.backdropUrl);
+  }, [heroList]);
 
   const heroItem = heroItems[heroIndex] || null;
 
@@ -159,11 +145,11 @@ export default function Home() {
   const logoObj = logos?.find((l: any) => l.iso_639_1 === 'en') || logos?.[0];
   const heroLogoUrl = heroItem?.logoUrl || (logoObj ? getImageUrl(logoObj.file_path, 'w780') : undefined);
 
-  let heroTrailerId = undefined;
-  if (heroItem?.mediaType === 'cartoon') {
+  let heroTrailerId = heroItem?.trailerId;
+  if (!heroTrailerId && heroItem?.mediaType === 'cartoon') {
     const cartoon = getAllCartoons().find(c => c.id === heroItem.id);
     heroTrailerId = cartoon?.seasons?.[0]?.episodes?.[0]?.youtubeId || 'TpaoJCQxF1M';
-  } else if (heroDetail?.videos?.results) {
+  } else if (!heroTrailerId && heroDetail?.videos?.results) {
     const ytVideos = heroDetail.videos.results.filter((v: any) => v.site === 'YouTube');
     const trailer = ytVideos.find((v: any) => v.type === 'Trailer') || ytVideos[0];
     if (trailer) {
