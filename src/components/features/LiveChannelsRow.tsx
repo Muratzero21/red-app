@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Pressable } from 'react-native';
-import { Image } from 'expo-image';
+import { View, StyleSheet, FlatList, Pressable, Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play, ChevronRight } from 'lucide-react-native';
 import { REDText } from '../ui/REDText';
@@ -55,12 +54,10 @@ export const LiveChannelsRow: React.FC<LiveChannelsRowProps> = ({
             ]}
           >
             <View style={styles.thumbWrapper}>
-              <Image
+              <RNImage
                 source={{ uri: item.thumbnail }}
                 style={styles.thumbImage}
-                contentFit="cover"
-                cachePolicy="memory-disk"
-                allowDownscaling={false}
+                resizeMode="cover"
               />
               <LinearGradient
                 colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.35)', 'rgba(10,11,16,0.95)']}

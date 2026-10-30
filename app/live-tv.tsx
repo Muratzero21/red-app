@@ -5,10 +5,10 @@ import {
   Dimensions,
   Pressable,
   ScrollView,
+  Image as RNImage,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
-import { Image } from 'expo-image';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -139,20 +139,6 @@ export default function LiveTvScreen() {
             androidLayerType: 'hardware',
             allowsFullscreenVideo: true,
             mediaPlaybackRequiresUserAction: false,
-            injectedJavaScript: `
-              (function() {
-                try {
-                  setInterval(function() {
-                    var iframe = document.querySelector('iframe');
-                    if (iframe && iframe.contentWindow) {
-                      iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setPlaybackQualityRange', args: ['hd2160', 'hd2160'] }), '*');
-                      iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setPlaybackQuality', args: ['hd2160'] }), '*');
-                    }
-                  }, 2500);
-                } catch (e) {}
-              })();
-              true;
-            `,
           }}
           initialPlayerParams={{
             preventFullScreen: false,
@@ -260,12 +246,10 @@ export default function LiveTvScreen() {
             >
               {/* 16:9 Channel Preview Thumbnail */}
               <View style={styles.channelThumbBox}>
-                <Image
+                <RNImage
                   source={{ uri: channel.thumbnail }}
                   style={styles.channelThumbImg}
-                  contentFit="cover"
-                  cachePolicy="memory-disk"
-                  allowDownscaling={false}
+                  resizeMode="cover"
                 />
                 <View style={styles.channelThumbOverlay}>
                   {isCurrent ? (

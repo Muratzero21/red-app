@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Pressable } from 'react-native';
-import { Image } from 'expo-image';
+import { View, StyleSheet, FlatList, Pressable, Image as RNImage } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play, X, Info } from 'lucide-react-native';
 import { REDText } from '../ui/REDText';
@@ -46,7 +45,7 @@ export const ContinueWatchingRow: React.FC<ContinueWatchingRowProps> = ({
           const thumbUri =
             item.thumbnail ||
             item.backdropUrl ||
-            (item.youtubeId ? `https://img.youtube.com/vi/${item.youtubeId}/hqdefault.jpg` : null) ||
+            (item.youtubeId ? `https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg` : null) ||
             item.posterUrl;
           const progressPct = Math.round(Math.max(6, Math.min(98, (item.progress || 0.12) * 100)));
 
@@ -61,12 +60,10 @@ export const ContinueWatchingRow: React.FC<ContinueWatchingRowProps> = ({
                 ]}
               >
                 {thumbUri ? (
-                  <Image
+                  <RNImage
                     source={{ uri: thumbUri }}
                     style={styles.thumbImage}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    allowDownscaling={false}
+                    resizeMode="cover"
                   />
                 ) : (
                   <View style={[styles.thumbImage, { backgroundColor: '#1a1d24' }]} />

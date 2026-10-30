@@ -48,15 +48,13 @@ export const MovieCard = ({ posterUrl, title, width = 160, height = 240, onPress
           source={{ uri: posterUrl }}
           style={styles.image}
           contentFit="cover"
-          transition={200}
+          transition={300}
           cachePolicy="memory-disk"
-          allowDownscaling={false}
-          priority="high"
           accessibilityLabel={title}
         />
       ) : (
         <View style={[styles.image, { backgroundColor: '#1a1d24', justifyContent: 'center', alignItems: 'center', padding: 8 }]}>
-          <REDText size={12} color="rgba(255,255,255,0.5)" style={{ textAlign: 'center' }}>No Image</REDText>
+           <REDText size={12} color="rgba(255,255,255,0.5)" style={{ textAlign: 'center' }}>No Image</REDText>
         </View>
       )}
     </AnimatedPressable>
@@ -65,11 +63,11 @@ export const MovieCard = ({ posterUrl, title, width = 160, height = 240, onPress
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 6,
+    borderRadius: 6, // more subtle cinematic radius
     overflow: 'hidden',
-    backgroundColor: '#11131a',
+    backgroundColor: '#11131a', // slightly darker skeleton
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.03)',
   },
   image: {
     flex: 1,

@@ -221,10 +221,10 @@ export default function DetailScreen() {
             ? `${tmdbEp.runtime}m`
             : exactLocal?.duration || fallbackLocal?.duration || '22m',
           thumbnail: tmdbEp.still_path
-            ? getImageUrl(tmdbEp.still_path, 'original')
+            ? getImageUrl(tmdbEp.still_path, 'w500')
             : exactLocal?.thumbnail ||
               (fallbackLocal?.youtubeId
-                ? `https://img.youtube.com/vi/${fallbackLocal.youtubeId}/hqdefault.jpg`
+                ? `https://img.youtube.com/vi/${fallbackLocal.youtubeId}/mqdefault.jpg`
                 : streamData?.backdropUrl),
           youtubeId: fallbackLocal?.youtubeId,
           source_type: 'youtube',
@@ -267,7 +267,7 @@ export default function DetailScreen() {
         youtubeId: next.youtubeId,
         overview: next.overview,
         duration: next.duration,
-        thumbnail: next.thumbnail || (next.youtubeId ? `https://img.youtube.com/vi/${next.youtubeId}/hqdefault.jpg` : undefined),
+        thumbnail: next.thumbnail || (next.youtubeId ? `https://img.youtube.com/vi/${next.youtubeId}/mqdefault.jpg` : undefined),
       };
     }
     return null;
@@ -314,7 +314,7 @@ export default function DetailScreen() {
       const thumbUri =
         ep.thumbnail ||
         ep.thumbnailUrl ||
-        (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/hqdefault.jpg` : undefined) ||
+        (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg` : undefined) ||
         streamData?.backdropUrl;
 
       // Save immediately so it registers in Continue Watching right away
@@ -322,8 +322,8 @@ export default function DetailScreen() {
         showId: String(canonicalShowId),
         showTitle,
         mediaType: (isCartoon ? 'cartoon' : isStreamShow ? 'stream' : (type as any)) || 'stream',
-        posterUrl: isStreamShow ? (streamData?.posterUrl || '') : getImageUrl((data as any)?.poster_path, 'original'),
-        backdropUrl: isStreamShow ? (streamData?.backdropUrl || '') : getImageUrl((data as any)?.backdrop_path, 'original'),
+        posterUrl: isStreamShow ? (streamData?.posterUrl || '') : getImageUrl((data as any)?.poster_path, 'w500'),
+        backdropUrl: isStreamShow ? (streamData?.backdropUrl || '') : getImageUrl((data as any)?.backdrop_path, 'w780'),
         seasonNumber: sNum,
         episodeNumber: epNum,
         episodeId: ep.id || `${canonicalShowId}-s${sNum}-e${epNum}`,
@@ -384,7 +384,7 @@ export default function DetailScreen() {
     const thumbUri =
       activeEpisode.thumbnail ||
       activeEpisode.thumbnailUrl ||
-      (activeEpisode.youtubeId ? `https://img.youtube.com/vi/${activeEpisode.youtubeId}/hqdefault.jpg` : undefined) ||
+      (activeEpisode.youtubeId ? `https://img.youtube.com/vi/${activeEpisode.youtubeId}/mqdefault.jpg` : undefined) ||
       streamData?.backdropUrl;
 
     saveProgress({
@@ -500,13 +500,10 @@ export default function DetailScreen() {
         {/* Landscape Backdrop */}
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
           {(data.backdrop_path || data.poster_path) ? (
-            <Image
+            <RNImage
               source={{ uri: isStreamShow ? (data.backdrop_path || data.poster_path) : getImageUrl(data.backdrop_path || data.poster_path, 'original') }}
               style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              allowDownscaling={false}
-              priority="high"
+              resizeMode="cover"
             />
           ) : (
             <View style={[StyleSheet.absoluteFill, { backgroundColor: '#1a1d24' }]} />
@@ -522,12 +519,10 @@ export default function DetailScreen() {
         <View style={styles.content}>
           <Animated.View style={[{ alignItems: 'flex-start', marginBottom: 24 }, logoAnimatedStyle]}>
             {logoUrl ? (
-              <Image 
+              <RNImage 
                 source={{ uri: logoUrl }} 
                 style={{ width: width * 0.65, height: 100, marginBottom: 12 }} 
-                contentFit="contain"
-                cachePolicy="memory-disk"
-                allowDownscaling={false}
+                resizeMode="contain" 
               />
             ) : (
               <REDText weight="bold" size={32} style={{ marginBottom: 12 }}>{title}</REDText>
@@ -538,11 +533,11 @@ export default function DetailScreen() {
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {Array.from(new Set(
                   isStreamShow 
-                    ? ['4K UHD', 'HDR10+', 'FREE STREAM', streamData?.badge && streamData.badge !== 'FREE STREAM' ? streamData.badge : 'EXCLUSIVE']
-                    : ['4K UHD', 'DOLBY VISION', 'ATMOS']
+                    ? ['FREE STREAM', 'FULL HD', streamData?.badge && streamData.badge !== 'FREE STREAM' ? streamData.badge : 'EXCLUSIVE']
+                    : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])
                 )).map((badge, badgeIdx) => (
                   <View key={`${badge}-${badgeIdx}`} style={styles.badge}>
-                    <REDText size={10} weight="bold" color="rgba(255,255,255,0.9)">{badge}</REDText>
+                    <REDText size={10} weight="bold" color="rgba(255,255,255,0.8)">{badge}</REDText>
                   </View>
                 ))}
               </View>
@@ -704,7 +699,7 @@ export default function DetailScreen() {
                 {currentEpisodes.map((ep: any, epIdx: number) => {
                   const epNumber = ep.episodeNumber || ep.episode_number || epIdx + 1;
                   const epTitle = ep.title || ep.name || `Episode ${epNumber}`;
-                  const thumbUri = ep.thumbnail || ep.thumbnailUrl || (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/hqdefault.jpg` : null) || (ep.still_path ? getImageUrl(ep.still_path, 'original') : null);
+                  const thumbUri = ep.thumbnail || ep.thumbnailUrl || (ep.youtubeId ? `https://img.youtube.com/vi/${ep.youtubeId}/mqdefault.jpg` : null) || (ep.still_path ? getImageUrl(ep.still_path, 'w342') : null);
                   const epProgressKey = `${String(canonicalShowId)}:S${selectedSeasonNumber}:E${epNumber}`;
                   const epProgressObj = episodeProgressMap[epProgressKey];
                   const epProgressPct = epProgressObj
@@ -730,12 +725,10 @@ export default function DetailScreen() {
                         {/* 16:9 Thumbnail with Play Overlay & Red Progress Bar */}
                         <View style={styles.netflixThumbBox}>
                           {thumbUri ? (
-                            <Image
+                            <RNImage
                               source={{ uri: thumbUri }}
                               style={styles.netflixThumbImg}
-                              contentFit="cover"
-                              cachePolicy="memory-disk"
-                              allowDownscaling={false}
+                              resizeMode="cover"
                             />
                           ) : (
                             <View style={[styles.netflixThumbImg, { backgroundColor: '#1c1f28', justifyContent: 'center', alignItems: 'center' }]}>
@@ -812,12 +805,10 @@ export default function DetailScreen() {
                 {(data as any).credits.cast.slice(0, 10).map((person: any) => (
                   <View key={person.id} style={{ width: 80, alignItems: 'center' }}>
                     {person.profile_path ? (
-                      <Image 
-                        source={{ uri: getImageUrl(person.profile_path, 'original') }}
+                      <RNImage 
+                        source={{ uri: getImageUrl(person.profile_path, 'w500') }}
                         style={styles.castImage}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        allowDownscaling={false}
+                        resizeMode="cover"
                       />
                     ) : (
                       <View style={[styles.castImage, { backgroundColor: '#1a1d24', justifyContent: 'center', alignItems: 'center' }]}>
@@ -849,13 +840,13 @@ export default function DetailScreen() {
                 ]}
               >
                 {data.backdrop_path ? (
-                  <Image source={{ uri: isStreamShow ? data.backdrop_path : getImageUrl(data.backdrop_path, 'original') }} style={StyleSheet.absoluteFill} contentFit="cover" cachePolicy="memory-disk" allowDownscaling={false} />
+                  <RNImage source={{ uri: isStreamShow ? data.backdrop_path : getImageUrl(data.backdrop_path, 'w780') }} style={StyleSheet.absoluteFill} resizeMode="cover" />
                 ) : null}
                 <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }]}>
                   <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: THEME.colors.red, justifyContent: 'center', alignItems: 'center' }}>
                     <Play fill="#fff" color="#fff" size={24} style={{ marginLeft: 3 }} />
                   </View>
-                  <REDText size={14} weight="bold" color="#fff" style={{ marginTop: 8 }}>Watch Official Trailer (4K)</REDText>
+                  <REDText size={14} weight="bold" color="#fff" style={{ marginTop: 8 }}>Watch Official Trailer</REDText>
                 </View>
               </Pressable>
             </View>
@@ -869,7 +860,7 @@ export default function DetailScreen() {
                 {(data as any).similar.results.slice(0, 10).map((similarItem: any) => (
                   <Pressable key={similarItem.id} style={{ width: 120 }} onPress={() => router.push(`/detail/${type}/${similarItem.id}`)}>
                     {similarItem.poster_path ? (
-                      <Image source={{ uri: getImageUrl(similarItem.poster_path, 'original') }} style={styles.similarImage} contentFit="cover" cachePolicy="memory-disk" allowDownscaling={false} />
+                      <RNImage source={{ uri: getImageUrl(similarItem.poster_path, 'w500') }} style={styles.similarImage} resizeMode="cover" />
                     ) : (
                       <View style={[styles.similarImage, { backgroundColor: '#1a1d24', justifyContent: 'center', alignItems: 'center' }]}>
                         <REDText size={24} color="rgba(255,255,255,0.3)">?</REDText>
