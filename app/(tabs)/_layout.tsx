@@ -1,28 +1,59 @@
 import React from 'react';
+import { Easing } from 'react-native';
 import { Tabs } from 'expo-router';
-import { useTranslation } from '../../src/i18n/translations';
 import { FloatingGlassTabBar } from '../../src/components/ui/FloatingGlassTabBar';
 
 export default function TabLayout() {
-  const { t } = useTranslation();
-
   return (
     <Tabs
       tabBar={(props) => <FloatingGlassTabBar {...props} />}
       screenOptions={{
         headerShown: false,
+        animation: 'shift',
+        transitionSpec: {
+          animation: 'timing',
+          config: {
+            duration: 260,
+            easing: Easing.out(Easing.cubic),
+          },
+        },
+        sceneStyleInterpolator: ({ current }: any) => ({
+          sceneStyle: {
+            opacity: current.progress.interpolate({
+              inputRange: [-1, 0, 1],
+              outputRange: [0, 1, 0],
+            }),
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [-1, 0, 1],
+                  outputRange: [-24, 0, 24],
+                }),
+              },
+              {
+                scale: current.progress.interpolate({
+                  inputRange: [-1, 0, 1],
+                  outputRange: [0.975, 1, 0.975],
+                }),
+              },
+            ],
+          },
+        }),
+        sceneStyle: {
+          backgroundColor: '#0f1015',
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t('tab_home') || 'Home',
+          title: 'Home',
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: t('tab_search') || 'Search',
+          title: 'Search',
         }}
       />
       <Tabs.Screen
@@ -34,13 +65,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="watchlist"
         options={{
-          title: t('tab_watchlist') || 'Watchlist',
+          title: 'Watchlist',
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: t('tab_settings') || 'Settings',
+          title: 'Settings',
         }}
       />
       <Tabs.Screen

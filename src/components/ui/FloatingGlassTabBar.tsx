@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Pressable, Platform, LayoutChangeEvent } from 'react-native';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import Animated, {
   withSequence,
   withSpring,
   withTiming,
+  interpolate,
 } from 'react-native-reanimated';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { Home, Search, Heart, Settings } from 'lucide-react-native';
@@ -146,29 +147,43 @@ const TabBarItem: React.FC<TabItemProps> = ({
   onPress,
   onLongPress,
 }) => {
-  const scale = useSharedValue(1);
-  const dotScale = useSharedValue(isFocused ? 1 : 0);
+  const pressScale = useSharedValue(1);
+  const focusProgress = useSharedValue(isFocused ? 1 : 0);
 
   useEffect(() => {
-    dotScale.value = withSpring(isFocused ? 1 : 0, {
-      damping: 14,
-      stiffness: 220,
+    focusProgress.value = withSpring(isFocused ? 1 : 0, {
+      damping: 15,
+      stiffness: 180,
+      mass: 0.8,
     });
-  }, [isFocused, dotScale]);
+  }, [isFocused, focusProgress]);
 
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const focusLift = interpolate(focusProgress.value, [0, 1], [0, -1.5]);
+    const focusScale = interpolate(focusProgress.value, [0, 1], [0.96, 1.04]);
+    return {
+      transform: [
+        { translateY: focusLift },
+        { scale: pressScale.value * focusScale },
+      ],
+      opacity: interpolate(focusProgress.value, [0, 1], [0.75, 1]),
+    };
+  });
+
+  const animatedGlowStyle = useAnimatedStyle(() => ({
+    opacity: focusProgress.value,
+    transform: [{ scale: interpolate(focusProgress.value, [0, 1], [0.5, 1]) }],
   }));
 
   const animatedDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dotScale.value }],
-    opacity: dotScale.value,
+    transform: [{ scale: focusProgress.value }],
+    opacity: focusProgress.value,
   }));
 
   const handlePress = () => {
-    scale.value = withSequence(
-      withTiming(0.95, { duration: 65 }),
-      withSpring(1, { damping: 10, stiffness: 280 })
+    pressScale.value = withSequence(
+      withTiming(0.92, { duration: 70 }),
+      withSpring(1, { damping: 10, stiffness: 260 })
     );
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -206,9 +221,9 @@ const TabBarItem: React.FC<TabItemProps> = ({
       accessibilityState={isFocused ? { selected: true } : {}}
     >
       <Animated.View style={[styles.tabInner, animatedContainerStyle]}>
-        {/* Fixed-height Icon Box so icons never shift vertically */}
+        {/* Fixed-height Icon Box */}
         <View style={styles.iconBox}>
-          {isFocused && <View style={styles.activeRedGlow} />}
+          <Animated.View style={[styles.activeRedGlow, animatedGlowStyle]} />
           <View style={isFocused ? styles.activeIconShadow : undefined}>
             {renderIcon()}
           </View>
@@ -260,14 +275,46 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const bottomOffset = Math.max(insets.bottom, 16);
+  const [rowWidth, setRowWidth] = useState(0);
 
   // Filter out hidden routes like "profile"
   const visibleRoutes = state.routes.filter((route: any) => {
     const { options } = descriptors[route.key];
     if (route.name === 'profile') return false;
-    if ((options as any)?.href === null) return false;
+    if ((options as any)?.href === null || (options as any)?.hidden === true) return false;
     return true;
   });
+
+  const activeVisibleIndex = Math.max(
+    0,
+    visibleRoutes.findIndex((r: any) => r.key === state.routes[state.index]?.key)
+  );
+
+  const tabWidth = visibleRoutes.length > 0 ? rowWidth / visibleRoutes.length : 0;
+  const indicatorX = useSharedValue(0);
+
+  useEffect(() => {
+    if (tabWidth > 0) {
+      indicatorX.value = withSpring(activeVisibleIndex * tabWidth, {
+        damping: 18,
+        stiffness: 190,
+        mass: 0.7,
+      });
+    }
+  }, [activeVisibleIndex, tabWidth, indicatorX]);
+
+  const slidingPillStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: indicatorX.value }],
+    width: tabWidth,
+    opacity: tabWidth > 0 ? 1 : 0,
+  }));
+
+  const handleRowLayout = (e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    if (w > 0 && w !== rowWidth) {
+      setRowWidth(w);
+    }
+  };
 
   return (
     <View
@@ -288,7 +335,15 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
           />
           <View style={styles.glassTintOverlay} />
 
-          <View style={styles.tabsRow}>
+          <View style={styles.tabsRow} onLayout={handleRowLayout}>
+            {/* Smooth Sliding Glass Highlight Pill behind active tab */}
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.slidingHighlightContainer, slidingPillStyle]}
+            >
+              <View style={styles.slidingHighlightInner} />
+            </Animated.View>
+
             {visibleRoutes.map((route: any) => {
               const label = TAB_LABELS[route.name] || route.name;
               const isFocused = state.routes[state.index]?.key === route.key;
@@ -375,7 +430,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 10,
+    marginHorizontal: 8,
+    position: 'relative',
+  },
+  slidingHighlightContainer: {
+    position: 'absolute',
+    top: 6,
+    bottom: 6,
+    left: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  slidingHighlightInner: {
+    width: '86%',
+    height: '100%',
+    borderRadius: 26,
+    backgroundColor: 'rgba(255, 255, 255, 0.055)',
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.18)',
   },
   tabPressable: {
     flex: 1,
