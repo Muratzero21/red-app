@@ -213,6 +213,20 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                   androidLayerType: 'hardware',
                   allowsFullscreenVideo: true,
                   mediaPlaybackRequiresUserAction: false,
+                  injectedJavaScript: `
+                    (function() {
+                      try {
+                        setInterval(function() {
+                          var iframe = document.querySelector('iframe');
+                          if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setPlaybackQualityRange', args: ['hd2160', 'hd2160'] }), '*');
+                            iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'setPlaybackQuality', args: ['hd2160'] }), '*');
+                          }
+                        }, 2500);
+                      } catch (e) {}
+                    })();
+                    true;
+                  `,
                 }}
                 initialPlayerParams={{
                   preventFullScreen: false,
@@ -252,7 +266,10 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
               ) : null}
 
               <View style={styles.netflixBadge}>
-                <REDText size={10} weight="bold" color="rgba(255, 255, 255, 0.8)">HD</REDText>
+                <REDText size={10} weight="bold" color="rgba(255, 255, 255, 0.9)">4K UHD</REDText>
+              </View>
+              <View style={styles.netflixBadge}>
+                <REDText size={10} weight="bold" color="rgba(255, 255, 255, 0.9)">HDR10+</REDText>
               </View>
             </View>
 
