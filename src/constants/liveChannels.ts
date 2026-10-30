@@ -1,4 +1,10 @@
-export type LiveChannelCategory = 'sports' | 'kids' | 'space_science' | 'news' | 'music';
+export type LiveChannelCategory =
+  | 'movies'
+  | 'sports'
+  | 'kids'
+  | 'space_science'
+  | 'news'
+  | 'music';
 
 export interface LiveChannel {
   id: string;
@@ -8,6 +14,7 @@ export interface LiveChannel {
   categoryLabel: string;
   youtubeId: string;
   backupYoutubeIds: string[];
+  liveChannelUrl?: string;
   liveSearchQuery: string;
   thumbnail: string;
   viewersLabel: string;
@@ -16,6 +23,83 @@ export interface LiveChannel {
 }
 
 export const LIVE_CHANNELS: LiveChannel[] = [
+  // MOVIES & CINEMA (Official 24/7 Studio & Curated Film Channels)
+  {
+    id: 'dust-scifi-cinema-live',
+    name: 'DUST — 24/7 Sci-Fi Movies',
+    currentProgram: 'Sci-Fi, Space, AI & Dystopian Cinema',
+    category: 'movies',
+    categoryLabel: 'Movies (Sci-Fi)',
+    youtubeId: 'VCLb3k983FM',
+    backupYoutubeIds: ['NAL1x0bzu6E', 'LvtS39mdqaU', 'MTj1SDX9dc4'],
+    liveChannelUrl: 'https://www.youtube.com/@watchdust/live',
+    liveSearchQuery: 'watchdust sci-fi anthology live',
+    thumbnail: 'https://img.youtube.com/vi/VCLb3k983FM/hqdefault.jpg',
+    viewersLabel: 'LIVE • 24/7 CINEMA',
+    telemetryTag: 'SCI-FI • LIVE',
+    description: 'The world’s premier independent sci-fi cinema channel streaming Hollywood-grade space, AI, and dystopian films 24/7.',
+  },
+  {
+    id: 'alter-horror-cinema-live',
+    name: 'ALTER — 24/7 Horror & Thriller',
+    currentProgram: 'Award-Winning Horror, Mystery & Suspense',
+    category: 'movies',
+    categoryLabel: 'Movies (Horror / Thriller)',
+    youtubeId: 'ieWEsxh3R6c',
+    backupYoutubeIds: ['titWLBAmZ-Y', 'u9wfPtzwmCA', 'FK5UL-qi_lM'],
+    liveChannelUrl: 'https://www.youtube.com/@WatchALTER/live',
+    liveSearchQuery: 'WatchALTER horror live',
+    thumbnail: 'https://img.youtube.com/vi/ieWEsxh3R6c/hqdefault.jpg',
+    viewersLabel: 'LIVE • 24/7 CINEMA',
+    telemetryTag: 'HORROR • LIVE',
+    description: 'Continuous 24/7 stream of festival-winning independent horror, psychological thriller, and supernatural mystery films.',
+  },
+  {
+    id: 'wutang-martial-arts-live',
+    name: 'Wu Tang Collection — 24/7 Martial Arts',
+    currentProgram: '70s & 80s Kung-Fu & Cult Action Cinema',
+    category: 'movies',
+    categoryLabel: 'Movies (Action / Cult)',
+    youtubeId: 'sHM7zIX5Lzo',
+    backupYoutubeIds: ['1DiUkapNtxg', 'VBMsMhT_IJI', 'lrP_HDy6fBM', '97xZw_UvIH4'],
+    liveChannelUrl: 'https://www.youtube.com/@WuTangCollectionOfficial/live',
+    liveSearchQuery: 'Wu Tang Collection martial arts full movie',
+    thumbnail: 'https://img.youtube.com/vi/sHM7zIX5Lzo/hqdefault.jpg',
+    viewersLabel: 'LIVE • 24/7 CINEMA',
+    telemetryTag: 'MARTIAL ARTS',
+    description: 'The largest officially licensed archive of legendary 70s and 80s kung-fu, karate, and retro martial arts cinema.',
+  },
+  {
+    id: 'cult-cinema-classics-live',
+    name: 'Cult Cinema Classics — Vintage Hollywood',
+    currentProgram: 'Restored Film Noir, Mystery & Westerns',
+    category: 'movies',
+    categoryLabel: 'Movies (Classic / Retro)',
+    youtubeId: 'sjSj1hmXjIo',
+    backupYoutubeIds: ['gLfCXFkFlOU', 'gc2NTZO3m7g', 'eRqxxWTMiKY'],
+    liveChannelUrl: 'https://www.youtube.com/@CultCinemaClassics/live',
+    liveSearchQuery: 'Cult Cinema Classics live',
+    thumbnail: 'https://img.youtube.com/vi/sjSj1hmXjIo/hqdefault.jpg',
+    viewersLabel: 'LIVE • 24/7 CINEMA',
+    telemetryTag: 'CLASSIC NOIR',
+    description: 'Restored Golden Age Hollywood thrillers, Film Noir, classic westerns, and detective mysteries streaming non-stop.',
+  },
+  {
+    id: 'pizzaflix-retro-cinema-live',
+    name: 'PizzaFlix — 24/7 Retro & B-Movies',
+    currentProgram: 'Golden Age Sci-Fi, Pulp & Cult Adventure',
+    category: 'movies',
+    categoryLabel: 'Movies (Retro / B-Movie)',
+    youtubeId: 'W2tPPFHkIlc',
+    backupYoutubeIds: ['w2ulllJWBzA', '566EYAXiZp4', 'DMqheW_mUCk'],
+    liveChannelUrl: 'https://www.youtube.com/@PizzaFlix/live',
+    liveSearchQuery: 'PizzaFlix classic movie restoration',
+    thumbnail: 'https://img.youtube.com/vi/W2tPPFHkIlc/hqdefault.jpg',
+    viewersLabel: 'LIVE • 24/7 CINEMA',
+    telemetryTag: 'RETRO CINEMA',
+    description: 'Official digital broadcaster of Golden Age American cinema, cult sci-fi features, and nostalgic B-movie double features.',
+  },
+
   // MOTORSPORT (4)
   {
     id: 'goodwood-f1-racing-live',

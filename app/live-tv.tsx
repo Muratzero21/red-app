@@ -31,6 +31,7 @@ const VIDEO_HEIGHT = Math.round(width * (9 / 16));
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
+  { key: 'movies', label: 'Movies & Cinema' },
   { key: 'sports', label: 'Motorsport' },
   { key: 'kids', label: 'Animation' },
   { key: 'news', label: 'News' },
