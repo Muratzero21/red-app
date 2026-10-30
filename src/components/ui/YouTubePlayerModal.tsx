@@ -377,67 +377,6 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                   iv_load_policy: 3,
                 }}
               />
-
-              {/* Tap Catcher / Translucent Dark Controls Overlay (Auto-hides after 3s) */}
-              {!controlsVisible ? (
-                <Pressable
-                  onPress={triggerControlsOverlay}
-                  style={styles.tapActivationZone}
-                />
-              ) : (
-                <Pressable
-                  onPress={() => setControlsVisible(false)}
-                  style={styles.controlsOverlay}
-                >
-                  <View style={styles.controlsCenterRow}>
-                    {/* 10s Rewind Button */}
-                    <Pressable
-                      onPress={() => handleSeekBy(-10)}
-                      hitSlop={12}
-                      style={({ pressed }) => [
-                        styles.seekCircleBtn,
-                        pressed && { opacity: 0.75, transform: [{ scale: 0.92 }] },
-                      ]}
-                    >
-                      <RotateCcw size={22} color="#fff" />
-                      <REDText size={10} weight="bold" color="#fff" style={{ marginTop: 2 }}>
-                        -10s
-                      </REDText>
-                    </Pressable>
-
-                    {/* Center Play / Pause Button */}
-                    <Pressable
-                      onPress={handleTogglePlayPause}
-                      hitSlop={12}
-                      style={({ pressed }) => [
-                        styles.playPauseMainBtn,
-                        pressed && { opacity: 0.85, transform: [{ scale: 0.93 }] },
-                      ]}
-                    >
-                      {playing ? (
-                        <Pause size={26} color="#fff" fill="#fff" />
-                      ) : (
-                        <Play size={26} color="#fff" fill="#fff" style={{ marginLeft: 3 }} />
-                      )}
-                    </Pressable>
-
-                    {/* 10s Fast-Forward Button */}
-                    <Pressable
-                      onPress={() => handleSeekBy(10)}
-                      hitSlop={12}
-                      style={({ pressed }) => [
-                        styles.seekCircleBtn,
-                        pressed && { opacity: 0.75, transform: [{ scale: 0.92 }] },
-                      ]}
-                    >
-                      <RotateCw size={22} color="#fff" />
-                      <REDText size={10} weight="bold" color="#fff" style={{ marginTop: 2 }}>
-                        +10s
-                      </REDText>
-                    </Pressable>
-                  </View>
-                </Pressable>
-              )}
             </View>
           </View>
 
