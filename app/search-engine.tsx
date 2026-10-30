@@ -5,11 +5,11 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   FlatList,
   Dimensions,
   Image as RNImage,
+  Keyboard,
 } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,18 +43,22 @@ import { useWatchlistStore } from '../src/store/useWatchlistStore';
 import { YouTubePlayerModal } from '../src/components/ui/YouTubePlayerModal';
 
 const { width, height } = Dimensions.get('window');
-const HERO_VIDEO_HEIGHT = Math.min(Math.round(width * (9 / 16)), Math.round(height * 0.25));
+const HERO_VIDEO_HEIGHT = Math.min(Math.round(width * (9 / 16)), Math.round(height * 0.24));
 const GRID_PADDING = 14;
 const GRID_GAP = 10;
 const POSTER_WIDTH = Math.floor((width - GRID_PADDING * 2 - GRID_GAP * 2) / 3);
 const POSTER_HEIGHT = Math.round(POSTER_WIDTH * 1.48);
 
+type SearchFilterType = 'all' | 'movie' | 'tv';
+
 export default function SearchEngine() {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [filterType, setFilterType] = useState<SearchFilterType>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState<boolean>(false);
   const [fullscreenModalVisible, setFullscreenModalVisible] = useState<boolean>(false);
 
   const { watchlist, addToWatchlist, removeFromWatchlist } = useWatchlistStore();
@@ -62,7 +66,19 @@ export default function SearchEngine() {
   // Cross-fade opacity shared value for smooth Hero trailer switching
   const heroFade = useSharedValue(1);
 
-  // 1. 300ms Debounce for TMDB search input
+  // Track keyboard state so search results are always 100% visible while typing
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, () => setIsKeyboardOpen(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setIsKeyboardOpen(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // 1. 300ms Debounce for TMDB search input (starts from 1 character)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query.trim());
@@ -70,12 +86,12 @@ export default function SearchEngine() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // 2. Fetch TMDB multi-search when query is entered, or Trending Worldwide as default discovery feed
-  const isSearching = debouncedQuery.length >= 2;
+  const isSearching = debouncedQuery.length >= 1;
 
+  // 2. Multi-endpoint TMDB + local stream search (Movies + Series in EN & TR + Actor known_for)
   const { data: searchData, isLoading: searchLoading } = useQuery({
-    queryKey: ['tmdbSearchMulti', debouncedQuery],
-    queryFn: () => tmdbAPI.searchMulti(debouncedQuery),
+    queryKey: ['tmdbSearchCatalog', debouncedQuery],
+    queryFn: () => tmdbAPI.searchCatalog(debouncedQuery),
     enabled: isSearching,
   });
 
@@ -88,24 +104,38 @@ export default function SearchEngine() {
   const results = useMemo(() => {
     const rawList = isSearching ? searchData?.results : trendingData?.results;
     if (!Array.isArray(rawList)) return [];
-    return rawList.filter(
+    const valid = rawList.filter(
       (item: any) =>
-        (item.media_type === 'movie' ||
-          item.media_type === 'tv' ||
-          (!item.media_type && (item.title || item.name))) &&
-        (item.poster_path || item.backdrop_path)
+        item &&
+        (item.poster_path || item.backdrop_path) &&
+        (item.title || item.name)
     );
-  }, [isSearching, searchData, trendingData]);
 
-  // Automatically select the first result when results change
+    if (filterType === 'all') return valid;
+    if (filterType === 'movie') {
+      return valid.filter(
+        (item: any) =>
+          item.media_type === 'movie' ||
+          (!item.media_type && item.title && !item.first_air_date)
+      );
+    }
+    return valid.filter(
+      (item: any) =>
+        item.media_type === 'tv' ||
+        item.media_type === 'cartoon' ||
+        item.media_type === 'stream' ||
+        (!item.media_type && item.first_air_date)
+    );
+  }, [isSearching, searchData, trendingData, filterType]);
+
+  // Automatically select the first result when query or filter changes
   useEffect(() => {
     if (results.length > 0) {
-      const firstId = String(results[0].id);
-      setSelectedId(firstId);
+      setSelectedId(String(results[0].id));
     } else {
       setSelectedId(null);
     }
-  }, [debouncedQuery, results.length]);
+  }, [debouncedQuery, filterType, results.length]);
 
   const activeItem = useMemo(() => {
     if (results.length === 0) return null;
@@ -113,23 +143,30 @@ export default function SearchEngine() {
     return results.find((r: any) => String(r.id) === String(selectedId)) || results[0];
   }, [results, selectedId]);
 
-  const activeMediaType: 'movie' | 'tv' = useMemo(() => {
+  const activeRouteType: 'movie' | 'tv' | 'cartoon' | 'stream' = useMemo(() => {
     if (!activeItem) return 'movie';
+    if (activeItem.media_type === 'cartoon') return 'cartoon';
+    if (activeItem.media_type === 'stream') return 'stream';
     if (activeItem.media_type === 'tv') return 'tv';
     if (activeItem.media_type === 'movie') return 'movie';
     return activeItem.first_air_date && !activeItem.release_date ? 'tv' : 'movie';
   }, [activeItem]);
 
+  const tmdbFetchType: 'movie' | 'tv' =
+    activeRouteType === 'movie' ? 'movie' : 'tv';
+  const tmdbLookupId = activeItem?.tmdbId || activeItem?.id;
+
   // 3. Fetch TMDB videos endpoint for the currently selected Hero item
   const { data: activeDetails, isFetching: trailerFetching } = useQuery({
-    queryKey: ['searchHeroTrailer', activeItem?.id, activeMediaType],
+    queryKey: ['searchHeroTrailer', tmdbLookupId, tmdbFetchType],
     queryFn: () =>
-      activeItem ? tmdbAPI.getDetails(activeItem.id, activeMediaType) : null,
-    enabled: !!activeItem?.id,
+      tmdbLookupId ? tmdbAPI.getDetails(tmdbLookupId, tmdbFetchType) : null,
+    enabled: Boolean(tmdbLookupId && !activeItem?.trailerId),
     staleTime: 1000 * 60 * 10,
   });
 
   const trailerKey = useMemo(() => {
+    if (activeItem?.trailerId) return activeItem.trailerId;
     const vids = activeDetails?.videos?.results;
     if (!Array.isArray(vids) || vids.length === 0) return null;
     const ytVids = vids.filter((v: any) => v.site === 'YouTube' && v.key);
@@ -140,12 +177,12 @@ export default function SearchEngine() {
       ytVids.find((v: any) => v.type === 'Teaser') ||
       ytVids[0];
     return officialTrailer?.key || null;
-  }, [activeDetails]);
+  }, [activeItem, activeDetails]);
 
   // Trigger smooth cross-fade whenever activeItem changes
   useEffect(() => {
     heroFade.value = 0.15;
-    heroFade.value = withTiming(1, { duration: 340 });
+    heroFade.value = withTiming(1, { duration: 320 });
   }, [activeItem?.id, trailerKey, heroFade]);
 
   const heroAnimatedStyle = useAnimatedStyle(() => ({
@@ -172,36 +209,42 @@ export default function SearchEngine() {
         id: idStr,
         title: activeItem.title || activeItem.name || 'Untitled',
         posterUrl: getImageUrl(activeItem.poster_path || activeItem.backdrop_path, 'w500'),
-        mediaType: activeMediaType,
+        mediaType: activeRouteType === 'movie' ? 'movie' : 'tv',
         voteAverage: activeItem.vote_average,
       });
     }
-  }, [activeItem, activeMediaType, inWatchlist, addToWatchlist, removeFromWatchlist]);
+  }, [activeItem, activeRouteType, inWatchlist, addToWatchlist, removeFromWatchlist]);
+
+  const getItemRouteType = (item: any) => {
+    if (item.media_type === 'cartoon') return 'cartoon';
+    if (item.media_type === 'stream') return 'stream';
+    if (item.media_type === 'tv') return 'tv';
+    if (item.media_type === 'movie') return 'movie';
+    return item.first_air_date && !item.release_date ? 'tv' : 'movie';
+  };
 
   const handleSelectCard = useCallback(
     (item: any) => {
+      Keyboard.dismiss();
       const clickedId = String(item.id);
       try {
         Haptics.selectionAsync().catch(() => {});
       } catch {
         // ignore
       }
-      if (clickedId === String(activeItem?.id)) {
+      if (clickedId === String(activeItem?.id) && !isKeyboardOpen) {
         // Second tap on the already-previewing poster goes straight to Detail screen
-        const mType =
-          item.media_type === 'tv' || (item.first_air_date && !item.release_date)
-            ? 'tv'
-            : 'movie';
+        const mType = getItemRouteType(item);
         router.push(`/detail/${mType}/${item.id}`);
       } else {
         setSelectedId(clickedId);
       }
     },
-    [activeItem]
+    [activeItem, isKeyboardOpen]
   );
 
   const activeTitle = activeItem?.title || activeItem?.name || '';
-  const activeYear = (activeItem?.release_date || activeItem?.first_air_date || '')
+  const activeYear = String(activeItem?.release_date || activeItem?.first_air_date || '')
     .split('-')[0]
     .trim();
   const activeBackdrop = getImageUrl(
@@ -212,11 +255,8 @@ export default function SearchEngine() {
   const isLoading = isSearching ? searchLoading : trendingLoading;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      {/* Top Search Bar */}
+    <View style={styles.container}>
+      {/* Top Search Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) }]}>
         <Pressable
           onPress={() => router.back()}
@@ -230,117 +270,167 @@ export default function SearchEngine() {
           <SearchIcon color="rgba(255,255,255,0.45)" size={18} style={styles.searchIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Search movies, series, classics..."
-            placeholderTextColor="rgba(255,255,255,0.32)"
+            placeholder="Search any movie, series, or actor..."
+            placeholderTextColor="rgba(255,255,255,0.35)"
             value={query}
             onChangeText={setQuery}
-            autoFocus={false}
+            onSubmitEditing={() => {
+              setDebouncedQuery(query.trim());
+              Keyboard.dismiss();
+            }}
+            autoFocus={true}
             returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
             cursorColor={THEME.colors.red}
             selectionColor={THEME.colors.red}
           />
           {query.length > 0 && (
-            <Pressable onPress={() => setQuery('')} hitSlop={8} style={styles.clearBtn}>
-              <X color="rgba(255,255,255,0.6)" size={18} />
+            <Pressable
+              onPress={() => {
+                setQuery('');
+                setDebouncedQuery('');
+              }}
+              hitSlop={8}
+              style={styles.clearBtn}
+            >
+              <X color="rgba(255,255,255,0.65)" size={18} />
             </Pressable>
           )}
         </View>
       </View>
 
+      {/* Filter Pills: All | Movies | Series */}
+      <View style={styles.filterBar}>
+        {(
+          [
+            { key: 'all', label: 'All' },
+            { key: 'movie', label: 'Movies' },
+            { key: 'tv', label: 'Series' },
+          ] as const
+        ).map((tab) => {
+          const isActive = filterType === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => setFilterType(tab.key)}
+              style={[styles.filterChip, isActive && styles.filterChipActive]}
+            >
+              <REDText
+                size={12}
+                weight={isActive ? 'bold' : 'medium'}
+                color={isActive ? '#fff' : 'rgba(255,255,255,0.65)'}
+              >
+                {tab.label}
+              </REDText>
+            </Pressable>
+          );
+        })}
+
+        {isSearching && (
+          <REDText
+            size={11.5}
+            weight="semibold"
+            color="rgba(255,255,255,0.45)"
+            style={{ marginLeft: 'auto' }}
+          >
+            {results.length} results
+          </REDText>
+        )}
+      </View>
+
       {/* TOP ~40%: Cinematic Hero Video Preview & Quick Actions */}
       {activeItem && (
         <Animated.View style={[styles.heroSection, heroAnimatedStyle]}>
-          <View style={styles.heroVideoContainer}>
-            {/* Backdrop Underlayer while trailer loads or if no trailer exists */}
-            {activeBackdrop ? (
-              <RNImage
-                source={{ uri: activeBackdrop }}
-                style={StyleSheet.absoluteFill}
-                resizeMode="cover"
-              />
-            ) : null}
-
-            {/* Live Muted Auto-Play YouTube Trailer */}
-            {trailerKey && !fullscreenModalVisible ? (
-              <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-                <YoutubePlayer
-                  key={`${activeItem.id}-${trailerKey}`}
-                  width={width}
-                  height={HERO_VIDEO_HEIGHT}
-                  play={true}
-                  mute={isMuted}
-                  videoId={trailerKey}
-                  webViewProps={{
-                    androidLayerType: 'hardware',
-                    mediaPlaybackRequiresUserAction: false,
-                  }}
-                  initialPlayerParams={{
-                    controls: false,
-                    modestbranding: true,
-                    rel: false,
-                    iv_load_policy: 3,
-                    loop: true,
-                  }}
+          {/* Collapse tall video frame while keyboard is open so results grid has full visibility */}
+          {!isKeyboardOpen && (
+            <View style={styles.heroVideoContainer}>
+              {activeBackdrop ? (
+                <RNImage
+                  source={{ uri: activeBackdrop }}
+                  style={StyleSheet.absoluteFill}
+                  resizeMode="cover"
                 />
+              ) : null}
+
+              {trailerKey && !fullscreenModalVisible ? (
+                <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+                  <YoutubePlayer
+                    key={`${activeItem.id}-${trailerKey}`}
+                    width={width}
+                    height={HERO_VIDEO_HEIGHT}
+                    play={true}
+                    mute={isMuted}
+                    videoId={trailerKey}
+                    webViewProps={{
+                      androidLayerType: 'hardware',
+                      mediaPlaybackRequiresUserAction: false,
+                    }}
+                    initialPlayerParams={{
+                      controls: false,
+                      modestbranding: true,
+                      rel: false,
+                      iv_load_policy: 3,
+                      loop: true,
+                    }}
+                  />
+                </View>
+              ) : null}
+
+              <LinearGradient
+                colors={['rgba(11,12,16,0.35)', 'transparent', 'rgba(11,12,16,0.96)']}
+                locations={[0, 0.45, 1]}
+                style={StyleSheet.absoluteFill}
+                pointerEvents="none"
+              />
+
+              <View style={styles.previewBadge}>
+                <View style={styles.previewDot} />
+                <REDText size={9.5} weight="bold" color="#fff" style={{ letterSpacing: 0.6 }}>
+                  {trailerKey
+                    ? 'TRAILER PREVIEW'
+                    : trailerFetching
+                    ? 'LOADING PREVIEW...'
+                    : 'SPOTLIGHT PREVIEW'}
+                </REDText>
               </View>
-            ) : null}
 
-            {/* Subtle Top & Bottom Cinematic Vignette */}
-            <LinearGradient
-              colors={['rgba(11,12,16,0.35)', 'transparent', 'rgba(11,12,16,0.96)']}
-              locations={[0, 0.45, 1]}
-              style={StyleSheet.absoluteFill}
-              pointerEvents="none"
-            />
+              {trailerKey && (
+                <View style={styles.heroControlsRow}>
+                  <Pressable
+                    onPress={() => setIsMuted((prev) => !prev)}
+                    hitSlop={8}
+                    style={({ pressed }) => [
+                      styles.heroControlBtn,
+                      pressed && { opacity: 0.75, transform: [{ scale: 0.94 }] },
+                    ]}
+                  >
+                    {isMuted ? (
+                      <VolumeX size={16} color="#fff" />
+                    ) : (
+                      <Volume2 size={16} color="#fff" />
+                    )}
+                  </Pressable>
 
-            {/* Top-Left Preview Status Badge */}
-            <View style={styles.previewBadge}>
-              <View style={styles.previewDot} />
-              <REDText size={9.5} weight="bold" color="#fff" style={{ letterSpacing: 0.6 }}>
-                {trailerKey
-                  ? 'TRAILER PREVIEW'
-                  : trailerFetching
-                  ? 'LOADING PREVIEW...'
-                  : 'SPOTLIGHT PREVIEW'}
-              </REDText>
+                  <Pressable
+                    onPress={() => setFullscreenModalVisible(true)}
+                    hitSlop={8}
+                    style={({ pressed }) => [
+                      styles.heroControlBtn,
+                      pressed && { opacity: 0.75, transform: [{ scale: 0.94 }] },
+                    ]}
+                  >
+                    <Maximize2 size={15} color="#fff" />
+                  </Pressable>
+                </View>
+              )}
             </View>
+          )}
 
-            {/* Top-Right Mute/Unmute & Fullscreen Controls */}
-            {trailerKey && (
-              <View style={styles.heroControlsRow}>
-                <Pressable
-                  onPress={() => setIsMuted((prev) => !prev)}
-                  hitSlop={8}
-                  style={({ pressed }) => [
-                    styles.heroControlBtn,
-                    pressed && { opacity: 0.75, transform: [{ scale: 0.94 }] },
-                  ]}
-                >
-                  {isMuted ? (
-                    <VolumeX size={16} color="#fff" />
-                  ) : (
-                    <Volume2 size={16} color="#fff" />
-                  )}
-                </Pressable>
-
-                <Pressable
-                  onPress={() => setFullscreenModalVisible(true)}
-                  hitSlop={8}
-                  style={({ pressed }) => [
-                    styles.heroControlBtn,
-                    pressed && { opacity: 0.75, transform: [{ scale: 0.94 }] },
-                  ]}
-                >
-                  <Maximize2 size={15} color="#fff" />
-                </Pressable>
-              </View>
-            )}
-          </View>
-
-          {/* Hero Metadata + Quick Action Buttons (+ Watchlist, Details) */}
+          {/* Hero Metadata + Quick Action Buttons (+ My List, Details) */}
           <View style={styles.heroInfoBar}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <REDText size={17} weight="bold" color="#fff" numberOfLines={1}>
+              <REDText size={16} weight="bold" color="#fff" numberOfLines={1}>
                 {activeTitle}
               </REDText>
               <View style={styles.heroMetaRow}>
@@ -353,7 +443,7 @@ export default function SearchEngine() {
                   •
                 </REDText>
                 <REDText size={11.5} weight="semibold" color="rgba(255,255,255,0.65)">
-                  {activeMediaType === 'tv' ? 'Series' : 'Movie'}
+                  {activeRouteType === 'movie' ? 'Movie' : 'Series'}
                 </REDText>
                 {activeItem.vote_average ? (
                   <>
@@ -376,7 +466,6 @@ export default function SearchEngine() {
               </View>
             </View>
 
-            {/* Quick Action Buttons */}
             <View style={styles.heroActions}>
               <Pressable
                 onPress={handleToggleWatchlist}
@@ -397,9 +486,10 @@ export default function SearchEngine() {
               </Pressable>
 
               <Pressable
-                onPress={() =>
-                  router.push(`/detail/${activeMediaType}/${activeItem.id}`)
-                }
+                onPress={() => {
+                  Keyboard.dismiss();
+                  router.push(`/detail/${activeRouteType}/${activeItem.id}`);
+                }}
                 style={({ pressed }) => [
                   styles.detailsBtn,
                   pressed && { opacity: 0.85, transform: [{ scale: 0.96 }] },
@@ -415,21 +505,8 @@ export default function SearchEngine() {
         </Animated.View>
       )}
 
-      {/* BOTTOM ~60%: Scrollable 3-Column Poster Grid (Keyboard-Friendly) */}
+      {/* BOTTOM ~60%: Scrollable 3-Column Poster Grid */}
       <View style={styles.gridSection}>
-        <View style={styles.gridHeaderRow}>
-          <REDText
-            size={12}
-            weight="bold"
-            color="rgba(255,255,255,0.5)"
-            style={{ letterSpacing: 0.7 }}
-          >
-            {isSearching
-              ? `SEARCH RESULTS (${results.length})`
-              : 'TRENDING WORLDWIDE • TAP TO PREVIEW'}
-          </REDText>
-        </View>
-
         {isLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={THEME.colors.red} />
@@ -442,14 +519,14 @@ export default function SearchEngine() {
               style={{ marginBottom: 12 }}
             />
             <REDText size={16} color="rgba(255,255,255,0.5)">
-              No titles found for &quot;{debouncedQuery}&quot;
+              No movies or series found for &quot;{debouncedQuery}&quot;
             </REDText>
           </Animated.View>
         ) : (
           <FlatList
             data={results}
             numColumns={3}
-            keyExtractor={(item) => `${item.media_type || 'm'}-${item.id}`}
+            keyExtractor={(item, idx) => `${item.media_type || 'm'}-${item.id}-${idx}`}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={false}
@@ -462,6 +539,7 @@ export default function SearchEngine() {
                 'w342'
               );
               const itemTitle = item.title || item.name;
+              const isMovie = getItemRouteType(item) === 'movie';
 
               return (
                 <Pressable
@@ -486,6 +564,13 @@ export default function SearchEngine() {
                     ) : (
                       <View style={[styles.posterImg, { backgroundColor: '#1a1d24' }]} />
                     )}
+
+                    {/* Top-left Movie/Series badge */}
+                    <View style={styles.typeMicroBadge}>
+                      <REDText size={8} weight="bold" color="rgba(255,255,255,0.9)">
+                        {isMovie ? 'MOVIE' : 'SERIES'}
+                      </REDText>
+                    </View>
 
                     {isSelected && (
                       <View style={styles.nowPreviewingTag}>
@@ -521,11 +606,11 @@ export default function SearchEngine() {
           title={`${activeTitle} — Official Trailer`}
           subtitle={activeItem.overview}
           year={activeYear}
-          genre={activeMediaType === 'tv' ? 'Series' : 'Movie'}
+          genre={activeRouteType === 'movie' ? 'Movie' : 'Series'}
           onClose={() => setFullscreenModalVisible(false)}
         />
       )}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -538,7 +623,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    paddingBottom: 10,
+    paddingBottom: 8,
     backgroundColor: '#0b0c10',
   },
   backBtn: {
@@ -554,12 +639,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     borderRadius: 22,
     height: 42,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   searchIcon: {
     marginRight: 10,
@@ -573,6 +658,26 @@ const styles = StyleSheet.create({
   clearBtn: {
     padding: 4,
     marginLeft: 6,
+  },
+  filterBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingBottom: 8,
+    gap: 8,
+    backgroundColor: '#0b0c10',
+  },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.09)',
+  },
+  filterChipActive: {
+    backgroundColor: THEME.colors.red,
+    borderColor: THEME.colors.red,
   },
   heroSection: {
     backgroundColor: '#11131a',
@@ -673,15 +778,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0b0c10',
   },
-  gridHeaderRow: {
-    paddingHorizontal: GRID_PADDING,
-    paddingTop: 10,
-    paddingBottom: 6,
-  },
   gridListContent: {
     paddingHorizontal: GRID_PADDING,
-    paddingTop: 4,
-    paddingBottom: 80,
+    paddingTop: 10,
+    paddingBottom: 90,
   },
   gridColumnWrapper: {
     gap: GRID_GAP,
@@ -707,6 +807,17 @@ const styles = StyleSheet.create({
   posterImg: {
     width: '100%',
     height: '100%',
+  },
+  typeMicroBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: 'rgba(10, 11, 16, 0.78)',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
   },
   nowPreviewingTag: {
     position: 'absolute',

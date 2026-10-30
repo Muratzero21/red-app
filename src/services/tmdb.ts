@@ -1,3 +1,4 @@
+import { getAllStreamShows } from '../constants/streams';
 const TMDB_API_KEY = '8b9e104198b097fa1562fa48ba29f859';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const REQUEST_TIMEOUT_MS = 8000;
@@ -20,19 +21,21 @@ export const setTMDBLanguage = (lang: string) => {
   tmdbLang = lang;
 };
 
-const fetchFromTMDB = async (endpoint: string, params: Record<string, any> = {}) => {
-  const cleanParams = Object.fromEntries(
-    Object.entries(params).filter(([_, v]) => v != null)
-  );
+const buildQueryString = (params: Record<string, any>) =>
+  Object.entries(params)
+    .filter(([_, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join('&');
 
-  const queryParams = new URLSearchParams({
-    ...cleanParams,
+const fetchFromTMDB = async (endpoint: string, params: Record<string, any> = {}) => {
+  const mergedParams: Record<string, any> = {
     language: tmdbLang,
     include_video_language: `${tmdbLang},en,null`,
+    ...params,
     api_key: TMDB_API_KEY,
-  });
+  };
 
-  const queryString = queryParams.toString();
+  const queryString = buildQueryString(mergedParams);
   const primaryUrl = `${TMDB_BASE_URL}${endpoint}?${queryString}`;
 
   if (cache.has(primaryUrl)) {
@@ -230,6 +233,101 @@ export const tmdbAPI = {
   getMoviesByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/movie', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   getTvShowsByGenre: (genreId: string | number, page = 1) => fetchFromTMDB('/discover/tv', { with_genres: genreId, page, sort_by: 'popularity.desc' }),
   searchMulti: (query: string, page = 1) => fetchFromTMDB('/search/multi', { query, page }),
+  searchCatalog: async (rawQuery: string) => {
+    const q = (rawQuery || '').trim();
+    if (!q) return { results: [] };
+    const lowerQ = q.toLowerCase();
+
+    // 1. Match local playable stream & cartoon shows first
+    const localMatches = getAllStreamShows()
+      .filter(
+        (show) =>
+          show.title.toLowerCase().includes(lowerQ) ||
+          show.name.toLowerCase().includes(lowerQ)
+      )
+      .map((show) => ({
+        id: show.id,
+        tmdbId: show.tmdbId,
+        title: show.title,
+        name: show.name,
+        media_type: show.category === 'kids' ? 'cartoon' : 'stream',
+        poster_path: show.posterUrl,
+        backdrop_path: show.backdropUrl,
+        release_date: show.releaseDate,
+        vote_average: show.voteAverage,
+        overview: show.overview,
+        popularity: 950,
+        vote_count: 5000,
+        trailerId: show.seasons?.[0]?.episodes?.[0]?.youtubeId,
+      }));
+
+    // 2. Query TMDB Movie, TV, and Multi endpoints in both English & Turkish in parallel
+    const [moviesEn, tvEn, moviesTr, tvTr, multiEn] = await Promise.all([
+      fetchFromTMDB('/search/movie', { query: q, language: 'en-US', include_adult: false }),
+      fetchFromTMDB('/search/tv', { query: q, language: 'en-US', include_adult: false }),
+      fetchFromTMDB('/search/movie', { query: q, language: 'tr-TR', include_adult: false }),
+      fetchFromTMDB('/search/tv', { query: q, language: 'tr-TR', include_adult: false }),
+      fetchFromTMDB('/search/multi', { query: q, language: 'en-US', include_adult: false }),
+    ]);
+
+    const combined: any[] = [...localMatches];
+
+    for (const m of moviesEn?.results || []) {
+      combined.push({ ...m, media_type: 'movie' });
+    }
+    for (const t of tvEn?.results || []) {
+      combined.push({ ...t, media_type: 'tv' });
+    }
+    for (const m of moviesTr?.results || []) {
+      combined.push({ ...m, media_type: 'movie' });
+    }
+    for (const t of tvTr?.results || []) {
+      combined.push({ ...t, media_type: 'tv' });
+    }
+    for (const item of multiEn?.results || []) {
+      if (item.media_type === 'movie' || item.media_type === 'tv') {
+        combined.push(item);
+      } else if (item.media_type === 'person' && Array.isArray(item.known_for)) {
+        for (const kf of item.known_for) {
+          combined.push({
+            ...kf,
+            media_type: kf.media_type || (kf.title ? 'movie' : 'tv'),
+          });
+        }
+      }
+    }
+
+    const seen = new Set<string>();
+    const deduped: any[] = [];
+    for (const item of combined) {
+      if (!item || (!item.poster_path && !item.backdrop_path)) continue;
+      const canonicalId = item.tmdbId ? `tmdb-${item.tmdbId}` : `${item.media_type}-${item.id}`;
+      if (seen.has(canonicalId)) continue;
+      seen.add(canonicalId);
+      deduped.push(item);
+    }
+
+    deduped.sort((a, b) => {
+      const titleA = String(a.title || a.name || '').toLowerCase();
+      const titleB = String(b.title || b.name || '').toLowerCase();
+      const origA = String(a.original_title || a.original_name || '').toLowerCase();
+      const origB = String(b.original_title || b.original_name || '').toLowerCase();
+
+      const exactA = titleA === lowerQ || origA === lowerQ ? 1 : 0;
+      const exactB = titleB === lowerQ || origB === lowerQ ? 1 : 0;
+      if (exactA !== exactB) return exactB - exactA;
+
+      const startsA = titleA.startsWith(lowerQ) || origA.startsWith(lowerQ) ? 1 : 0;
+      const startsB = titleB.startsWith(lowerQ) || origB.startsWith(lowerQ) ? 1 : 0;
+      if (startsA !== startsB) return startsB - startsA;
+
+      const scoreA = (a.popularity || 0) + (a.vote_count || 0) * 0.05;
+      const scoreB = (b.popularity || 0) + (b.vote_count || 0) * 0.05;
+      return scoreB - scoreA;
+    });
+
+    return { results: deduped.slice(0, 42) };
+  },
   getTrailersFeedData: async (id: string | number) => {
     try {
       const res = await fetchFromTMDB(`/movie/${id}`, { append_to_response: 'videos,images' });
