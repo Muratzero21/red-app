@@ -5,7 +5,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolation } from 'react-native-reanimated';
-import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown, X } from 'lucide-react-native';
+import { ChevronLeft, Play, Plus, Download, Check, MessageSquare, Star, Share2, ChevronDown, X, ThumbsUp } from 'lucide-react-native';
 import { tmdbAPI, getImageUrl } from '../../../src/services/tmdb';
 import { getStreamShowById, getCartoonById } from '../../../src/constants/streams';
 import { THEME } from '../../../src/constants/theme';
@@ -65,6 +65,7 @@ export default function DetailScreen() {
   // Selected Season index & modal state
   const [selectedSeasonIndex, setSelectedSeasonIndex] = useState(0);
   const [seasonModalVisible, setSeasonModalVisible] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [activeEpisode, setActiveEpisode] = useState<any>(null);
   const hasSyncedSavedSeason = useRef(false);
   const hasAutoResumed = useRef(false);
@@ -533,8 +534,8 @@ export default function DetailScreen() {
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {Array.from(new Set(
                   isStreamShow 
-                    ? ['FREE STREAM', 'FULL HD', streamData?.badge && streamData.badge !== 'FREE STREAM' ? streamData.badge : 'EXCLUSIVE']
-                    : (Number(releaseYear) >= 2018 ? ['4K', 'VISION', 'ATMOS'] : ['HD', '5.1'])
+                    ? ['TR Dublaj / Altyazı', '7+', 'FULL HD', streamData?.badge && streamData.badge !== 'FREE STREAM' ? streamData.badge : 'FREE STREAM']
+                    : ['TR Dublaj / Altyazı', '7+', ...(Number(releaseYear) >= 2018 ? ['4K', 'HD'] : ['HD'])]
                 )).map((badge, badgeIdx) => (
                   <View key={`${badge}-${badgeIdx}`} style={styles.badge}>
                     <REDText size={10} weight="bold" color="rgba(255,255,255,0.8)">{badge}</REDText>
@@ -657,10 +658,93 @@ export default function DetailScreen() {
           )}
 
           {/* Synopsis */}
-          <View style={{ marginBottom: 28 }}>
+          <View style={{ marginBottom: 16 }}>
             <REDText size={15} color="rgba(255,255,255,0.8)" style={{ lineHeight: 24 }}>
               {data.overview || "No overview available."}
             </REDText>
+          </View>
+
+          {/* Horizontal Action Bar: + Listem | Beğen | Paylaş */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+            <Pressable
+              onPress={handleToggleList}
+              style={({ pressed }) => [
+                {
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  paddingVertical: 11,
+                  borderRadius: 10,
+                  backgroundColor: inMyList ? 'rgba(229, 9, 20, 0.14)' : 'rgba(255, 255, 255, 0.06)',
+                  borderWidth: 1,
+                  borderColor: inMyList ? 'rgba(229, 9, 20, 0.45)' : 'rgba(255, 255, 255, 0.1)',
+                },
+                pressed && { opacity: 0.75 },
+              ]}
+            >
+              {inMyList ? (
+                <Check size={17} color={THEME.colors.red} />
+              ) : (
+                <Plus size={17} color="#fff" />
+              )}
+              <REDText size={12.5} weight="semibold" color={inMyList ? THEME.colors.red : '#fff'}>
+                {inMyList ? 'Listemde' : '+ Listem'}
+              </REDText>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setLiked((prev) => !prev)}
+              style={({ pressed }) => [
+                {
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  paddingVertical: 11,
+                  borderRadius: 10,
+                  backgroundColor: liked ? 'rgba(229, 9, 20, 0.14)' : 'rgba(255, 255, 255, 0.06)',
+                  borderWidth: 1,
+                  borderColor: liked ? 'rgba(229, 9, 20, 0.45)' : 'rgba(255, 255, 255, 0.1)',
+                },
+                pressed && { opacity: 0.75 },
+              ]}
+            >
+              <ThumbsUp
+                size={16}
+                color={liked ? THEME.colors.red : '#fff'}
+                fill={liked ? THEME.colors.red : 'none'}
+              />
+              <REDText size={12.5} weight="semibold" color={liked ? THEME.colors.red : '#fff'}>
+                Beğen
+              </REDText>
+            </Pressable>
+
+            <Pressable
+              onPress={handleShare}
+              style={({ pressed }) => [
+                {
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 7,
+                  paddingVertical: 11,
+                  borderRadius: 10,
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                pressed && { opacity: 0.75 },
+              ]}
+            >
+              <Share2 size={16} color="#fff" />
+              <REDText size={12.5} weight="semibold" color="#fff">
+                Paylaş
+              </REDText>
+            </Pressable>
           </View>
 
           {/* SEASONS & EPISODES SECTION (100% NETFLIX MOBILE STYLE) */}
@@ -693,6 +777,42 @@ export default function DetailScreen() {
                   </Pressable>
                 )}
               </View>
+
+              {/* Horizontal Season Selector Tabs */}
+              {seasonsList.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 8, paddingBottom: 14 }}
+                >
+                  {seasonsList.map((season: any, idx: number) => {
+                    const sNum = season.seasonNumber || idx + 1;
+                    const isSelected = idx === selectedSeasonIndex;
+                    return (
+                      <Pressable
+                        key={sNum}
+                        onPress={() => setSelectedSeasonIndex(idx)}
+                        style={{
+                          paddingHorizontal: 15,
+                          paddingVertical: 7,
+                          borderRadius: 18,
+                          backgroundColor: isSelected ? THEME.colors.red : 'rgba(255,255,255,0.06)',
+                          borderWidth: 1,
+                          borderColor: isSelected ? THEME.colors.red : 'rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        <REDText
+                          size={12.5}
+                          weight={isSelected ? 'bold' : 'medium'}
+                          color={isSelected ? '#fff' : 'rgba(255,255,255,0.65)'}
+                        >
+                          Season {sNum}
+                        </REDText>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              )}
 
               {/* Episodes List */}
               <View style={{ gap: 2 }}>
@@ -996,6 +1116,15 @@ export default function DetailScreen() {
         onPlayNextEpisode={(next) => playEpisode(next, selectedSeasonNumber, 0)}
         initialStartSeconds={playerModal.initialStartSeconds}
         onProgressUpdate={handlePlayerProgressUpdate}
+        seasons={seasonsList}
+        selectedSeasonIndex={selectedSeasonIndex}
+        onSelectSeasonIndex={setSelectedSeasonIndex}
+        episodes={currentEpisodes}
+        episodesLoading={seasonEpisodesLoading}
+        activeEpisodeId={activeEpisode?.id}
+        onSelectEpisode={(ep) => playEpisode(ep, selectedSeasonNumber, 0)}
+        inWatchlist={inMyList}
+        onToggleWatchlist={handleToggleList}
       />
     </View>
   );
