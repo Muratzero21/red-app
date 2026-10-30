@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
 import { ContentRow } from '../../src/components/features/ContentRow';
 import { ContinueWatchingRow } from '../../src/components/features/ContinueWatchingRow';
-import { LiveChannelsRow } from '../../src/components/features/LiveChannelsRow';
 import { tmdbAPI, getImageUrl } from '../../src/services/tmdb';
 import { getAllCartoons, getStreamShowsByCategory } from '../../src/constants/streams';
 import { THEME } from '../../src/constants/theme';
@@ -218,14 +217,6 @@ export default function Home() {
             onInfoPress={(item) =>
               router.push(`/detail/${item.mediaType}/${item.showId}`)
             }
-          />
-
-          {/* 24/7 Global Live TV Channels Row */}
-          <LiveChannelsRow
-            onChannelPress={(channel) =>
-              router.push({ pathname: '/live-tv', params: { channelId: channel.id } })
-            }
-            onSeeAllPress={() => router.push('/live-tv')}
           />
 
           <ContentRow title="Trending Now" data={trendingList.slice(1)} onItemPress={(id) => navigateToDetail(id, trendingList.find((i: any) => i.id === id)?.mediaType || 'movie')} />

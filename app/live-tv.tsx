@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,7 +12,7 @@ import {
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Radio, Play, Users } from 'lucide-react-native';
+import { ChevronLeft, X } from 'lucide-react-native';
 import { REDText } from '../src/components/ui/REDText';
 import { THEME } from '../src/constants/theme';
 import {
@@ -23,33 +23,38 @@ import {
 import { resolveActiveLiveStreamId } from '../src/services/liveStreamResolver';
 
 const { width } = Dimensions.get('window');
+const GRID_PADDING = 16;
+const GRID_GAP = 12;
+const CARD_WIDTH = Math.floor((width - GRID_PADDING * 2 - GRID_GAP) / 2);
+const THUMB_HEIGHT = Math.round(CARD_WIDTH * (9 / 16));
 const VIDEO_HEIGHT = Math.round(width * (9 / 16));
 
 const CATEGORIES = [
-  { key: 'all', label: 'All Channels' },
-  { key: 'sports', label: '🏎️ F1 & Sports' },
-  { key: 'kids', label: 'Kids & Animation' },
-  { key: 'space_science', label: 'Space & Science' },
-  { key: 'news', label: 'World News' },
-  { key: 'music', label: '24/7 Music' },
+  { key: 'all', label: 'All' },
+  { key: 'sports', label: 'Motorsport' },
+  { key: 'kids', label: 'Animation' },
+  { key: 'news', label: 'News' },
+  { key: 'music_ambience', label: 'Music & Ambience' },
 ] as const;
 
 export default function LiveTvScreen() {
   const insets = useSafeAreaInsets();
   const { channelId } = useLocalSearchParams<{ channelId?: string }>();
 
-  const initialChannel = useMemo(
-    () => getLiveChannelById(Array.isArray(channelId) ? channelId[0] : channelId),
-    [channelId]
-  );
+  const initialChannel = useMemo(() => {
+    const rawId = Array.isArray(channelId) ? channelId[0] : channelId;
+    if (!rawId) return null;
+    return getLiveChannelById(rawId);
+  }, [channelId]);
 
-  const [activeChannel, setActiveChannel] = useState<LiveChannel>(initialChannel);
+  const [activeChannel, setActiveChannel] = useState<LiveChannel | null>(initialChannel);
   const [dynamicLiveId, setDynamicLiveId] = useState<string | null>(null);
   const [fallbackIndex, setFallbackIndex] = useState<number>(-1);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [playing, setPlaying] = useState<boolean>(true);
 
   const currentVideoId = useMemo(() => {
+    if (!activeChannel) return '';
     if (dynamicLiveId) return dynamicLiveId;
     if (fallbackIndex < 0) return activeChannel.youtubeId;
     return (
@@ -67,7 +72,7 @@ export default function LiveTvScreen() {
   }, []);
 
   const handlePlayerError = useCallback(async () => {
-    // 1. Dynamically resolve the channel's active real-time live stream ID on YouTube
+    if (!activeChannel) return;
     try {
       const liveId = await resolveActiveLiveStreamId(activeChannel);
       if (liveId && liveId !== currentVideoId) {
@@ -77,7 +82,6 @@ export default function LiveTvScreen() {
     } catch {
       // ignore
     }
-    // 2. Fallback to backup live stream IDs
     setFallbackIndex((prev) => {
       const nextIdx = prev + 1;
       if (nextIdx < activeChannel.backupYoutubeIds.length) {
@@ -89,6 +93,11 @@ export default function LiveTvScreen() {
 
   const filteredChannels = useMemo(() => {
     if (selectedCategory === 'all') return LIVE_CHANNELS;
+    if (selectedCategory === 'music_ambience') {
+      return LIVE_CHANNELS.filter(
+        (c) => c.category === 'music' || c.category === 'space_science'
+      );
+    }
     return LIVE_CHANNELS.filter((c) => c.category === selectedCategory);
   }, [selectedCategory]);
 
@@ -103,91 +112,85 @@ export default function LiveTvScreen() {
           hitSlop={10}
           style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
         >
-          <ChevronLeft size={24} color="#fff" />
+          <ChevronLeft size={22} color="#fff" />
         </Pressable>
 
         <View style={styles.headerCenter}>
-          <View style={styles.liveHeaderPill}>
-            <View style={styles.liveDot} />
-            <REDText size={12} weight="bold" color="#fff" style={{ letterSpacing: 0.8 }}>
-              LIVE TV
-            </REDText>
-          </View>
-          <REDText size={11} color="rgba(255,255,255,0.5)" style={{ marginLeft: 8 }}>
-            24/7 Global Channels
+          <View style={styles.headerLiveDot} />
+          <REDText size={18} weight="bold" color="#fff" style={{ letterSpacing: 0.3 }}>
+            Live Channels
           </REDText>
         </View>
 
         <View style={{ width: 38 }} />
       </View>
 
-      {/* Pinned 16:9 Live Broadcast Frame */}
-      <View style={styles.playerWrapper}>
-        <View style={[StyleSheet.absoluteFill, styles.loaderBox]}>
-          <ActivityIndicator size="small" color={THEME.colors.red} />
-        </View>
-        <YoutubePlayer
-          width={width}
-          height={VIDEO_HEIGHT}
-          play={playing}
-          videoId={currentVideoId}
-          onError={handlePlayerError}
-          onChangeState={(state: string) => {
-            if (state === 'playing') setPlaying(true);
-          }}
-          webViewProps={{
-            androidLayerType: 'hardware',
-            allowsFullscreenVideo: true,
-            mediaPlaybackRequiresUserAction: false,
-          }}
-          initialPlayerParams={{
-            preventFullScreen: false,
-            controls: true,
-            modestbranding: true,
-            rel: false,
-            iv_load_policy: 3,
-          }}
-        />
-      </View>
+      {/* Active Live Stream Player (Shown when a channel is tapped) */}
+      {activeChannel && (
+        <View style={styles.activePlayerSection}>
+          <View style={styles.playerWrapper}>
+            <View style={[StyleSheet.absoluteFill, styles.loaderBox]}>
+              <ActivityIndicator size="small" color={THEME.colors.red} />
+            </View>
+            <YoutubePlayer
+              width={width}
+              height={VIDEO_HEIGHT}
+              play={playing}
+              videoId={currentVideoId}
+              onError={handlePlayerError}
+              onChangeState={(state: string) => {
+                if (state === 'playing') setPlaying(true);
+              }}
+              webViewProps={{
+                androidLayerType: 'hardware',
+                allowsFullscreenVideo: true,
+                mediaPlaybackRequiresUserAction: false,
+              }}
+              initialPlayerParams={{
+                preventFullScreen: false,
+                controls: true,
+                modestbranding: true,
+                rel: false,
+                iv_load_policy: 3,
+              }}
+            />
+          </View>
 
-      {/* Active Broadcast Info Banner */}
-      <View style={styles.activeChannelBanner}>
-        <View style={styles.activeBannerTopRow}>
-          <View style={styles.onAirBadge}>
-            <View style={styles.onAirDot} />
-            <REDText size={10} weight="bold" color="#fff">
-              ON AIR
-            </REDText>
-          </View>
-          <View style={styles.categoryTag}>
-            <REDText size={10} weight="semibold" color="rgba(255,255,255,0.8)">
-              {activeChannel.categoryLabel}
-            </REDText>
-          </View>
-          {activeChannel.telemetryTag && (
-            <View style={styles.telemetryTag}>
-              <REDText size={10} weight="bold" color="#fff">
-                {activeChannel.telemetryTag}
+          <View style={styles.nowPlayingBar}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={styles.nowPlayingBadge}>
+                  <View style={styles.badgeLiveDot} />
+                  <REDText size={9} weight="bold" color="#fff" style={{ letterSpacing: 0.5 }}>
+                    LIVE
+                  </REDText>
+                </View>
+                <REDText size={14} weight="bold" color="#fff" numberOfLines={1} style={{ flex: 1 }}>
+                  {activeChannel.name}
+                </REDText>
+              </View>
+              <REDText
+                size={12}
+                color="rgba(255,255,255,0.6)"
+                numberOfLines={1}
+                style={{ marginTop: 3 }}
+              >
+                {activeChannel.currentProgram}
               </REDText>
             </View>
-          )}
-          <View style={styles.viewersBadge}>
-            <Users size={11} color="rgba(255,255,255,0.6)" />
-            <REDText size={11} color="rgba(255,255,255,0.6)" style={{ marginLeft: 4 }}>
-              {activeChannel.viewersLabel}
-            </REDText>
+
+            <Pressable
+              onPress={() => setActiveChannel(null)}
+              hitSlop={10}
+              style={({ pressed }) => [styles.closePlayerBtn, pressed && { opacity: 0.7 }]}
+            >
+              <X size={16} color="rgba(255,255,255,0.8)" />
+            </Pressable>
           </View>
         </View>
+      )}
 
-        <REDText size={18} weight="bold" color="#fff" style={{ marginTop: 6 }}>
-          {activeChannel.name}
-        </REDText>
-        <REDText size={13} weight="semibold" color="rgba(255,255,255,0.75)" style={{ marginTop: 2 }}>
-          {activeChannel.currentProgram}
-        </REDText>
-      </View>
-
-      {/* Category Filter Pills */}
+      {/* Horizontal Scrollable Category Chips */}
       <View style={styles.filterSection}>
         <ScrollView
           horizontal
@@ -200,13 +203,10 @@ export default function LiveTvScreen() {
               <Pressable
                 key={cat.key}
                 onPress={() => setSelectedCategory(cat.key)}
-                style={[
-                  styles.filterPill,
-                  isSelected && styles.filterPillActive,
-                ]}
+                style={[styles.filterPill, isSelected && styles.filterPillActive]}
               >
                 <REDText
-                  size={12}
+                  size={13}
                   weight={isSelected ? 'bold' : 'medium'}
                   color={isSelected ? '#fff' : 'rgba(255,255,255,0.65)'}
                 >
@@ -218,97 +218,72 @@ export default function LiveTvScreen() {
         </ScrollView>
       </View>
 
-      {/* Live Guide Channel List */}
+      {/* 2-Column Vertical Grid of Live Channels */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48 }}
+        contentContainerStyle={styles.gridScrollContent}
       >
-        <REDText
-          size={13}
-          weight="bold"
-          color="rgba(255,255,255,0.45)"
-          style={{ marginBottom: 10, letterSpacing: 0.6 }}
-        >
-          LIVE CHANNELS ({filteredChannels.length})
-        </REDText>
+        <View style={styles.gridContainer}>
+          {filteredChannels.map((channel) => {
+            const isCurrent = activeChannel?.id === channel.id;
+            return (
+              <Pressable
+                key={channel.id}
+                onPress={() => handleSelectChannel(channel)}
+                style={({ pressed }) => [
+                  styles.gridCard,
+                  pressed && { opacity: 0.82, transform: [{ scale: 0.98 }] },
+                ]}
+              >
+                {/* 16:9 Clean Thumbnail with ONLY small top-left • LIVE badge */}
+                <View
+                  style={[
+                    styles.cardThumbWrapper,
+                    isCurrent && styles.cardThumbWrapperActive,
+                  ]}
+                >
+                  <RNImage
+                    source={{ uri: channel.thumbnail }}
+                    style={styles.cardThumbImage}
+                    resizeMode="cover"
+                  />
 
-        {filteredChannels.map((channel) => {
-          const isCurrent = channel.id === activeChannel.id;
-          return (
-            <Pressable
-              key={channel.id}
-              onPress={() => handleSelectChannel(channel)}
-              style={({ pressed }) => [
-                styles.channelRow,
-                isCurrent && styles.channelRowActive,
-                pressed && { opacity: 0.82 },
-              ]}
-            >
-              {/* 16:9 Channel Preview Thumbnail */}
-              <View style={styles.channelThumbBox}>
-                <RNImage
-                  source={{ uri: channel.thumbnail }}
-                  style={styles.channelThumbImg}
-                  resizeMode="cover"
-                />
-                <View style={styles.channelThumbOverlay}>
-                  {isCurrent ? (
-                    <View style={styles.playingIndicatorBadge}>
-                      <Radio size={12} color="#fff" />
-                      <REDText size={9} weight="bold" color="#fff" style={{ marginLeft: 3 }}>
-                        LIVE
-                      </REDText>
-                    </View>
-                  ) : (
-                    <View style={styles.thumbPlayCircle}>
-                      <Play fill="#fff" color="#fff" size={12} style={{ marginLeft: 1 }} />
-                    </View>
-                  )}
+                  <View style={styles.cardLiveBadge}>
+                    <View style={styles.badgeLiveDot} />
+                    <REDText
+                      size={9}
+                      weight="bold"
+                      color="#fff"
+                      style={{ letterSpacing: 0.5 }}
+                    >
+                      LIVE
+                    </REDText>
+                  </View>
                 </View>
-              </View>
 
-              {/* Channel Metadata */}
-              <View style={{ flex: 1, paddingHorizontal: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                {/* Clean Typography Below Thumbnail: Channel Name + Broadcast Title */}
+                <View style={styles.cardMeta}>
                   <REDText
-                    size={15}
+                    size={13.5}
                     weight="bold"
                     color={isCurrent ? THEME.colors.red : '#fff'}
                     numberOfLines={1}
                   >
                     {channel.name}
                   </REDText>
-                </View>
-
-                <REDText
-                  size={12}
-                  color="rgba(255,255,255,0.75)"
-                  numberOfLines={1}
-                  style={{ marginTop: 3 }}
-                >
-                  {channel.currentProgram}
-                </REDText>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 }}>
-                  <REDText size={11} color="rgba(255,255,255,0.45)">
-                    {channel.categoryLabel}
-                  </REDText>
-                  <REDText size={11} color="rgba(255,255,255,0.3)">•</REDText>
-                  <REDText size={11} color="rgba(255,255,255,0.45)">
-                    {channel.viewersLabel}
+                  <REDText
+                    size={11.5}
+                    color="rgba(255,255,255,0.55)"
+                    numberOfLines={1}
+                    style={{ marginTop: 2 }}
+                  >
+                    {channel.currentProgram}
                   </REDText>
                 </View>
-              </View>
-
-              {/* Right Status Pill */}
-              <View style={[styles.watchBtn, isCurrent && styles.watchBtnActive]}>
-                <REDText size={11} weight="bold" color="#fff">
-                  {isCurrent ? 'WATCHING' : 'WATCH'}
-                </REDText>
-              </View>
-            </Pressable>
-          );
-        })}
+              </Pressable>
+            );
+          })}
+        </View>
       </ScrollView>
     </View>
   );
@@ -324,35 +299,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
     backgroundColor: '#0b0c10',
   },
   backBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.07)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
-  liveHeaderPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  headerLiveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: THEME.colors.red,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 14,
   },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#fff',
-    marginRight: 6,
+  activePlayerSection: {
+    backgroundColor: '#11131a',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.07)',
   },
   playerWrapper: {
     width: '100%',
@@ -364,53 +336,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  activeChannelBanner: {
+  nowPlayingBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#13151d',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.07)',
+    paddingVertical: 11,
   },
-  activeBannerTopRow: {
+  nowPlayingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-  },
-  onAirBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(229, 9, 20, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(229, 9, 20, 0.6)',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  onAirDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
     backgroundColor: THEME.colors.red,
-    marginRight: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
-  categoryTag: {
+  closePlayerBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'rgba(255,255,255,0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  telemetryTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.14)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.28)',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  viewersBadge: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 'auto',
   },
   filterSection: {
     paddingVertical: 12,
@@ -421,78 +368,69 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterPill: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 15,
     paddingVertical: 7,
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255,255,255,0.09)',
   },
   filterPillActive: {
     backgroundColor: THEME.colors.red,
     borderColor: THEME.colors.red,
   },
-  channelRow: {
+  gridScrollContent: {
+    paddingHorizontal: GRID_PADDING,
+    paddingTop: 4,
+    paddingBottom: 48,
+  },
+  gridContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 12,
-    marginBottom: 10,
-    backgroundColor: '#14161f',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 20,
   },
-  channelRowActive: {
-    backgroundColor: 'rgba(229, 9, 20, 0.1)',
-    borderColor: 'rgba(229, 9, 20, 0.45)',
+  gridCard: {
+    width: CARD_WIDTH,
   },
-  channelThumbBox: {
-    width: 104,
-    height: 60,
-    borderRadius: 8,
+  cardThumbWrapper: {
+    width: CARD_WIDTH,
+    height: THUMB_HEIGHT,
+    borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: '#161822',
     position: 'relative',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
   },
-  channelThumbImg: {
+  cardThumbWrapperActive: {
+    borderColor: THEME.colors.red,
+    borderWidth: 1.5,
+  },
+  cardThumbImage: {
     width: '100%',
     height: '100%',
   },
-  channelThumbOverlay: {
+  cardLiveBadge: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.28)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playingIndicatorBadge: {
+    top: 8,
+    left: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: THEME.colors.red,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 6,
+    backgroundColor: 'rgba(229, 9, 20, 0.92)',
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+    borderRadius: 4,
   },
-  thumbPlayCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  badgeLiveDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#fff',
+    marginRight: 4,
   },
-  watchBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
-  watchBtnActive: {
-    backgroundColor: THEME.colors.red,
+  cardMeta: {
+    paddingTop: 8,
+    paddingHorizontal: 2,
   },
 });
