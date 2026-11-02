@@ -22,7 +22,7 @@ export const ContentRow = ({ title, data, onItemPress, renderType = 'movie' }: C
         {title}
       </REDText>
       
-      <View style={{ height: renderType === 'person' ? 160 : 240 }}>
+      <View style={{ height: renderType === 'person' ? 160 : 192 }}>
         <FlashList
           data={data}
           renderItem={({ item }) => (

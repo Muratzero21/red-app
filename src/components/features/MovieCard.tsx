@@ -16,7 +16,7 @@ interface MovieCardProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const MovieCard = ({ posterUrl, title, width = 160, height = 240, onPress }: MovieCardProps) => {
+export const MovieCard = ({ posterUrl, title, width = 128, height = 192, onPress }: MovieCardProps) => {
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
