@@ -658,93 +658,10 @@ export default function DetailScreen() {
           )}
 
           {/* Synopsis */}
-          <View style={{ marginBottom: 16 }}>
+          <View style={{ marginBottom: 28 }}>
             <REDText size={15} color="rgba(255,255,255,0.8)" style={{ lineHeight: 24 }}>
               {data.overview || "No overview available."}
             </REDText>
-          </View>
-
-          {/* Horizontal Action Bar: + Listem | Beğen | Paylaş */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-            <Pressable
-              onPress={handleToggleList}
-              style={({ pressed }) => [
-                {
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 7,
-                  paddingVertical: 11,
-                  borderRadius: 10,
-                  backgroundColor: inMyList ? 'rgba(229, 9, 20, 0.14)' : 'rgba(255, 255, 255, 0.06)',
-                  borderWidth: 1,
-                  borderColor: inMyList ? 'rgba(229, 9, 20, 0.45)' : 'rgba(255, 255, 255, 0.1)',
-                },
-                pressed && { opacity: 0.75 },
-              ]}
-            >
-              {inMyList ? (
-                <Check size={17} color={THEME.colors.red} />
-              ) : (
-                <Plus size={17} color="#fff" />
-              )}
-              <REDText size={12.5} weight="semibold" color={inMyList ? THEME.colors.red : '#fff'}>
-                {inMyList ? 'Listemde' : '+ Listem'}
-              </REDText>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setLiked((prev) => !prev)}
-              style={({ pressed }) => [
-                {
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 7,
-                  paddingVertical: 11,
-                  borderRadius: 10,
-                  backgroundColor: liked ? 'rgba(229, 9, 20, 0.14)' : 'rgba(255, 255, 255, 0.06)',
-                  borderWidth: 1,
-                  borderColor: liked ? 'rgba(229, 9, 20, 0.45)' : 'rgba(255, 255, 255, 0.1)',
-                },
-                pressed && { opacity: 0.75 },
-              ]}
-            >
-              <ThumbsUp
-                size={16}
-                color={liked ? THEME.colors.red : '#fff'}
-                fill={liked ? THEME.colors.red : 'none'}
-              />
-              <REDText size={12.5} weight="semibold" color={liked ? THEME.colors.red : '#fff'}>
-                Beğen
-              </REDText>
-            </Pressable>
-
-            <Pressable
-              onPress={handleShare}
-              style={({ pressed }) => [
-                {
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 7,
-                  paddingVertical: 11,
-                  borderRadius: 10,
-                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                },
-                pressed && { opacity: 0.75 },
-              ]}
-            >
-              <Share2 size={16} color="#fff" />
-              <REDText size={12.5} weight="semibold" color="#fff">
-                Paylaş
-              </REDText>
-            </Pressable>
           </View>
 
           {/* SEASONS & EPISODES SECTION (100% NETFLIX MOBILE STYLE) */}
