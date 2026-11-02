@@ -160,7 +160,7 @@ export default function Home() {
   if (trendingLoading || popularMoviesLoading || popularSeriesLoading || topRatedLoading || trendingPeopleLoading) {
     return (
       <View style={styles.container}>
-        <TopNavBar scrollY={scrollY} />
+        <TopNavBar scrollY={scrollY} showLive={true} />
         <View style={{ width: '100%', height: '75%', backgroundColor: '#11131a' }} />
       </View>
     );
@@ -172,7 +172,7 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <TopNavBar scrollY={scrollY} />
+      <TopNavBar scrollY={scrollY} showLive={true} />
       <Animated.ScrollView 
         onScroll={scrollHandler}
         scrollEventThrottle={16}

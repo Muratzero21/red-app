@@ -13,9 +13,10 @@ interface TopNavBarProps {
   scrollY?: SharedValue<number>;
   title?: string;
   showBack?: boolean;
+  showLive?: boolean;
 }
 
-export const TopNavBar = ({ scrollY, title, showBack }: TopNavBarProps) => {
+export const TopNavBar = ({ scrollY, title, showBack, showLive = false }: TopNavBarProps) => {
   const insets = useSafeAreaInsets();
   
   const animatedBackgroundStyle = useAnimatedStyle(() => {
@@ -41,19 +42,21 @@ export const TopNavBar = ({ scrollY, title, showBack }: TopNavBarProps) => {
         </View>
         
         <View style={styles.rightActions}>
-          {/* Global 24/7 Live TV Pill Button */}
-          <Pressable
-            onPress={() => router.push('/live-tv')}
-            style={({ pressed }) => [
-              styles.livePillBtn,
-              pressed && { opacity: 0.78, transform: [{ scale: 0.96 }] },
-            ]}
-          >
-            <View style={styles.liveDot} />
-            <REDText size={11} weight="bold" color="#fff" style={{ letterSpacing: 0.8 }}>
-              LIVE
-            </REDText>
-          </Pressable>
+          {/* Live TV Pill Button (Only rendered on Home screen) */}
+          {showLive && (
+            <Pressable
+              onPress={() => router.push('/live-tv')}
+              style={({ pressed }) => [
+                styles.livePillBtn,
+                pressed && { opacity: 0.78, transform: [{ scale: 0.96 }] },
+              ]}
+            >
+              <View style={styles.liveDot} />
+              <REDText size={11} weight="bold" color="#fff" style={{ letterSpacing: 0.8 }}>
+                LIVE
+              </REDText>
+            </Pressable>
+          )}
 
           <Pressable 
             onPress={() => router.push('/search-engine')}

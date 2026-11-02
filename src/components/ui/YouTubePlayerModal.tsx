@@ -9,20 +9,12 @@ import {
   ScrollView,
   Image as RNImage,
   ActivityIndicator,
-  Share,
 } from 'react-native';
 import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import {
   X,
   Play,
-  Pause,
   FastForward,
-  RotateCcw,
-  RotateCw,
-  Plus,
-  Check,
-  ThumbsUp,
-  Share2,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { REDText } from './REDText';
@@ -93,39 +85,11 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
   const insets = useSafeAreaInsets();
   const playerRef = useRef<YoutubeIframeRef>(null);
   const hasSeekedRef = useRef(false);
-  const controlsTimerRef = useRef<any>(null);
 
   const [playing, setPlaying] = useState(true);
-  const [controlsVisible, setControlsVisible] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [localWatchlist, setLocalWatchlist] = useState(inWatchlist);
-
   const [showPrompt, setShowPrompt] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [dismissedPrompt, setDismissedPrompt] = useState(false);
-
-  useEffect(() => {
-    setLocalWatchlist(inWatchlist);
-  }, [inWatchlist]);
-
-  // Auto-hide custom player controls 3 seconds after showing
-  const triggerControlsOverlay = useCallback(() => {
-    setControlsVisible(true);
-    if (controlsTimerRef.current) {
-      clearTimeout(controlsTimerRef.current);
-    }
-    controlsTimerRef.current = setTimeout(() => {
-      setControlsVisible(false);
-    }, 3000);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (controlsTimerRef.current) {
-        clearTimeout(controlsTimerRef.current);
-      }
-    };
-  }, []);
 
   // Reset state when video changes
   useEffect(() => {
@@ -133,40 +97,8 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
     setDismissedPrompt(false);
     setCountdown(5);
     setPlaying(true);
-    setControlsVisible(false);
     hasSeekedRef.current = false;
   }, [videoId]);
-
-  const handleSeekBy = useCallback(
-    async (deltaSeconds: number) => {
-      triggerControlsOverlay();
-      try {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-      } catch {
-        // ignore
-      }
-      try {
-        if (playerRef.current) {
-          const current = await playerRef.current.getCurrentTime();
-          const target = Math.max(0, (current || 0) + deltaSeconds);
-          playerRef.current.seekTo(target, true);
-        }
-      } catch {
-        // ignore
-      }
-    },
-    [triggerControlsOverlay]
-  );
-
-  const handleTogglePlayPause = useCallback(() => {
-    triggerControlsOverlay();
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    } catch {
-      // ignore
-    }
-    setPlaying((prev) => !prev);
-  }, [triggerControlsOverlay]);
 
   const handlePlayNext = useCallback(() => {
     if (!nextEpisode) return;
@@ -272,41 +204,7 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
     };
   }, [showPrompt, nextEpisode, handlePlayNext]);
 
-  const handleWatchlistPress = () => {
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    } catch {
-      // ignore
-    }
-    if (onToggleWatchlist) {
-      onToggleWatchlist();
-    } else {
-      setLocalWatchlist((prev) => !prev);
-    }
-  };
-
-  const handleLikePress = () => {
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    } catch {
-      // ignore
-    }
-    setLiked((prev) => !prev);
-  };
-
-  const handleSharePress = async () => {
-    try {
-      await Share.share({
-        message: `Watching "${title || 'this show'}" on RED!`,
-      });
-    } catch {
-      // ignore
-    }
-  };
-
   if (!visible || !videoId) return null;
-
-  const isSaved = onToggleWatchlist ? inWatchlist : localWatchlist;
 
   return (
     <Modal
@@ -437,66 +335,6 @@ export const YouTubePlayerModal: React.FC<YouTubePlayerModalProps> = ({
                 {subtitle}
               </REDText>
             ) : null}
-
-            {/* Horizontal Action Bar: + Listem | Beğen | Paylaş */}
-            <View style={styles.actionBarRow}>
-              <Pressable
-                onPress={handleWatchlistPress}
-                style={({ pressed }) => [
-                  styles.actionBarItem,
-                  isSaved && styles.actionBarItemActive,
-                  pressed && { opacity: 0.75, transform: [{ scale: 0.96 }] },
-                ]}
-              >
-                {isSaved ? (
-                  <Check size={18} color={THEME.colors.red} />
-                ) : (
-                  <Plus size={18} color="#fff" />
-                )}
-                <REDText
-                  size={12}
-                  weight="semibold"
-                  color={isSaved ? THEME.colors.red : 'rgba(255,255,255,0.85)'}
-                >
-                  {isSaved ? 'Listemde' : '+ Listem'}
-                </REDText>
-              </Pressable>
-
-              <Pressable
-                onPress={handleLikePress}
-                style={({ pressed }) => [
-                  styles.actionBarItem,
-                  liked && styles.actionBarItemActive,
-                  pressed && { opacity: 0.75, transform: [{ scale: 0.96 }] },
-                ]}
-              >
-                <ThumbsUp
-                  size={17}
-                  color={liked ? THEME.colors.red : '#fff'}
-                  fill={liked ? THEME.colors.red : 'none'}
-                />
-                <REDText
-                  size={12}
-                  weight="semibold"
-                  color={liked ? THEME.colors.red : 'rgba(255,255,255,0.85)'}
-                >
-                  Beğen
-                </REDText>
-              </Pressable>
-
-              <Pressable
-                onPress={handleSharePress}
-                style={({ pressed }) => [
-                  styles.actionBarItem,
-                  pressed && { opacity: 0.75, transform: [{ scale: 0.96 }] },
-                ]}
-              >
-                <Share2 size={17} color="#fff" />
-                <REDText size={12} weight="semibold" color="rgba(255,255,255,0.85)">
-                  Paylaş
-                </REDText>
-              </Pressable>
-            </View>
           </View>
 
           {/* EPISODE LIST SECTION (Season Tabs + Mini Episode Cards) */}
@@ -759,49 +597,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  tapActivationZone: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 42, // Leave bottom YouTube scrub bar accessible when overlay is hidden
-    backgroundColor: 'transparent',
-  },
-  controlsOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.56)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlsCenterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 34,
-  },
-  seekCircleBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.14)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playPauseMainBtn: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(229, 9, 20, 0.92)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   infoCard: {
     marginHorizontal: 16,
     marginTop: 16,
@@ -841,31 +636,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
-  },
-  actionBarRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 16,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.07)',
-  },
-  actionBarItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.09)',
-  },
-  actionBarItemActive: {
-    backgroundColor: 'rgba(229, 9, 20, 0.14)',
-    borderColor: 'rgba(229, 9, 20, 0.45)',
   },
   episodesSection: {
     marginTop: 20,

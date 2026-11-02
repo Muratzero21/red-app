@@ -15,15 +15,15 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { Home, Tv, Heart, Settings } from 'lucide-react-native';
 import { REDText } from './REDText';
 
-// Apple TV+ Color Palette: Clean Monochrome Elegance
+// Apple TV+ Color Palette: Clean Pure White for Active, Elegant Crisp Silver for Inactive
 const ACTIVE_COLOR = '#FFFFFF';
-const INACTIVE_COLOR = 'rgba(255, 255, 255, 0.44)';
+const INACTIVE_COLOR = 'rgba(255, 255, 255, 0.48)';
 
 // 1. Home Icon (Apple TV style: Filled glyph when active, refined stroke when inactive)
 const HomeTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
-      <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
         <Path
           d="M3 10.2L12 3L21 10.2V20C21 20.5523 20.5523 21 20 21H14.8V14.8C14.8 14.2477 14.3523 13.8 13.8 13.8H10.2C9.64772 13.8 9.2 14.2477 9.2 14.8V21H4C3.44772 21 3 20.5523 3 20V10.2Z"
           fill="#FFFFFF"
@@ -34,14 +34,14 @@ const HomeTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, col
       </Svg>
     );
   }
-  return <Home size={21} color={color} strokeWidth={1.8} />;
+  return <Home size={20} color={color} strokeWidth={1.8} />;
 };
 
 // 2. Series / TV Icon (Minimalist Screen / Display)
 const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
-      <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
         <Rect
           x="2.5"
           y="4.5"
@@ -74,14 +74,14 @@ const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, c
       </Svg>
     );
   }
-  return <Tv size={21} color={color} strokeWidth={1.8} />;
+  return <Tv size={20} color={color} strokeWidth={1.8} />;
 };
 
 // 3. Shorts Vertical Icon (Portrait frame + play)
 const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
-      <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
+      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
         <Rect
           x="4.5"
           y="2"
@@ -104,7 +104,7 @@ const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ acti
   }
 
   return (
-    <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
       <Rect
         x="4.5"
         y="2"
@@ -128,7 +128,7 @@ const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ acti
 const WatchlistTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   return (
     <Heart
-      size={21}
+      size={20}
       color={active ? '#FFFFFF' : color}
       strokeWidth={active ? 2.2 : 1.8}
       fill={active ? '#FFFFFF' : 'none'}
@@ -140,7 +140,7 @@ const WatchlistTabIcon: React.FC<{ active: boolean; color: string }> = ({ active
 const SettingsTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   return (
     <Settings
-      size={21}
+      size={20}
       color={active ? '#FFFFFF' : color}
       strokeWidth={active ? 2.2 : 1.8}
     />
@@ -168,24 +168,24 @@ const TabBarItem: React.FC<TabItemProps> = ({
 
   useEffect(() => {
     focusProgress.value = withSpring(isFocused ? 1 : 0, {
-      damping: 18,
-      stiffness: 220,
-      mass: 0.7,
+      damping: 20,
+      stiffness: 240,
+      mass: 0.6,
     });
   }, [isFocused, focusProgress]);
 
   const animatedContainerStyle = useAnimatedStyle(() => {
-    const focusScale = interpolate(focusProgress.value, [0, 1], [0.97, 1.03]);
+    const focusScale = interpolate(focusProgress.value, [0, 1], [0.96, 1.04]);
     return {
       transform: [{ scale: pressScale.value * focusScale }],
-      opacity: interpolate(focusProgress.value, [0, 1], [0.72, 1]),
+      opacity: interpolate(focusProgress.value, [0, 1], [0.74, 1]),
     };
   });
 
   const handlePress = () => {
     pressScale.value = withSequence(
-      withTiming(0.93, { duration: 60 }),
-      withSpring(1, { damping: 12, stiffness: 280 })
+      withTiming(0.91, { duration: 55 }),
+      withSpring(1, { damping: 12, stiffness: 300 })
     );
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -223,14 +223,12 @@ const TabBarItem: React.FC<TabItemProps> = ({
       accessibilityState={isFocused ? { selected: true } : {}}
     >
       <Animated.View style={[styles.tabInner, animatedContainerStyle]}>
-        {/* Icon Box */}
         <View style={styles.iconBox}>
           {renderIcon()}
         </View>
 
-        {/* Tab Label (Apple TV Clean Micro Typography) */}
         <REDText
-          size={10.5}
+          size={10}
           weight={isFocused ? 'bold' : 'medium'}
           color={isFocused ? '#FFFFFF' : INACTIVE_COLOR}
           style={styles.label}
@@ -268,7 +266,7 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
   navigateToTab,
 }) => {
   const insets = useSafeAreaInsets();
-  const bottomOffset = Math.max(insets.bottom, 16);
+  const bottomOffset = Math.max(insets.bottom, 14);
   const [rowWidth, setRowWidth] = useState(0);
 
   // Filter out hidden routes like "profile"
@@ -290,9 +288,9 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
   useEffect(() => {
     if (tabWidth > 0) {
       indicatorX.value = withSpring(activeVisibleIndex * tabWidth, {
-        damping: 20,
-        stiffness: 220,
-        mass: 0.65,
+        damping: 22,
+        stiffness: 240,
+        mass: 0.6,
       });
     }
   }, [activeVisibleIndex, tabWidth, indicatorX]);
@@ -322,18 +320,18 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
     >
       <View style={styles.capsuleShadowWrapper}>
         <View style={styles.capsuleClip}>
-          {/* Apple TV+ Ultra-Blur Material Surface */}
+          {/* Apple Ultra-Thin Material Dark Blur */}
           <BlurView
             tint="systemUltraThinMaterialDark"
-            intensity={Platform.OS === 'ios' ? 85 : 70}
+            intensity={Platform.OS === 'ios' ? 95 : 80}
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.glassTintOverlay} />
-          {/* Ultra-thin Apple top border reflection highlight */}
+          {/* Delicate Top Specular Light Line (0.5px Apple Horizon Glow) */}
           <View style={styles.topSpecularLine} pointerEvents="none" />
 
           <View style={styles.tabsRow} onLayout={handleRowLayout}>
-            {/* Apple TV+ Smooth Floating Frosted Glass Capsule behind Active Tab */}
+            {/* Apple Smooth Frosted Glass Indicator Pill */}
             <Animated.View
               pointerEvents="none"
               style={[styles.slidingHighlightContainer, slidingPillStyle]}
@@ -394,25 +392,25 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
 const styles = StyleSheet.create({
   outerPositioner: {
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: 22,
+    right: 22,
     zIndex: 100,
   },
   capsuleShadowWrapper: {
-    borderRadius: 36,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.65,
-    shadowRadius: 24,
-    elevation: 24,
+    borderRadius: 34,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.7,
+    shadowRadius: 28,
+    elevation: 28,
   },
   capsuleClip: {
-    height: 64,
-    borderRadius: 36,
+    height: 60,
+    borderRadius: 34,
     overflow: 'hidden',
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 255, 255, 0.16)',
-    backgroundColor: 'rgba(20, 21, 26, 0.72)',
+    borderWidth: 0.6,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    backgroundColor: 'rgba(16, 17, 22, 0.74)',
     position: 'relative',
   },
   glassTintOverlay: {
@@ -421,22 +419,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(12, 13, 16, 0.45)',
+    backgroundColor: 'rgba(10, 11, 14, 0.38)',
   },
   topSpecularLine: {
     position: 'absolute',
     top: 0,
-    left: 24,
-    right: 24,
+    left: 20,
+    right: 20,
     height: 0.6,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.42)',
   },
   tabsRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginHorizontal: 4,
+    marginHorizontal: 3,
     position: 'relative',
   },
   slidingHighlightContainer: {
@@ -448,16 +446,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   slidingHighlightInner: {
-    width: '84%',
+    width: '82%',
     height: '100%',
-    borderRadius: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.13)',
-    borderWidth: 0.8,
-    borderColor: 'rgba(255, 255, 255, 0.22)',
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 0.6,
+    borderColor: 'rgba(255, 255, 255, 0.24)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   tabPressable: {
     flex: 1,
@@ -468,17 +466,16 @@ const styles = StyleSheet.create({
   tabInner: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 2,
   },
   iconBox: {
-    width: 28,
-    height: 24,
+    width: 24,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    marginTop: 3,
+    marginTop: 2,
     lineHeight: 12,
-    letterSpacing: 0.15,
+    letterSpacing: 0.2,
   },
 });
