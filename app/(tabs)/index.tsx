@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, ScrollView, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, ScrollView, View, ActivityIndicator, Platform } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useQuery } from '@tanstack/react-query';
 import { UnifiedHero } from '../../src/components/features/UnifiedHero';
@@ -176,7 +176,11 @@ export default function Home() {
       <Animated.ScrollView 
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        showsVerticalScrollIndicator={false} 
+        showsVerticalScrollIndicator={false}
+        decelerationRate="normal"
+        overScrollMode="never"
+        bounces={true}
+        removeClippedSubviews={Platform.OS === 'android'}
         contentContainerStyle={styles.scrollContent}
       >
         {heroItem && (

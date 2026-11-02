@@ -8,9 +8,9 @@ import {
   Platform,
   FlatList,
   Dimensions,
-  Image as RNImage,
   Keyboard,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -346,10 +346,12 @@ export default function SearchEngine() {
           {!isKeyboardOpen && (
             <View style={styles.heroVideoContainer}>
               {activeBackdrop ? (
-                <RNImage
+                <ExpoImage
                   source={{ uri: activeBackdrop }}
                   style={StyleSheet.absoluteFill}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  transition={200}
                 />
               ) : null}
 
@@ -530,6 +532,11 @@ export default function SearchEngine() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={false}
+            initialNumToRender={9}
+            maxToRenderPerBatch={9}
+            windowSize={5}
+            removeClippedSubviews={Platform.OS === 'android'}
+            decelerationRate="normal"
             contentContainerStyle={styles.gridListContent}
             columnWrapperStyle={styles.gridColumnWrapper}
             renderItem={({ item }) => {
@@ -556,10 +563,12 @@ export default function SearchEngine() {
                     ]}
                   >
                     {posterUri ? (
-                      <RNImage
+                      <ExpoImage
                         source={{ uri: posterUri }}
                         style={styles.posterImg}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={200}
                       />
                     ) : (
                       <View style={[styles.posterImg, { backgroundColor: '#1a1d24' }]} />

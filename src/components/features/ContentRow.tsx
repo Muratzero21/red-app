@@ -25,6 +25,11 @@ export const ContentRow = ({ title, data, onItemPress, renderType = 'movie' }: C
       <View style={{ height: renderType === 'person' ? 160 : 192 }}>
         <FlashList
           data={data}
+          decelerationRate="fast"
+          showsHorizontalScrollIndicator={false}
+          overScrollMode="never"
+          contentContainerStyle={styles.listContent}
+          horizontal
           renderItem={({ item }) => (
             <View style={styles.cardWrapper}>
               {renderType === 'person' ? (
@@ -46,9 +51,6 @@ export const ContentRow = ({ title, data, onItemPress, renderType = 'movie' }: C
               )}
             </View>
           )}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
         />
       </View>
     </View>

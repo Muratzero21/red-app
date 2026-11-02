@@ -13,8 +13,8 @@ export default function TabLayout() {
         transitionSpec: {
           animation: 'timing',
           config: {
-            duration: 260,
-            easing: Easing.out(Easing.cubic),
+            duration: 200,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           },
         },
         sceneStyleInterpolator: ({ current }: any) => ({
@@ -27,13 +27,13 @@ export default function TabLayout() {
               {
                 translateX: current.progress.interpolate({
                   inputRange: [-1, 0, 1],
-                  outputRange: [-24, 0, 24],
+                  outputRange: [-12, 0, 12],
                 }),
               },
               {
                 scale: current.progress.interpolate({
                   inputRange: [-1, 0, 1],
-                  outputRange: [0.975, 1, 0.975],
+                  outputRange: [0.988, 1, 0.988],
                 }),
               },
             ],

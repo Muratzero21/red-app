@@ -5,8 +5,9 @@ import {
   ScrollView,
   Pressable,
   Dimensions,
-  Image as RNImage,
+  Platform,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Play, Star, Search as SearchIcon } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -109,6 +110,10 @@ export default function SeriesScreen() {
       {/* Playable Series Grid */}
       <ScrollView
         showsVerticalScrollIndicator={false}
+        decelerationRate="normal"
+        overScrollMode="never"
+        bounces={true}
+        removeClippedSubviews={Platform.OS === 'android'}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
       >
         <View style={styles.gridContainer}>
@@ -127,10 +132,12 @@ export default function SeriesScreen() {
                 ]}
               >
                 <View style={styles.posterBox}>
-                  <RNImage
+                  <ExpoImage
                     source={{ uri: show.posterUrl || show.backdropUrl }}
                     style={styles.posterImage}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={200}
                   />
 
                   {/* Top-left Playable Indicator */}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, Pressable, Image as RNImage } from 'react-native';
+import { View, StyleSheet, FlatList, Pressable, Platform } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play, X, Info } from 'lucide-react-native';
 import { REDText } from '../ui/REDText';
@@ -39,6 +40,12 @@ export const ContinueWatchingRow: React.FC<ContinueWatchingRowProps> = ({
         data={continueWatching}
         horizontal
         showsHorizontalScrollIndicator={false}
+        decelerationRate="fast"
+        removeClippedSubviews={Platform.OS === 'android'}
+        initialNumToRender={3}
+        maxToRenderPerBatch={4}
+        windowSize={5}
+        overScrollMode="never"
         keyExtractor={(item) => `${item.showId}-s${item.seasonNumber}-e${item.episodeNumber}`}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => {
@@ -60,10 +67,12 @@ export const ContinueWatchingRow: React.FC<ContinueWatchingRowProps> = ({
                 ]}
               >
                 {thumbUri ? (
-                  <RNImage
+                  <ExpoImage
                     source={{ uri: thumbUri }}
                     style={styles.thumbImage}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    cachePolicy="memory-disk"
+                    transition={200}
                   />
                 ) : (
                   <View style={[styles.thumbImage, { backgroundColor: '#1a1d24' }]} />

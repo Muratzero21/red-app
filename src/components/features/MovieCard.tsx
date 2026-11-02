@@ -18,13 +18,16 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export const MovieCard = ({ posterUrl, title, width = 128, height = 192, onPress }: MovieCardProps) => {
   const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.96, { damping: 20, stiffness: 400 });
+    scale.value = withSpring(0.95, { damping: 18, stiffness: 320, mass: 0.6 });
+    opacity.value = withSpring(0.92, { damping: 18, stiffness: 320 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 20, stiffness: 400 });
+    scale.value = withSpring(1, { damping: 18, stiffness: 320, mass: 0.6 });
+    opacity.value = withSpring(1, { damping: 18, stiffness: 320 });
   };
 
   const handlePress = () => {
@@ -34,6 +37,7 @@ export const MovieCard = ({ posterUrl, title, width = 128, height = 192, onPress
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
+    opacity: opacity.value,
   }));
 
   return (
@@ -63,11 +67,16 @@ export const MovieCard = ({ posterUrl, title, width = 128, height = 192, onPress
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 6, // more subtle cinematic radius
+    borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: '#11131a', // slightly darker skeleton
+    backgroundColor: '#11131a',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.03)',
+    borderColor: 'rgba(255,255,255,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   image: {
     flex: 1,
