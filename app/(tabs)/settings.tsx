@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Switch, Alert, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Play, Bell, HardDrive, Shield, ChevronRight, Moon, Globe, Info, Mail, FileText, Link, Tv, MonitorPlay } from 'lucide-react-native';
+import { Play, Bell, HardDrive, Shield, ChevronRight, Moon, Globe, Info, Mail, FileText, Link, Tv, MonitorPlay, Heart } from 'lucide-react-native';
 import { THEME } from '../../src/constants/theme';
 import { REDText } from '../../src/components/ui/REDText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,32 +9,40 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useTranslation } from '../../src/i18n/translations';
 import { useLanguageStore } from '../../src/store/useLanguageStore';
+import { useWatchlistStore } from '../../src/store/useWatchlistStore';
 import { queryClient } from '../../src/services/queryClient';
 import { clearTmdbCache } from '../../src/services/tmdb';
 
 interface SettingRowProps {
   icon: any;
+  iconColor?: string;
   title: string;
   subtitle?: string;
+  badge?: string;
   type?: 'link' | 'toggle';
   value?: boolean;
   onValueChange?: (v: boolean) => void;
   onPress?: () => void;
 }
 
-const SettingRow = ({ icon: Icon, title, subtitle, type = 'link', value, onValueChange, onPress }: SettingRowProps) => (
+const SettingRow = ({ icon: Icon, iconColor, title, subtitle, badge, type = 'link', value, onValueChange, onPress }: SettingRowProps) => (
   <Pressable 
     style={({ pressed }) => [styles.row, pressed && type === 'link' && { opacity: 0.7 }]}
     onPress={type === 'toggle' ? () => onValueChange?.(!value) : onPress}
   >
     <View style={styles.rowIcon}>
-      <Icon color="rgba(255,255,255,0.7)" size={22} />
+      <Icon color={iconColor || "rgba(255,255,255,0.7)"} size={22} fill={iconColor && Icon === Heart ? iconColor : 'none'} />
     </View>
     <View style={styles.rowText}>
       <REDText size={16} weight="semibold">{title}</REDText>
       {subtitle && <REDText size={12} color={THEME.colors.textSecondary} style={{ marginTop: 2 }}>{subtitle}</REDText>}
     </View>
     <View style={styles.rowAction}>
+      {badge ? (
+        <View style={styles.badgeBox}>
+          <REDText size={11} weight="bold" color="#fff">{badge}</REDText>
+        </View>
+      ) : null}
       {type === 'toggle' ? (
         <Switch 
           value={value} 
@@ -53,6 +61,7 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguageStore();
+  const { watchlist } = useWatchlistStore();
   
   // States
   const [notifications, setNotifications] = useState(true);
@@ -131,6 +140,25 @@ export default function SettingsScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         
+        {/* Watchlist Section */}
+        <REDText size={13} weight="bold" color={THEME.colors.textSecondary} style={styles.sectionTitle}>
+          {t('section_my_content')}
+        </REDText>
+        <View style={styles.section}>
+          <SettingRow 
+            icon={Heart} 
+            iconColor={THEME.colors.red}
+            title={t('tab_watchlist')} 
+            subtitle={
+              watchlist.length > 0 
+                ? `${watchlist.length} ${t('watchlist_desc')}`
+                : t('watchlist_empty')
+            } 
+            badge={watchlist.length > 0 ? String(watchlist.length) : undefined}
+            onPress={() => router.push('/watchlist')}
+          />
+        </View>
+
         <REDText size={13} weight="bold" color={THEME.colors.textSecondary} style={styles.sectionTitle}>{t('section_app')}</REDText>
         <View style={styles.section}>
           <SettingRow 
@@ -289,7 +317,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rowAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginLeft: 16,
+  },
+  badgeBox: {
+    backgroundColor: THEME.colors.red,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
   },
   footer: {
     marginTop: 8,

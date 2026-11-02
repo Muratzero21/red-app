@@ -33,7 +33,7 @@ export default function WatchlistScreen() {
   if (watchlist.length === 0) {
     return (
       <View style={styles.container}>
-        <TopNavBar title="My RED" showBack={false} />
+        <TopNavBar title="My RED" showBack={true} />
         <View style={styles.emptyContainer}>
           <BookmarkMinus size={64} color="rgba(229, 9, 20, 0.4)" style={{ marginBottom: 16 }} />
           <REDText style={styles.emptyTitle} weight="bold">Your list is empty</REDText>
@@ -47,7 +47,7 @@ export default function WatchlistScreen() {
 
   return (
     <View style={styles.container}>
-      <TopNavBar title={`My RED (${watchlist.length})`} showBack={false} />
+      <TopNavBar title={`My RED (${watchlist.length})`} showBack={true} />
       
       <FlatList
         data={watchlist}

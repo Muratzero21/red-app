@@ -10,6 +10,9 @@ const dictionaries = {
 
     // Settings
     settings_title: 'Settings',
+    section_my_content: 'MY CONTENT',
+    watchlist_desc: 'Saved movies and series',
+    watchlist_empty: 'No titles saved yet',
     section_app: 'APP',
     appearance: 'Appearance',
     appearance_desc: 'Dark Cinematic (Default)',
@@ -52,6 +55,9 @@ const dictionaries = {
 
     // Settings
     settings_title: 'Ayarlar',
+    section_my_content: 'İÇERİKLERİM',
+    watchlist_desc: 'Kaydedilen film ve diziler',
+    watchlist_empty: 'Henüz kaydedilen içerik yok',
     section_app: 'UYGULAMA',
     appearance: 'Görünüm',
     appearance_desc: 'Karanlık Sinematik (Varsayılan)',

@@ -272,7 +272,7 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
   // Filter out hidden routes like "profile"
   const visibleRoutes = state.routes.filter((route: any) => {
     const { options } = descriptors[route.key];
-    if (route.name === 'profile') return false;
+    if (route.name === 'profile' || route.name === 'watchlist') return false;
     if ((options as any)?.href === null || (options as any)?.hidden === true) return false;
     return true;
   });

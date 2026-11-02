@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { Search } from 'lucide-react-native';
+import { Search, ChevronLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { THEME } from '../../constants/theme';
 import { Image } from 'expo-image';
@@ -30,6 +30,15 @@ export const TopNavBar = ({ scrollY, title, showBack, showLive = false }: TopNav
     <View style={[styles.container, { paddingTop: Math.max(insets.top, 16) }]}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
+          {showBack && (
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
+            >
+              <ChevronLeft size={24} color="#fff" />
+            </Pressable>
+          )}
           {title ? (
             <REDText weight="bold" size={24}>{title}</REDText>
           ) : (
@@ -87,6 +96,12 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backBtn: {
+    marginRight: 12,
+    padding: 2,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   logoImage: {
