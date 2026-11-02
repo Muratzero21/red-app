@@ -15,19 +15,20 @@ import Svg, { Path, Rect } from 'react-native-svg';
 import { Home, Tv, Heart, Settings } from 'lucide-react-native';
 import { REDText } from './REDText';
 
-const ACTIVE_RED = '#E50914';
-const INACTIVE_COLOR = 'rgba(255, 255, 255, 0.45)';
+// Apple TV+ Color Palette: Clean Monochrome Elegance
+const ACTIVE_COLOR = '#FFFFFF';
+const INACTIVE_COLOR = 'rgba(255, 255, 255, 0.44)';
 
-// 1. Home Icon (Filled when active, outline when inactive)
+// 1. Home Icon (Apple TV style: Filled glyph when active, refined stroke when inactive)
 const HomeTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
       <Svg width={21} height={21} viewBox="0 0 24 24" fill="none">
         <Path
           d="M3 10.2L12 3L21 10.2V20C21 20.5523 20.5523 21 20 21H14.8V14.8C14.8 14.2477 14.3523 13.8 13.8 13.8H10.2C9.64772 13.8 9.2 14.2477 9.2 14.8V21H4C3.44772 21 3 20.5523 3 20V10.2Z"
-          fill={ACTIVE_RED}
-          stroke={ACTIVE_RED}
-          strokeWidth="1.8"
+          fill="#FFFFFF"
+          stroke="#FFFFFF"
+          strokeWidth="1.6"
           strokeLinejoin="round"
         />
       </Svg>
@@ -36,7 +37,7 @@ const HomeTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, col
   return <Home size={21} color={color} strokeWidth={1.8} />;
 };
 
-// 2. Series Icon (Minimalist TV / Screen icon - filled when active, outline when inactive)
+// 2. Series / TV Icon (Minimalist Screen / Display)
 const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
@@ -47,26 +48,26 @@ const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, c
           width="19"
           height="13.5"
           rx="3"
-          fill="rgba(229, 9, 20, 0.22)"
-          stroke={ACTIVE_RED}
+          fill="rgba(255, 255, 255, 0.16)"
+          stroke="#FFFFFF"
           strokeWidth="2"
         />
         <Path
           d="M8 21H16"
-          stroke={ACTIVE_RED}
+          stroke="#FFFFFF"
           strokeWidth="2.2"
           strokeLinecap="round"
         />
         <Path
           d="M12 18V21"
-          stroke={ACTIVE_RED}
+          stroke="#FFFFFF"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <Path
           d="M10.4 8.8L14.8 11.25L10.4 13.7V8.8Z"
-          fill={ACTIVE_RED}
-          stroke={ACTIVE_RED}
+          fill="#FFFFFF"
+          stroke="#FFFFFF"
           strokeWidth="1"
           strokeLinejoin="round"
         />
@@ -76,7 +77,7 @@ const SeriesTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, c
   return <Tv size={21} color={color} strokeWidth={1.8} />;
 };
 
-// 3. Modern Vertical Video "Shorts" Icon (Portrait frame + Play triangle)
+// 3. Shorts Vertical Icon (Portrait frame + play)
 const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   if (active) {
     return (
@@ -86,15 +87,15 @@ const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ acti
           y="2"
           width="15"
           height="20"
-          rx="4"
-          fill="rgba(229, 9, 20, 0.2)"
-          stroke={ACTIVE_RED}
+          rx="4.5"
+          fill="rgba(255, 255, 255, 0.16)"
+          stroke="#FFFFFF"
           strokeWidth="2"
         />
         <Path
           d="M10.2 8.5L15.5 12L10.2 15.5V8.5Z"
-          fill={ACTIVE_RED}
-          stroke={ACTIVE_RED}
+          fill="#FFFFFF"
+          stroke="#FFFFFF"
           strokeWidth="1.2"
           strokeLinejoin="round"
         />
@@ -109,7 +110,7 @@ const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ acti
         y="2"
         width="15"
         height="20"
-        rx="4"
+        rx="4.5"
         stroke={color}
         strokeWidth="1.8"
       />
@@ -123,14 +124,14 @@ const ShortsVerticalIcon: React.FC<{ active: boolean; color: string }> = ({ acti
   );
 };
 
-// 4. Watchlist Icon
+// 4. Watchlist Icon (Heart)
 const WatchlistTabIcon: React.FC<{ active: boolean; color: string }> = ({ active, color }) => {
   return (
     <Heart
       size={21}
-      color={color}
-      strokeWidth={active ? 2.1 : 1.8}
-      fill={active ? ACTIVE_RED : 'none'}
+      color={active ? '#FFFFFF' : color}
+      strokeWidth={active ? 2.2 : 1.8}
+      fill={active ? '#FFFFFF' : 'none'}
     />
   );
 };
@@ -140,7 +141,7 @@ const SettingsTabIcon: React.FC<{ active: boolean; color: string }> = ({ active,
   return (
     <Settings
       size={21}
-      color={color}
+      color={active ? '#FFFFFF' : color}
       strokeWidth={active ? 2.2 : 1.8}
     />
   );
@@ -167,38 +168,24 @@ const TabBarItem: React.FC<TabItemProps> = ({
 
   useEffect(() => {
     focusProgress.value = withSpring(isFocused ? 1 : 0, {
-      damping: 15,
-      stiffness: 180,
-      mass: 0.8,
+      damping: 18,
+      stiffness: 220,
+      mass: 0.7,
     });
   }, [isFocused, focusProgress]);
 
   const animatedContainerStyle = useAnimatedStyle(() => {
-    const focusLift = interpolate(focusProgress.value, [0, 1], [0, -1.5]);
-    const focusScale = interpolate(focusProgress.value, [0, 1], [0.96, 1.04]);
+    const focusScale = interpolate(focusProgress.value, [0, 1], [0.97, 1.03]);
     return {
-      transform: [
-        { translateY: focusLift },
-        { scale: pressScale.value * focusScale },
-      ],
-      opacity: interpolate(focusProgress.value, [0, 1], [0.75, 1]),
+      transform: [{ scale: pressScale.value * focusScale }],
+      opacity: interpolate(focusProgress.value, [0, 1], [0.72, 1]),
     };
   });
 
-  const animatedGlowStyle = useAnimatedStyle(() => ({
-    opacity: focusProgress.value,
-    transform: [{ scale: interpolate(focusProgress.value, [0, 1], [0.5, 1]) }],
-  }));
-
-  const animatedDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: focusProgress.value }],
-    opacity: focusProgress.value,
-  }));
-
   const handlePress = () => {
     pressScale.value = withSequence(
-      withTiming(0.92, { duration: 70 }),
-      withSpring(1, { damping: 10, stiffness: 260 })
+      withTiming(0.93, { duration: 60 }),
+      withSpring(1, { damping: 12, stiffness: 280 })
     );
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -208,7 +195,7 @@ const TabBarItem: React.FC<TabItemProps> = ({
     onPress();
   };
 
-  const color = isFocused ? ACTIVE_RED : INACTIVE_COLOR;
+  const color = isFocused ? ACTIVE_COLOR : INACTIVE_COLOR;
 
   const renderIcon = () => {
     switch (routeName) {
@@ -236,24 +223,16 @@ const TabBarItem: React.FC<TabItemProps> = ({
       accessibilityState={isFocused ? { selected: true } : {}}
     >
       <Animated.View style={[styles.tabInner, animatedContainerStyle]}>
-        {/* Fixed-height Icon Box */}
+        {/* Icon Box */}
         <View style={styles.iconBox}>
-          <Animated.View style={[styles.activeRedGlow, animatedGlowStyle]} />
-          <View style={isFocused ? styles.activeIconShadow : undefined}>
-            {renderIcon()}
-          </View>
+          {renderIcon()}
         </View>
 
-        {/* Fixed-height Dot Slot right under the icon */}
-        <View style={styles.dotSlot}>
-          <Animated.View style={[styles.activeDot, animatedDotStyle]} />
-        </View>
-
-        {/* Tab Label */}
+        {/* Tab Label (Apple TV Clean Micro Typography) */}
         <REDText
-          size={10}
+          size={10.5}
           weight={isFocused ? 'bold' : 'medium'}
-          color={isFocused ? ACTIVE_RED : '#8E8E93'}
+          color={isFocused ? '#FFFFFF' : INACTIVE_COLOR}
           style={styles.label}
           numberOfLines={1}
         >
@@ -311,9 +290,9 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
   useEffect(() => {
     if (tabWidth > 0) {
       indicatorX.value = withSpring(activeVisibleIndex * tabWidth, {
-        damping: 18,
-        stiffness: 190,
-        mass: 0.7,
+        damping: 20,
+        stiffness: 220,
+        mass: 0.65,
       });
     }
   }, [activeVisibleIndex, tabWidth, indicatorX]);
@@ -343,15 +322,18 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
     >
       <View style={styles.capsuleShadowWrapper}>
         <View style={styles.capsuleClip}>
+          {/* Apple TV+ Ultra-Blur Material Surface */}
           <BlurView
-            tint="dark"
-            intensity={Platform.OS === 'ios' ? 65 : 55}
+            tint="systemUltraThinMaterialDark"
+            intensity={Platform.OS === 'ios' ? 85 : 70}
             style={StyleSheet.absoluteFill}
           />
           <View style={styles.glassTintOverlay} />
+          {/* Ultra-thin Apple top border reflection highlight */}
+          <View style={styles.topSpecularLine} pointerEvents="none" />
 
           <View style={styles.tabsRow} onLayout={handleRowLayout}>
-            {/* Smooth Sliding Glass Highlight Pill behind active tab */}
+            {/* Apple TV+ Smooth Floating Frosted Glass Capsule behind Active Tab */}
             <Animated.View
               pointerEvents="none"
               style={[styles.slidingHighlightContainer, slidingPillStyle]}
@@ -412,25 +394,26 @@ export const FloatingGlassTabBar: React.FC<FloatingGlassTabBarProps> = ({
 const styles = StyleSheet.create({
   outerPositioner: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 20,
+    right: 20,
     zIndex: 100,
   },
   capsuleShadowWrapper: {
-    borderRadius: 34,
+    borderRadius: 36,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.55,
-    shadowRadius: 18,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.65,
+    shadowRadius: 24,
+    elevation: 24,
   },
   capsuleClip: {
-    height: 68,
-    borderRadius: 34,
+    height: 64,
+    borderRadius: 36,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(18, 18, 20, 0.78)',
+    borderWidth: 0.8,
+    borderColor: 'rgba(255, 255, 255, 0.16)',
+    backgroundColor: 'rgba(20, 21, 26, 0.72)',
+    position: 'relative',
   },
   glassTintOverlay: {
     position: 'absolute',
@@ -438,31 +421,43 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15, 15, 18, 0.65)',
+    backgroundColor: 'rgba(12, 13, 16, 0.45)',
+  },
+  topSpecularLine: {
+    position: 'absolute',
+    top: 0,
+    left: 24,
+    right: 24,
+    height: 0.6,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
   tabsRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginHorizontal: 8,
+    marginHorizontal: 4,
     position: 'relative',
   },
   slidingHighlightContainer: {
     position: 'absolute',
-    top: 6,
-    bottom: 6,
+    top: 5,
+    bottom: 5,
     left: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   slidingHighlightInner: {
-    width: '86%',
+    width: '84%',
     height: '100%',
-    borderRadius: 26,
-    backgroundColor: 'rgba(255, 255, 255, 0.055)',
-    borderWidth: 1,
-    borderColor: 'rgba(229, 9, 20, 0.18)',
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    borderWidth: 0.8,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   tabPressable: {
     flex: 1,
@@ -473,42 +468,17 @@ const styles = StyleSheet.create({
   tabInner: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 2,
   },
   iconBox: {
-    width: 30,
+    width: 28,
     height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-  },
-  activeRedGlow: {
-    position: 'absolute',
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(229, 9, 20, 0.16)',
-  },
-  activeIconShadow: {
-    shadowColor: ACTIVE_RED,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
-  },
-  dotSlot: {
-    height: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: ACTIVE_RED,
   },
   label: {
-    marginTop: 2,
+    marginTop: 3,
     lineHeight: 12,
-    letterSpacing: 0.2,
+    letterSpacing: 0.15,
   },
 });
